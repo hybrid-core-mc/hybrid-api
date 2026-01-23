@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "hybrid-api",
+	"version": "${version}",
+	"name": "hybrid-api",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/hybrid-api/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"hybrid.api.HybridApi"
+		]
+	},
+	"mixins": [
+		"hybrid-api.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
