@@ -6,7 +6,7 @@ import hybrid.api.rendering.ScreenBounds;
 public abstract class Component {
 
     private final String name;
-    ScreenBounds bounds;
+    ScreenBounds bounds, outerBounds;
 
     public Component(String name) {
         this.name = name;
@@ -18,6 +18,10 @@ public abstract class Component {
 
     public ScreenBounds getBounds() {
         return bounds;
+    }
+
+    public void setOuterBounds(ScreenBounds outerBounds) {
+        this.outerBounds = outerBounds;
     }
 
     public abstract void render(HybridRenderer2D renderer);

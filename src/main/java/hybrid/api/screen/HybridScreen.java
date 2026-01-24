@@ -1,8 +1,8 @@
 package hybrid.api.screen;
 
 import hybrid.api.componenets.Component;
+import hybrid.api.componenets.ComponentCategory;
 import hybrid.api.rendering.HybridRenderer;
-import hybrid.api.rendering.HybridRenderer2D;
 import hybrid.api.rendering.ScreenBounds;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -15,52 +15,59 @@ import java.util.List;
 public abstract class HybridScreen extends Screen {
 
     ScreenBounds bounds;
-    List<Component> components = new ArrayList<>();
+    List<ComponentCategory> componentCategories = new ArrayList<>();
 
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));
-        bounds = new ScreenBounds(width, height);
 
-        components.add(new Component("background") {
-            @Override
-            public void render(HybridRenderer2D renderer) {
-                renderer.fillQuad(bounds, Color.WHITE);
-            }
-        });
+        bounds = new ScreenBounds(width, height);
 
         registerComponents();
     }
 
-    public void addComponent(Component component) {
-        components.add(component);
+    public void addComponent(ComponentCategory component) {
+        componentCategories.add(component);
     }
 
     public void registerComponents() {
-
     }
 
-    public void updateComponentPositions() {
-        int currentY = 3;
 
-        for (Component component : components) {
-            component.getBounds().setPosition(bounds.getX(), bounds.getY() + currentY);
-            component.getBounds().setWidth(bounds.getWidth());
-            currentY += 3;
-        }
 
-    }
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
 
-        bounds.setPosition((context.getScaledWindowWidth() - bounds.getWidth()) / 2, (context.getScaledWindowHeight() - bounds.getHeight()) / 2);
-        updateComponentPositions();
+        bounds.setCentered(context.getScaledWindowWidth(), context.getScaledWindowHeight());
 
+        HybridRenderer.RENDERER_INSTANCE.fillQuad(bounds, new Color(240, 239, 245));
 
-        for (Component component : components) {
-            component.render(HybridRenderer.RENDERER_INSTANCE);
+        int globalY = bounds.getY() + 5;
+
+        for (ComponentCategory componentCategory : componentCategories) {
+
+            int categorySpacing = 4;
+
+            int categoryHeight = 0;
+            for (Component component : componentCategory.getComponents()) {
+                categoryHeight += component.getBounds().getHeight();
+                categoryHeight += categorySpacing;
+            }
+
+            HybridRenderer.RENDERER_INSTANCE.fillQuad(new ScreenBounds(bounds.getX(), globalY, bounds.getWidth() - 5, categoryHeight), new Color(100, 149, 237));
+
+            int compY = globalY;
+            for (Component component : componentCategory.getComponents()) {
+                component.getBounds().setY(compY);
+                component.render(HybridRenderer.RENDERER_INSTANCE);
+
+                compY += component.getBounds().getHeight() + categorySpacing;
+            }
+
+            globalY += categoryHeight + categorySpacing;
         }
-
 
         super.render(context, mouseX, mouseY, deltaTicks);
     }
+
+
 }

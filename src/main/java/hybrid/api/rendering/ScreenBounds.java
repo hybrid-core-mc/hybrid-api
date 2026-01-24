@@ -39,8 +39,28 @@ public class ScreenBounds {
         this.y = y;
     }
 
+    public void setCentered(int width, int height) {
+        this.x = (width - getWidth()) / 2;
+        this.y = (height - getHeight()) / 2;
+    }
+
+    public int getCenterY(ScreenBounds outer) {
+        return this.y = outer.y + (outer.height - this.height) / 2;
+    }
+    public int getCenterX(ScreenBounds outer){
+        return this.x = outer.x + (outer.width - this.width) / 2;
+    }
+
     public void setWidth(int width) {
         this.width = width;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public void setHeight(int height) {

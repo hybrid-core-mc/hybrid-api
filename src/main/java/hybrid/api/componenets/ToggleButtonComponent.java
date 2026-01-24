@@ -1,7 +1,6 @@
 package hybrid.api.componenets;
 
 import hybrid.api.rendering.HybridRenderer2D;
-import hybrid.api.rendering.ScreenBounds;
 
 import java.awt.*;
 
@@ -13,7 +12,14 @@ public class ToggleButtonComponent extends Component {
 
     @Override
     public void render(HybridRenderer2D renderer) {
-        getBounds().setPosition(getBounds().getX(),getBounds().getY());
-        renderer.fillQuad(bounds, Color.GREEN);
+
+
+//        bounds.setWidth(outerBounds.getWidth() - 6);
+//
+//
+//        bounds.setX(bounds.getCenterX(outerBounds));
+//
+        renderer.fillQuad(bounds,Color.RED);
+
     }
 }
