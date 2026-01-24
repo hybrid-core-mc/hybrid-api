@@ -39,8 +39,21 @@ public class ScreenBounds {
         this.y = y;
     }
 
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
     public void setSize(int width, int height) {
         this.width = width;
         this.height = height;
+    }
+
+    @Override
+    public String toString() {
+        return "x " + x + " y " + y + " width: " + width + " height " + height;
     }
 }

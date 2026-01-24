@@ -16,7 +16,7 @@ import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVGGL2.*;
 
 public class HybridRenderer implements HybridRenderer2D {
-    private static final HybridRenderer RENDERER_INSTANCE = new HybridRenderer();
+    public static final HybridRenderer RENDERER_INSTANCE = new HybridRenderer();
     private static final NVGColor NVG_COLOR = NVGColor.create();
     private static long CONTEXT = -1L;
 
@@ -92,18 +92,9 @@ public class HybridRenderer implements HybridRenderer2D {
     public void fillQuad(ScreenBounds bounds, Color color) {
         nvgBeginPath(CONTEXT);
         setColor(CONTEXT, color);
-
-
-        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, 8);
+        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, 5);
         nvgFill(CONTEXT);
     }
 
-    @Override
-    public void fillQuad(int x, int y, int width, int height, Color color) {
-        nvgBeginPath(CONTEXT);
-        setColor(CONTEXT, color);
-        nvgRoundedRect(CONTEXT, x, y, width, height, 8);
-        nvgFill(CONTEXT);
-    }
 
 }
