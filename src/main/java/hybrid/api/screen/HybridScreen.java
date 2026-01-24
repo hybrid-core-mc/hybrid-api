@@ -4,11 +4,11 @@ import hybrid.api.componenets.Component;
 import hybrid.api.componenets.ComponentCategory;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.ui.Theme;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,21 +39,26 @@ public abstract class HybridScreen extends Screen {
 
         bounds.setCentered(context.getScaledWindowWidth(), context.getScaledWindowHeight());
 
-        HybridRenderer.RENDERER_INSTANCE.fillQuad(bounds, new Color(240, 239, 245));
+        HybridRenderer.RENDERER_INSTANCE.fillQuad(bounds, Theme.backgroundColor);
 
-        int globalY = bounds.getY() + 5;
+        int globalY = bounds.getY() + 20;
 
         for (ComponentCategory componentCategory : componentCategories) {
 
-            int categorySpacing = 4;
+            int categorySpacing = Theme.categorySpacing;
 
             int categoryHeight = 0;
+
             for (Component component : componentCategory.getComponents()) {
                 categoryHeight += component.getBounds().getHeight();
                 categoryHeight += categorySpacing;
             }
 
-            HybridRenderer.RENDERER_INSTANCE.fillQuad(new ScreenBounds(bounds.getX(), globalY, bounds.getWidth() - 5, categoryHeight), new Color(100, 149, 237));
+            int componentWidth = bounds.getWidth() - Theme.componentSpacing;
+
+            int componentX = bounds.getX() + Theme.componentSpacing / 2;
+
+            HybridRenderer.RENDERER_INSTANCE.fillQuad(new ScreenBounds(componentX, globalY, componentWidth, categoryHeight), Theme.componenetBackgroundColor);
 
             int compY = globalY;
             for (Component component : componentCategory.getComponents()) {
