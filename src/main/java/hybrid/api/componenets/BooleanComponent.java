@@ -11,8 +11,6 @@ public class BooleanComponent extends Component {
     }
 
     public void render() {
-        HybridRenderQueue.add(renderer ->
-                renderer.fillQuad(5, 5, 100, 100, Color.GREEN)
-        );
+
     }
 }

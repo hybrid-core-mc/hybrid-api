@@ -34,9 +34,6 @@ public class HybridRenderer implements HybridRenderer2D {
 
         int frameBufferWidth = mc.getWindow().getFramebufferWidth();
         int frameBufferHeight = mc.getWindow().getFramebufferHeight();
-        int windowWidth = mc.getWindow().getWidth();
-
-        float scale = (float) frameBufferWidth / windowWidth;
 
         setup();
 
@@ -50,7 +47,15 @@ public class HybridRenderer implements HybridRenderer2D {
 
         GlStateManager._viewport(0, 0, frameBufferWidth, frameBufferHeight);
 
-        nvgBeginFrame(CONTEXT, frameBufferWidth, frameBufferHeight, scale);
+        nvgBeginFrame(CONTEXT,
+                mc.getWindow().getScaledWidth(),
+                mc.getWindow().getScaledHeight(),
+                1.0f
+        );
+
+        float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
+
+        nvgScale(CONTEXT, scale, scale);
 
         HybridRenderQueue.renderAll(RENDERER_INSTANCE);
 
@@ -84,9 +89,20 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void fillQuad(int x, int y, int width, int height, Color color) {
+    public void fillQuad(ScreenBounds bounds, Color color) {
+        nvgBeginPath(CONTEXT);
         setColor(CONTEXT, color);
-        nvgRoundedRect(CONTEXT, x, y, width, height, 5);
+
+
+        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, 8);
+        nvgFill(CONTEXT);
+    }
+
+    @Override
+    public void fillQuad(int x, int y, int width, int height, Color color) {
+        nvgBeginPath(CONTEXT);
+        setColor(CONTEXT, color);
+        nvgRoundedRect(CONTEXT, x, y, width, height, 8);
         nvgFill(CONTEXT);
     }
 

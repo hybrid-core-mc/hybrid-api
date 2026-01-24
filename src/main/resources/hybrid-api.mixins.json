@@ -3,7 +3,6 @@
   "package": "hybrid.api.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ExampleMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -13,6 +12,6 @@
   },
   "client": [
     "GameRendererMixin",
-    "TitleScreenMixin"
+    "ScreenMixin"
   ]
 }

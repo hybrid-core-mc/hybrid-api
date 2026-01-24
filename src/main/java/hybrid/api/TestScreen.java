@@ -1,25 +1,20 @@
 package hybrid.api;
 
 import hybrid.api.rendering.HybridRenderQueue;
-import hybrid.api.rendering.HybridRenderer;
+import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.screen.HybridScreen;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
 
 import java.awt.*;
 
-public class TestScreen extends Screen {
+public class TestScreen extends HybridScreen {
     public TestScreen() {
-        super(Text.of("hi"));
+        super("test",500,300);
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-
-        HybridRenderQueue.add(renderer -> {
-            renderer.fillQuad(50, 50, 500, 500, Color.BLUE);
-        });
-        HybridRenderer.render();
+//        context.fill(mouseX,mouseY,mouseX+5,mouseY+5,-1);
 
         super.render(context, mouseX, mouseY, deltaTicks);
     }
