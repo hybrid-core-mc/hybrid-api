@@ -3,10 +3,8 @@ package hybrid.api.ui;
 import java.awt.*;
 
 public class Theme { // todo: actaully make ts work
-    public static int componentSpacing = 10, categoryHeightSpacing = 10, compHeightSpacing = 10, compWidthSpacing = 15;
-    public static Color backgroundColor = new Color(241, 240, 243); // 240, 239, 245
-    public static Color componenetBackgroundColor = new Color(255, 255, 255);
-
-
+    public static Color backgroundColor = new Color(0, 0, 0);
+    public static Color modsBackgroundColor = new Color(255, 0, 0, 255);
+    public static int cornerRadius = 15,modsSpacing = 5;
 
 }

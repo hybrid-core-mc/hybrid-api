@@ -4,6 +4,7 @@ import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
+import hybrid.api.ui.Theme;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.texture.GlTexture;
@@ -88,12 +89,16 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void fillQuad(ScreenBounds bounds, Color color) {
+    public void fillQuad(ScreenBounds bounds, Color color,int radius) {
         nvgBeginPath(CONTEXT);
         setColor(CONTEXT, color);
-        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, 5);
+        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
         nvgFill(CONTEXT);
     }
 
 
+    @Override
+    public void fillQuad(ScreenBounds bounds, Color color) {
+        fillQuad(bounds,color, Theme.cornerRadius);
+    }
 }

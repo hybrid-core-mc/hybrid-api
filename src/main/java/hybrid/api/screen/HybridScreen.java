@@ -1,7 +1,7 @@
 package hybrid.api.screen;
 
-import hybrid.api.componenet.Component;
-import hybrid.api.componenet.ComponentCategory;
+import hybrid.api.font.HybridTextRenderer;
+import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
@@ -9,27 +9,18 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.awt.*;
 
-public abstract class HybridScreen extends Screen {
+public class HybridScreen extends Screen {
 
     ScreenBounds bounds;
     ScreenCategoryBuilder built;
-    List<ComponentCategory> componentCategories = new ArrayList<>();
 
-    public void setBuilt(ScreenCategoryBuilder built) {
-        this.built = built;
-    }
 
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));
 
         bounds = new ScreenBounds(width, height);
-        registerCategories();
-    }
-
-    public void registerCategories() {
 
     }
 
@@ -41,57 +32,32 @@ public abstract class HybridScreen extends Screen {
 
         HybridRenderer RENDERER = HybridRenderer.RENDERER_INSTANCE;
 
+
+        ScreenBounds leftSlice = bounds.from(bounds);
+
+        leftSlice.setWidth(bounds.getWidth() / 4);
+
         RENDERER.fillQuad(bounds, Theme.backgroundColor);
 
-        int globalY = bounds.getY() + Theme.compHeightSpacing;
 
-        for (ComponentCategory componentCategory : built.getCategories()) {
+        RENDERER.fillQuad(leftSlice, Theme.modsBackgroundColor);
 
-            int categorySpacing = Theme.categoryHeightSpacing;
-            int innerHeight = 0;
+        leftSlice.setX(leftSlice.getX() + leftSlice.getWidth() - Theme.cornerRadius);
 
-            for (Component component : componentCategory.getComponents()) {
-                innerHeight += component.getBounds().getHeight();
-                innerHeight += categorySpacing;
-            }
+        leftSlice.setWidth(Theme.cornerRadius);
 
-            if (!componentCategory.getComponents().isEmpty()) {
-                innerHeight -= categorySpacing;
-            }
+        RENDERER.fillQuad(leftSlice, Theme.modsBackgroundColor, 0);
 
-            int paddedCategoryHeight = innerHeight + (Theme.compHeightSpacing * 2);
+        int modsBackgroundWidth = (bounds.getWidth() / 4) - Theme.modsSpacing;
+        int boxHeight = 24;
+        int currentY = 5;
 
-            int componentBackgroundWidth = bounds.getWidth() - Theme.componentSpacing;
-            int componentX = bounds.getX() + Theme.componentSpacing / 2;
-
-            RENDERER.fillQuad(
-                    new ScreenBounds(componentX, globalY, componentBackgroundWidth, paddedCategoryHeight),
-                    Theme.componenetBackgroundColor
-            );
-
-            int freeSpace = paddedCategoryHeight - innerHeight;
-            int compY = globalY + (freeSpace / 2);
-
-
-            for (Component component : componentCategory.getComponents()) {
-
-                int componentWidth = componentBackgroundWidth - Theme.compWidthSpacing;
-
-                component.getBounds().setWidth(componentWidth);
-
-                int centeredCompX = componentX + (componentBackgroundWidth - componentWidth) / 2;
-
-                component.getBounds().setPosition(centeredCompX, compY);
-
-
-                RENDERER.fillQuad(component.getBounds(),Theme.innnerCompBackgroundColor);
-                component.render(RENDERER);
-
-                compY += component.getBounds().getHeight() + categorySpacing;
-            }
-
-            globalY += paddedCategoryHeight + categorySpacing;
+        for (String mods : HybridMods.mods) {
+            RENDERER.fillQuad(new ScreenBounds(bounds.getX(), bounds.getY() + currentY, modsBackgroundWidth, boxHeight), Color.WHITE,5);
+            HybridTextRenderer.addText(mods,15, bounds.getX(), bounds.getY()+currentY,Color.BLUE);
+            currentY += 29;
         }
+
 
         super.render(context, mouseX, mouseY, deltaTicks);
     }

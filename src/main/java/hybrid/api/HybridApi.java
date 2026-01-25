@@ -1,5 +1,6 @@
 package hybrid.api;
 
+import hybrid.api.screen.HybridScreen;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -22,7 +23,7 @@ public class HybridApi implements ModInitializer {
     @Override
     public void onInitialize() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (TOGGLE_KEY.wasPressed()) mc.setScreen(new TestScreen());
+            if (TOGGLE_KEY.wasPressed()) mc.setScreen(new HybridScreen("lol",500,300));
         });
 
         LOGGER.info("Hello MONKEY world!");
