@@ -1,7 +1,7 @@
 package hybrid.api.screen;
 
-import hybrid.api.componenets.Component;
-import hybrid.api.componenets.ComponentCategory;
+import hybrid.api.componenet.Component;
+import hybrid.api.componenet.ComponentCategory;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
@@ -15,33 +15,37 @@ import java.util.List;
 public abstract class HybridScreen extends Screen {
 
     ScreenBounds bounds;
+    ScreenCategoryBuilder built;
     List<ComponentCategory> componentCategories = new ArrayList<>();
+
+    public void setBuilt(ScreenCategoryBuilder built) {
+        this.built = built;
+    }
 
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));
 
         bounds = new ScreenBounds(width, height);
-
-        registerComponents();
+        registerCategories();
     }
 
-    public void registerComponent(ComponentCategory component) {
-        componentCategories.add(component);
+    public void registerCategories() {
+
     }
 
-    public void registerComponents() {
-    }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
 
         bounds.setCentered(context.getScaledWindowWidth(), context.getScaledWindowHeight());
 
-        HybridRenderer.RENDERER_INSTANCE.fillQuad(bounds, Theme.backgroundColor);
+        HybridRenderer RENDERER = HybridRenderer.RENDERER_INSTANCE;
+
+        RENDERER.fillQuad(bounds, Theme.backgroundColor);
 
         int globalY = bounds.getY() + Theme.compHeightSpacing;
 
-        for (ComponentCategory componentCategory : componentCategories) {
+        for (ComponentCategory componentCategory : built.getCategories()) {
 
             int categorySpacing = Theme.categoryHeightSpacing;
             int innerHeight = 0;
@@ -60,7 +64,7 @@ public abstract class HybridScreen extends Screen {
             int componentBackgroundWidth = bounds.getWidth() - Theme.componentSpacing;
             int componentX = bounds.getX() + Theme.componentSpacing / 2;
 
-            HybridRenderer.RENDERER_INSTANCE.fillQuad(
+            RENDERER.fillQuad(
                     new ScreenBounds(componentX, globalY, componentBackgroundWidth, paddedCategoryHeight),
                     Theme.componenetBackgroundColor
             );
@@ -79,7 +83,9 @@ public abstract class HybridScreen extends Screen {
 
                 component.getBounds().setPosition(centeredCompX, compY);
 
-                component.render(HybridRenderer.RENDERER_INSTANCE);
+
+              //  RENDERER.fillQuad(component.getBounds(),Theme.innnerCompBackgroundColor);
+                component.render(RENDERER);
 
                 compY += component.getBounds().getHeight() + categorySpacing;
             }

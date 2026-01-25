@@ -1,5 +1,6 @@
 package hybrid.api.mixin;
 
+import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.screen.HybridScreen;
 import net.minecraft.client.gui.DrawContext;
@@ -9,8 +10,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static hybrid.api.HybridApi.mc;
-
 @Mixin(Screen.class)
 public class ScreenMixin {
     @Inject(method = "renderBackground", at = @At(value = "HEAD"), cancellable = true)
@@ -18,7 +17,7 @@ public class ScreenMixin {
         if ((Object) this instanceof HybridScreen) {
             ci.cancel();
             HybridRenderer.render();
+            HybridTextRenderer.render(context);
         }
-        context.drawText(mc.textRenderer,String.valueOf(mc.getWindow().getScaleFactor()),0,0,-1, true);
     }
 }

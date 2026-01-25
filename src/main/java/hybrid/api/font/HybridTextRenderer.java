@@ -39,7 +39,7 @@ public class HybridTextRenderer {
     }
 
 
-    public void renderAll(DrawContext context) {
+    public static void render(DrawContext context) {
         textCache.values().forEach(hybridRenderText -> {
             hybridRenderText.draw(context);
         });
