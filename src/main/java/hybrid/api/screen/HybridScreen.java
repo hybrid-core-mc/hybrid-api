@@ -84,7 +84,7 @@ public abstract class HybridScreen extends Screen {
                 component.getBounds().setPosition(centeredCompX, compY);
 
 
-              //  RENDERER.fillQuad(component.getBounds(),Theme.innnerCompBackgroundColor);
+                RENDERER.fillQuad(component.getBounds(),Theme.innnerCompBackgroundColor);
                 component.render(RENDERER);
 
                 compY += component.getBounds().getHeight() + categorySpacing;
