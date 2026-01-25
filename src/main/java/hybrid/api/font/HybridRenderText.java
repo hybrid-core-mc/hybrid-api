@@ -79,4 +79,8 @@ public class HybridRenderText {
         this.x = x;
         this.y = y;
     }
+
+    public void setY(int y) {
+        this.y = y;
+    }
 }

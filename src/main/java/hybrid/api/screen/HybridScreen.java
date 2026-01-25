@@ -1,5 +1,7 @@
 package hybrid.api.screen;
 
+import hybrid.api.font.FontStyle;
+import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
@@ -33,9 +35,11 @@ public class HybridScreen extends Screen {
         HybridRenderer RENDERER = HybridRenderer.RENDERER_INSTANCE;
 
 
+        int leftMenuWidth = (int) (bounds.getWidth() * 0.24);
+
         ScreenBounds leftSlice = bounds.from(bounds);
 
-        leftSlice.setWidth(bounds.getWidth() / 4);
+        leftSlice.setWidth(leftMenuWidth);
 
         RENDERER.fillQuad(bounds, Theme.backgroundColor);
 
@@ -48,13 +52,22 @@ public class HybridScreen extends Screen {
 
         RENDERER.fillQuad(leftSlice, Theme.modsBackgroundColor, 0);
 
-        int modsBackgroundWidth = (bounds.getWidth() / 4) - Theme.modsSpacing;
-        int boxHeight = 24;
+        int modsBackgroundWidth = leftMenuWidth - 4;
+        int boxHeight = 22;
         int currentY = 5;
 
         for (String mods : HybridMods.mods) {
-            RENDERER.fillQuad(new ScreenBounds(bounds.getX(), bounds.getY() + currentY, modsBackgroundWidth, boxHeight), Color.WHITE,5);
-            HybridTextRenderer.addText(mods,15, bounds.getX(), bounds.getY()+currentY,Color.BLUE);
+
+            int boxX = bounds.getX() + (leftMenuWidth - modsBackgroundWidth) / 2;
+
+
+            HybridRenderText text = HybridTextRenderer.getTextRenderer(mods, FontStyle.BOLD, 21, boxX, bounds.getY() + currentY, Color.BLUE);
+
+            RENDERER.fillQuad(new ScreenBounds(boxX, bounds.getY() + currentY, modsBackgroundWidth, boxHeight), Color.WHITE, 5);
+            int textY = bounds.getY() + currentY + (boxHeight - text.getHeight()) / 2;
+            text.setPosition(bounds.getX() + 5,textY);
+            HybridTextRenderer.addText(text);
+
             currentY += 29;
         }
 

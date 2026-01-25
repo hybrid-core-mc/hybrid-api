@@ -1,47 +1,74 @@
 package hybrid.api.font;
 
+import hybrid.api.HybridApi;
 import net.minecraft.client.gui.DrawContext;
 
 import java.awt.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.List;
 
 public class HybridTextRenderer {
 
-    // otpimized to the t
-
     private static final Map<String, Font> fontCache = new HashMap<>();
+    private static final List<HybridRenderText> renderQueue = new ArrayList<>();
 
-    private static final Map<String, HybridRenderText> textCache = new HashMap<>();
-
-    private static final String DEFAULT_FONT_NAME = "Arial";
-    private static final int DEFAULT_FONT_STYLE = 1;
-
-
-    public static HybridRenderText addText(String text, int size, int x, int y, Color color) {
-
-        String fontKey = DEFAULT_FONT_NAME + "|" + DEFAULT_FONT_STYLE + "|" + size;
-
-        Font font = fontCache.computeIfAbsent(fontKey, k -> new Font(DEFAULT_FONT_NAME, Font.BOLD, size));
-
-        String textKey = text + "|" + font + "|" + color.getRGB();
-
-        HybridRenderText renderText = textCache.get(textKey);
-
-        if (renderText == null) {
-            renderText = new HybridRenderText(text, x, y, font, color);
-            textCache.put(textKey, renderText);
-        } else {
-            renderText.setPosition(x, y);
-        }
-
-        return renderText;
+    public static void addText(String text, FontStyle style, int size, int x, int y, Color color) {
+        renderQueue.add(getTextRenderer(text, style, size, x, y, color));
     }
 
+    public static void addText(HybridRenderText text) {
+        renderQueue.add(text);
+    }
+
+    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color) {
+        Font font = fromFont(style, size);
+        return new HybridRenderText(text, x, y, font, color);
+    }
+
+    public static Font fromFont(FontStyle style, int size) {
+        String key = style + "|" + size;
+
+        return fontCache.computeIfAbsent(key, k -> {
+            String basePath = "/assets/hybrid-api/font/";
+            int awtStyle;
+
+            String file = switch (style) {
+                case REGULAR -> {
+                    awtStyle = Font.PLAIN;
+                    yield "inter-regular";
+                }
+                case BOLD -> {
+                    awtStyle = Font.BOLD;
+                    yield "inter-bold";
+                }
+                case EXTRABOLD -> {
+                    awtStyle = Font.BOLD;
+                    yield "inter-extra-bold";
+                }
+                case ITALIC -> {
+                    awtStyle = Font.ITALIC;
+                    yield "inter-italic";
+                }
+            };
+
+            String path = basePath + file + ".ttf";
+
+            try (var in = Objects.requireNonNull(
+                    HybridApi.class.getResourceAsStream(path),
+                    "Font missing: " + path
+            )) {
+                return Font.createFont(Font.TRUETYPE_FONT, in)
+                        .deriveFont(awtStyle, (float) size);
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to load font: " + path, e);
+            }
+        });
+    }
 
     public static void render(DrawContext context) {
-        textCache.values().forEach(hybridRenderText -> {
-            hybridRenderText.draw(context);
-        });
+        for (HybridRenderText text : renderQueue) {
+            text.draw(context);
+        }
+        renderQueue.clear();
     }
 }
