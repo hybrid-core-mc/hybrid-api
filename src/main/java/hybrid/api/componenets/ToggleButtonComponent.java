@@ -14,11 +14,6 @@ public class ToggleButtonComponent extends Component {
     public void render(HybridRenderer2D renderer) {
 
 
-//        bounds.setWidth(outerBounds.getWidth() - 6);
-//
-//
-//        bounds.setX(bounds.getCenterX(outerBounds));
-//
         renderer.fillQuad(bounds,Color.RED);
 
     }

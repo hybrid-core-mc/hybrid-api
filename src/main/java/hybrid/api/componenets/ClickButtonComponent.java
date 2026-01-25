@@ -12,6 +12,5 @@ public class ClickButtonComponent extends Component{
     @Override
     public void render(HybridRenderer2D renderer) {
         renderer.fillQuad(bounds, Color.BLUE);
-
     }
 }

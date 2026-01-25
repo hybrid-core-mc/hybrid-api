@@ -39,22 +39,22 @@ public class HybridRenderText {
     }
 
     public void draw(DrawContext context) {
-
         if (cachedTexture == null || !cachedTexture.text().equals(text)) {
             cachedTexture = HybridFontTexture.createGlyph(this, text);
         }
 
         Matrix3x2fStack matrices = context.getMatrices();
-
         matrices.pushMatrix();
+
 
         matrices.translate(x, y);
 
-        matrices.scale(1f / mc.getWindow().getScaleFactor(), 1f / mc.getWindow().getScaleFactor(), matrices);
+        matrices.scale(0.5f, 0.5f); // todo : actually maek ts work
 
         context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(
                 RenderPipelines.GUI_TEXTURED,
-                TextureSetup.of(cachedTexture.texture().getGlTextureView(), RenderSystem.getSamplerCache().get(FilterMode.LINEAR)), // linear is so good
+                TextureSetup.of(cachedTexture.texture().getGlTextureView(),
+                        RenderSystem.getSamplerCache().get(FilterMode.LINEAR)),
                 new Matrix3x2f(matrices),
                 0, 0,
                 cachedTexture.rectangle().width, cachedTexture.rectangle().height,
@@ -65,6 +65,7 @@ public class HybridRenderText {
 
         matrices.popMatrix();
     }
+
 
     public int getWidth() {
         return cachedTexture.rectangle().width / 2;

@@ -54,7 +54,6 @@ public class HybridRenderer implements HybridRenderer2D {
         );
 
         float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
-
         nvgScale(CONTEXT, scale, scale);
 
         HybridRenderQueue.renderAll(RENDERER_INSTANCE);

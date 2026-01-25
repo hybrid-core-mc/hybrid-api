@@ -35,13 +35,13 @@ public class TestScreen extends HybridScreen {
         test.addComponent(new ToggleButtonComponent());
         test.addComponent(new ClickButtonComponent());
 
-        addComponent(test);
+        registerComponent(test);
 
         ComponentCategory testing = new ComponentCategory("test");
         testing.addComponent(new ToggleButtonComponent());
         test.addComponent(new ClickButtonComponent());
 
-        addComponent(test);
+        registerComponent(test);
 
         super.registerComponents();
     }
