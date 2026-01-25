@@ -9,6 +9,7 @@ import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.texture.GlTexture;
 import org.lwjgl.nanovg.NVGColor;
+import org.lwjgl.nanovg.NVGPaint;
 
 import java.awt.*;
 
@@ -19,6 +20,10 @@ import static org.lwjgl.nanovg.NanoVGGL2.*;
 public class HybridRenderer implements HybridRenderer2D {
     public static final HybridRenderer RENDERER_INSTANCE = new HybridRenderer();
     private static final NVGColor NVG_COLOR = NVGColor.create();
+    private static final NVGColor GLOW_INNER = NVGColor.create();
+    private static final NVGColor GLOW_OUTER = NVGColor.create();
+    private static final NVGPaint GLOW_PAINT = NVGPaint.create();
+
     private static long CONTEXT = -1L;
 
     public static void init() {
@@ -89,16 +94,41 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void fillQuad(ScreenBounds bounds, Color color,int radius) {
+    public void drawQuad(ScreenBounds bounds, Color color, int radius) {
         nvgBeginPath(CONTEXT);
         setColor(CONTEXT, color);
         nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
         nvgFill(CONTEXT);
     }
 
+    @Override
+    public void drawQuad(ScreenBounds bounds, Color color) {
+        drawQuad(bounds, color, Theme.cornerRadius);
+    }
 
     @Override
-    public void fillQuad(ScreenBounds bounds, Color color) {
-        fillQuad(bounds,color, Theme.cornerRadius);
+    public void drawCircle(ScreenBounds bounds, Color color) {
+        float cx = bounds.x + bounds.width / 2f;
+        float cy = bounds.y + bounds.height / 2f;
+        float radius = Math.min(bounds.width, bounds.height) / 2f;
+
+        // glow should be small and subtle
+        float glowSize = 2f;
+        float glowRadius = radius + glowSize;
+
+        // core color (100% alpha)
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 255, GLOW_INNER);
+
+        // outer color (transparent)
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 0, GLOW_OUTER);
+
+        // gradient from center to just outside the circle
+        nvgRadialGradient(CONTEXT, cx, cy, radius, glowRadius, GLOW_INNER, GLOW_OUTER, GLOW_PAINT);
+
+        nvgBeginPath(CONTEXT);
+        nvgCircle(CONTEXT, cx, cy, glowRadius);
+        nvgFillPaint(CONTEXT, GLOW_PAINT);
+        nvgFill(CONTEXT);
     }
+
 }

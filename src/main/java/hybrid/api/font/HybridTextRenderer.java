@@ -20,6 +20,9 @@ public class HybridTextRenderer {
         renderQueue.add(text);
     }
 
+    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color) {
+        return getTextRenderer(text, style, size,0,0, color);
+    }
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color) {
         Font font = fromFont(style, size);
         return new HybridRenderText(text, x, y, font, color);

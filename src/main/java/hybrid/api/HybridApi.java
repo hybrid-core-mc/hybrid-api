@@ -23,7 +23,7 @@ public class HybridApi implements ModInitializer {
     @Override
     public void onInitialize() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (TOGGLE_KEY.wasPressed()) mc.setScreen(new HybridScreen("lol",500,300));
+            if (TOGGLE_KEY.wasPressed()) mc.setScreen(new HybridScreen("lol",450,250));
         });
 
         LOGGER.info("Hello MONKEY world!");

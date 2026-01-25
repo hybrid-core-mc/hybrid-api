@@ -13,6 +13,6 @@ public class SliderComponent extends Component {
 
     @Override
     public void render(HybridRenderer2D renderer) {
-        renderer.fillQuad(getBounds(), Color.BLUE);
+        renderer.drawQuad(getBounds(), Color.BLUE);
     }
 }
