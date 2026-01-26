@@ -16,7 +16,7 @@ import java.awt.*;
 
 public class HybridScreen extends Screen {
 
-    private ScreenBounds bounds;
+    private final ScreenBounds bounds;
     private ScreenCategoryBuilder built;
 
     public HybridScreen(String name, int width, int height) {
@@ -30,6 +30,7 @@ public class HybridScreen extends Screen {
 
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
+      
         int leftMenuWidth = (int) (bounds.getWidth() * 0.24);
         ScreenBounds leftSlice = bounds.from(bounds);
         leftSlice.setWidth(leftMenuWidth);
@@ -41,25 +42,36 @@ public class HybridScreen extends Screen {
         leftSlice.setWidth(Theme.cornerRadius);
         renderer.drawQuad(leftSlice, Theme.modsBackgroundColor, 0);
 
+
         int modsBackgroundWidth = leftMenuWidth - 4;
         int boxHeight = 22;
         int currentY = 5;
 
-        for (String mods : HybridMods.mods) {
+        for (String mod : HybridMods.mods) {
 
             int boxX = bounds.getX() + (leftMenuWidth - modsBackgroundWidth) / 2;
+
             ScreenBounds backgroundBox = new ScreenBounds(boxX, bounds.getY() + currentY, modsBackgroundWidth, boxHeight);
 
-            HybridRenderText text = HybridTextRenderer.getTextRenderer(mods, FontStyle.BOLD, 21, Color.BLUE);
+            renderer.drawQuad(backgroundBox, Color.ORANGE, 8);
 
-            renderer.drawQuad(backgroundBox, Color.ORANGE);
 
-            int textY = bounds.getY() + currentY + (boxHeight - text.getHeight()) / 2;
-            text.setPosition(bounds.getX() + 5, textY);
 
-            renderer.drawCircle(new ScreenBounds(leftSlice.getX() - 5, (boxX + (boxHeight - 3) / 2) / 2, 3, 3), Color.GREEN);
+            HybridRenderText text = HybridTextRenderer.getTextRenderer(mod, FontStyle.BOLD, 21, Color.BLUE);
 
+            int textY = backgroundBox.getY() + (backgroundBox.getHeight() - text.getHeight()) / 2;
+
+            text.setPosition(bounds.getX() + 7, textY);
             HybridTextRenderer.addText(text);
+
+
+            int circleSize = 3;
+
+            int circleX = leftSlice.getX() - 5;
+            int circleY = backgroundBox.getY() + (backgroundBox.getHeight() - circleSize) / 2;
+
+            renderer.drawCircle(new ScreenBounds(circleX, circleY, circleSize, circleSize), Color.GREEN);
+
             currentY += 29;
         }
 
