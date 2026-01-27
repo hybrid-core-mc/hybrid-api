@@ -9,8 +9,18 @@ import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ModsScreenComponent extends ScreenComponent {
+
+    List<ModButton> buttons = new ArrayList<>();
+
+    public ModsScreenComponent() {
+        for (String mod : HybridMods.mods) {
+            buttons.add(new ModButton(mod));
+        }
+    }
 
     @Override
     public void setupBounds() {
@@ -27,12 +37,34 @@ public class ModsScreenComponent extends ScreenComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
-        int modsBackgroundWidth = componentBounds.getWidth() - 8;
-        int boxHeight = 22;
-        int currentY = 5;
+        int offset = 0;
 
-        for (String mod : HybridMods.mods) {
+        int buttonWidth = (int) (componentBounds.getWidth() * 0.8);
+        int buttonHeight = (int) (componentBounds.getHeight() * 0.1);
+        int buttonSpacing = 5;
 
+        int totalHeight = (buttonHeight * buttons.size()) + (buttonSpacing * (buttons.size() - 1));
+
+        for (ModButton button : buttons) {
+
+
+            ScreenBounds bounds = new ScreenBounds(componentBounds.getX(),
+
+                    componentBounds.getY() + offset, buttonWidth, buttonHeight);
+
+
+            button.render(hybridRenderer, bounds);
+
+            offset += buttonHeight + buttonSpacing;
+
+        }
+
+        ScreenBounds centerPosition = new ScreenBounds();
+        hybridRenderer.drawQuad(new ScreenBounds(componentBounds.getX(), componentBounds.getY(), buttonWidth, totalHeight), new Color(0, 0, 255, 150), 0);
+
+    }
+
+    /*
             int boxX = outerBounds.getX() + (componentBounds.getWidth() - modsBackgroundWidth) / 2;
 
             ScreenBounds backgroundBox = new ScreenBounds(boxX, outerBounds.getY() + currentY, modsBackgroundWidth - 15, boxHeight);
@@ -40,12 +72,6 @@ public class ModsScreenComponent extends ScreenComponent {
             hybridRenderer.drawQuad(backgroundBox, Theme.modBackgroundColor, 8);
 
 
-            HybridRenderText text = HybridTextRenderer.getTextRenderer(mod, FontStyle.BOLD, 21, Color.WHITE);
-
-            int textY = backgroundBox.getY() + (backgroundBox.getHeight() - text.getHeight()) / 2;
-
-            text.setPosition(outerBounds.getX() + 7, textY);
-            HybridTextRenderer.addText(text);
 
 
             int circleSize = 3;
@@ -55,10 +81,7 @@ public class ModsScreenComponent extends ScreenComponent {
 
             hybridRenderer.drawCircle(new ScreenBounds(circleX, circleY, circleSize, circleSize), Color.GREEN);
 
-            currentY += 29;
-        }
-    }
-
+            currentY += 29;*/
     @Override
     public void renderPost(HybridRenderer hybridRenderer) {
 
@@ -76,5 +99,28 @@ public class ModsScreenComponent extends ScreenComponent {
 
 
         super.renderPost(hybridRenderer);
+    }
+
+    public static class ModButton { // todo: make thsi a real componenet XD
+        String name;
+
+        public ModButton(String name) {
+            this.name = name;
+        }
+
+        public void render(HybridRenderer renderer, ScreenBounds bounds) {
+            renderer.drawQuad(bounds, Color.GREEN, 10);
+
+            HybridRenderText text = HybridTextRenderer.getTextRenderer(name, FontStyle.BOLD, 21, Color.WHITE);
+
+            int textY = bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2;
+
+            text.setPosition(outerBounds.getX() + 7, textY);
+            HybridTextRenderer.addText(text);
+        }
+
+        public void onClick() {
+
+        }
     }
 }

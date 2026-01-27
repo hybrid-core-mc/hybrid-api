@@ -4,7 +4,8 @@ import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 
 public abstract class ScreenComponent {
-    public ScreenBounds componentBounds, outerBounds;
+    public ScreenBounds componentBounds;
+    public static ScreenBounds outerBounds;
 
     public void setupBounds() {
     }

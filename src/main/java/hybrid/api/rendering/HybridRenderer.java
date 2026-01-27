@@ -102,6 +102,37 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
+    public void drawOutlineQuad(ScreenBounds bounds, Color color, Color outline, int radius, int outlineRadius) {
+        nvgSave(CONTEXT);
+
+        nvgBeginPath(CONTEXT);
+        setColor(CONTEXT, color);
+        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
+        nvgFill(CONTEXT);
+
+        int glowSteps = 5;
+
+        for (int i = 0; i < glowSteps; i++) {
+            float alpha = (1.0f - (i / (float) glowSteps)) * 0.25f;
+            setColor(CONTEXT, new Color(outline.getRed(), outline.getGreen(), outline.getBlue(), (int)(alpha * 255)));
+
+            nvgBeginPath(CONTEXT);
+            nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
+            nvgStrokeWidth(CONTEXT, (float) outlineRadius + i * 2);
+            nvgStroke(CONTEXT);
+        }
+
+        setColor(CONTEXT, outline);
+        nvgBeginPath(CONTEXT);
+        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
+        nvgStrokeWidth(CONTEXT, outlineRadius);
+        nvgStroke(CONTEXT);
+
+        nvgRestore(CONTEXT);
+    }
+
+
+    @Override
     public void drawQuad(ScreenBounds bounds, Color color) {
         drawQuad(bounds, color, Theme.cornerRadius);
     }
@@ -112,17 +143,13 @@ public class HybridRenderer implements HybridRenderer2D {
         float cy = bounds.y + bounds.height / 2f;
         float radius = Math.min(bounds.width, bounds.height) / 2f;
 
-        // glow should be small and subtle
         float glowSize = 2f;
         float glowRadius = radius + glowSize;
 
-        // core color (100% alpha)
         nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 255, GLOW_INNER);
 
-        // outer color (transparent)
         nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 0, GLOW_OUTER);
 
-        // gradient from center to just outside the circle
         nvgRadialGradient(CONTEXT, cx, cy, radius, glowRadius, GLOW_INNER, GLOW_OUTER, GLOW_PAINT);
 
         nvgBeginPath(CONTEXT);
