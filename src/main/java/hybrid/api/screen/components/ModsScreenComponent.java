@@ -1,5 +1,6 @@
 package hybrid.api.screen.components;
 
+import com.ibm.icu.impl.ICULocaleService;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
@@ -7,6 +8,7 @@ import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
+import net.minecraft.util.Identifier;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,13 +16,14 @@ import java.util.List;
 
 public class ModsScreenComponent extends ScreenComponent {
 
-    List<ModButton> buttons = new ArrayList<>();
+    public static List<ModButton> buttons = new ArrayList<>();
 
     public ModsScreenComponent() {
         for (String mod : HybridMods.mods) {
             buttons.add(new ModButton(mod));
         }
     }
+
 
     @Override
     public void setupBounds() {
@@ -40,13 +43,15 @@ public class ModsScreenComponent extends ScreenComponent {
         int offset = 0;
 
         int buttonWidth = (int) (componentBounds.getWidth() * 0.8);
-        int buttonHeight = (int) (componentBounds.getHeight() * 0.095);
+        int buttonHeight = (int) (componentBounds.getHeight() * 0.085);
         int buttonSpacing = 5;
 
         int totalHeight = (buttonHeight * buttons.size()) + (buttonSpacing * (buttons.size() - 1));
 
         int centerY = componentBounds.getY() + (componentBounds.getHeight() - totalHeight) / 2;
         int centerX = componentBounds.getX() + (componentBounds.getWidth() - buttonWidth) / 2;
+
+//        hybridRenderer.drawTexture(new ScreenBounds(0, 0, 50, 50), Identifier.of("hybrid-api", "texture/l1ogo.png"));
 
         for (ModButton button : buttons) {
 
@@ -67,21 +72,31 @@ public class ModsScreenComponent extends ScreenComponent {
     @Override
     public void renderPost(HybridRenderer hybridRenderer) {
 
-
         hybridRenderer.drawQuad(componentBounds, Theme.modsBackgroundColor);
 
-
         ScreenBounds leftSlice = componentBounds.from(componentBounds);
-
         leftSlice.setWidth(Theme.cornerRadius);
-
         leftSlice.setX(componentBounds.getX() + componentBounds.getWidth() - Theme.cornerRadius);
 
         hybridRenderer.drawQuad(leftSlice, Theme.modsBackgroundColor, 0);
 
+        HybridRenderText text = HybridTextRenderer.getTextRenderer(
+                "Hybrid Core",
+                FontStyle.EXTRABOLD,
+                26,
+                Color.WHITE
+        );
 
+        int textX = componentBounds.getX()
+                + (componentBounds.getWidth() - text.getWidth()) / 2;
+
+        int textY = componentBounds.getY() + 16;
+
+        text.setPosition(textX, textY);
+        HybridTextRenderer.addText(text);
         super.renderPost(hybridRenderer);
     }
+
 
     public static class ModButton { // todo: make thsi a real componenet XD
         String name;
@@ -91,23 +106,36 @@ public class ModsScreenComponent extends ScreenComponent {
         }
 
         public void render(HybridRenderer renderer, ScreenBounds bounds) {
-            renderer.drawQuad(bounds, Theme.modBackgroundColor, 10);
 
-            HybridRenderText text = HybridTextRenderer.getTextRenderer(name, FontStyle.BOLD, 21, Color.WHITE);
 
-            int textY = bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2;
+            if(name == "Mono Bao"){
+                renderer.drawOutlineQuad(bounds,Theme.modBackgroundColor,Theme.modButtonOutlineColor,10,1);
+            } else {
+                renderer.drawQuad(bounds, Theme.modBackgroundColor, 10);
+            }
+            int circleSize = 6;
+            int padding = 8;
 
-            text.setPosition(bounds.getX() + 7, textY);
-
-            HybridTextRenderer.addText(text);
-
-            int circleSize = 3;
-
-            int circleX = (int) ((bounds.getX() + bounds.getWidth()) - (bounds.getWidth()*0.1));
+            int circleX = bounds.getX() + padding;
             int circleY = bounds.getY() + (bounds.getHeight() - circleSize) / 2;
 
-            renderer.drawCircle(new ScreenBounds(circleX, circleY, circleSize, circleSize), Color.GREEN);
+            renderer.drawCircle(
+                    new ScreenBounds(circleX, circleY, circleSize, circleSize),
+                    Color.GREEN
+            );
 
+            HybridRenderText text = HybridTextRenderer.getTextRenderer(
+                    name,
+                    FontStyle.BOLD,
+                    21,
+                    Color.WHITE
+            );
+
+            int textX = circleX + circleSize + padding;
+            int textY = bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2;
+
+            text.setPosition(textX, textY);
+            HybridTextRenderer.addText(text);
         }
 
         public void onClick() {

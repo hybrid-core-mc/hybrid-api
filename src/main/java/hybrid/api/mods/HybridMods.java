@@ -7,8 +7,8 @@ public class HybridMods {
     public static List<String> mods = new ArrayList<>();
 
     static {
-        mods.add("PVP stats+");
-        mods.add("Chat emojis");
-        mods.add("Kill cam");
+        mods.add("PVP Stats");
+        mods.add("Mono Bao");
+        mods.add("Kill Cam");
     }
 }

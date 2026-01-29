@@ -12,7 +12,6 @@ import net.minecraft.text.Text;
 public class HybridScreen extends Screen {
 
     private final ScreenBounds bounds;
-    private ScreenCategoryBuilder built;
     private ModsScreenComponent modsScreenComponent;
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));

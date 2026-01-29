@@ -7,11 +7,17 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import hybrid.api.ui.Theme;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
+import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.texture.GlTexture;
+import net.minecraft.util.Identifier;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 import static hybrid.api.HybridApi.mc;
 import static org.lwjgl.nanovg.NanoVG.*;
@@ -19,6 +25,7 @@ import static org.lwjgl.nanovg.NanoVGGL2.*;
 
 public class HybridRenderer implements HybridRenderer2D {
     public static final HybridRenderer RENDERER_INSTANCE = new HybridRenderer();
+    public static final List<Consumer<DrawContext>> CONTEXT_LIST = new ArrayList<>();
     private static final NVGColor NVG_COLOR = NVGColor.create();
     private static final NVGColor GLOW_INNER = NVGColor.create();
     private static final NVGColor GLOW_OUTER = NVGColor.create();
@@ -92,6 +99,14 @@ public class HybridRenderer implements HybridRenderer2D {
 
         nvgFillColor(ctx, NVG_COLOR);
     }
+    private static void setStrokeColor(long ctx, Color color) {
+        NVG_COLOR.r(color.getRed() / 255f)
+                .g(color.getGreen() / 255f)
+                .b(color.getBlue() / 255f)
+                .a(color.getAlpha() / 255f);
+
+        nvgStrokeColor(ctx, NVG_COLOR);
+    }
 
     @Override
     public void drawQuad(ScreenBounds bounds, Color color, int radius) {
@@ -102,33 +117,36 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void drawOutlineQuad(ScreenBounds bounds, Color color, Color outline, int radius, int outlineRadius) {
-        nvgSave(CONTEXT);
+    public void drawOutlineQuad(ScreenBounds bounds, Color fill, Color outline, int radius, int outlineRadius) {
 
         nvgBeginPath(CONTEXT);
-        setColor(CONTEXT, color);
-        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
+        setColor(CONTEXT, fill);
+        nvgRoundedRect(
+                CONTEXT,
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height,
+                radius
+        );
         nvgFill(CONTEXT);
 
-        int glowSteps = 5;
+        float half = outlineRadius / 2f;
 
-        for (int i = 0; i < glowSteps; i++) {
-            float alpha = (1.0f - (i / (float) glowSteps)) * 0.25f;
-            setColor(CONTEXT, new Color(outline.getRed(), outline.getGreen(), outline.getBlue(), (int)(alpha * 255)));
-
-            nvgBeginPath(CONTEXT);
-            nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
-            nvgStrokeWidth(CONTEXT, (float) outlineRadius + i * 2);
-            nvgStroke(CONTEXT);
-        }
-
-        setColor(CONTEXT, outline);
         nvgBeginPath(CONTEXT);
-        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
+        setStrokeColor(CONTEXT, outline);
+
+        nvgRoundedRect(
+                CONTEXT,
+                bounds.x + half,
+                bounds.y + half,
+                bounds.width - outlineRadius,
+                bounds.height - outlineRadius,
+                radius
+        );
+
         nvgStrokeWidth(CONTEXT, outlineRadius);
         nvgStroke(CONTEXT);
-
-        nvgRestore(CONTEXT);
     }
 
 
@@ -156,6 +174,11 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgCircle(CONTEXT, cx, cy, glowRadius);
         nvgFillPaint(CONTEXT, GLOW_PAINT);
         nvgFill(CONTEXT);
+    }
+
+    @Override
+    public void drawTexture(ScreenBounds bounds, Identifier identifier) {
+        CONTEXT_LIST.add(r -> r.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of("hybrid-api","texture/logo.png"), 0, 0, 0, 0,64, 64, 64, 64));
     }
 
 }
