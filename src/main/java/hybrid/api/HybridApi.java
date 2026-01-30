@@ -19,7 +19,7 @@ public class HybridApi implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final MinecraftClient mc = MinecraftClient.getInstance();
     public static final KeyBinding TOGGLE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.hybrid.toggle", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_Z, KeyBinding.Category.DEBUG));
-
+    public static final float VERSION = 1.0f;
     @Override
     public void onInitialize() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

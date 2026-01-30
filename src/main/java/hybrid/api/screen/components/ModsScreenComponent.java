@@ -82,15 +82,13 @@ public class ModsScreenComponent extends ScreenComponent {
 
         hybridRenderer.drawQuad(leftSlice, Theme.modsBackgroundColor, 0);
 
-        HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                "Hybrid Core",
-                FontStyle.EXTRABOLD,
-                26, Color.WHITE, true
+        HybridRenderText text = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true
         );
 
-        int offset = (int) (componentBounds.getHeight() * 0.18);
+        int offset = (int) (componentBounds.getHeight() * 0.23);
 
         int topLineY = componentBounds.getY() + offset;
+
         int bottomLineY = componentBounds.getY() + componentBounds.getHeight() - offset;
 
         float magic = 0.5f;
@@ -116,6 +114,14 @@ public class ModsScreenComponent extends ScreenComponent {
         text.setPosition(textX, textY);
         HybridTextRenderer.addText(text);
 
+
+        int titlePaddingX = 8;
+        int titlePaddingY = 6;
+
+        ScreenBounds titleBackground = new ScreenBounds(textX - titlePaddingX, textY - titlePaddingY, text.getWidth() + titlePaddingX * 2, text.getHeight() + titlePaddingY * 2);
+
+        hybridRenderer.drawOutlineQuad(titleBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
+
         HybridRenderText icon1 = HybridTextRenderer.getIconRenderer("collapse", 0, 0, Color.WHITE);
         HybridRenderText icon2 = HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE);
         HybridRenderText icon3 = HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE);
@@ -128,17 +134,11 @@ public class ModsScreenComponent extends ScreenComponent {
 
         int iconsY = bottomLineY + (bottomBandHeight - iconBox) / 2;
 
-        ScreenBounds iconsBackground = new ScreenBounds(
-                textX - 4,
-                iconsY - 4,
-                iconsWidth + 8,
+        ScreenBounds iconsBackground = new ScreenBounds(componentBounds.getX() + (componentBounds.getWidth() - titleBackground.getWidth()) / 2, iconsY - 4, titleBackground.getWidth(),
                 iconBox + 8
         );
 
-        hybridRenderer.drawOutlineQuad(
-                iconsBackground,
-                Theme.modBackgroundColor,
-                Theme.modButtonOutlineColor,6,1
+        hybridRenderer.drawOutlineQuad(iconsBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1
         );
 
         int iconCount = 3;
