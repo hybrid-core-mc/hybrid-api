@@ -1,5 +1,6 @@
 package hybrid.api.font;
 
+import com.github.weisj.jsvg.SVGDocument;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import net.minecraft.client.gl.RenderPipelines;
@@ -19,6 +20,7 @@ public class HybridRenderText {
     int x, y;
     Color color;
     Font font;
+    SVGDocument svgDocument;
     boolean shadow;
 
     private HybridFontTexture cachedTexture;
@@ -33,16 +35,31 @@ public class HybridRenderText {
         this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadow);
     }
 
+    public HybridRenderText(int x, int y, SVGDocument svgDocument, Color color, boolean shadow) {
+        this.x = x;
+        this.y = y;
+        this.svgDocument = svgDocument;
+        this.color = color;
+        this.shadow = shadow;
+        this.cachedTexture = HybridFontTexture.createGlyph(this, null, shadow);
+    }
 
+
+
+    public SVGDocument getSvgDocument() {
+        return svgDocument;
+    }
 
     public Font getFont() {
         return font;
     }
 
     public void draw(DrawContext context) {
-        if (cachedTexture == null || !cachedTexture.text().equals(text)) {
+
+        if (cachedTexture == null || (text != null && !text.equals(cachedTexture.text()))) {
             cachedTexture = HybridFontTexture.createGlyph(this, text, shadow);
         }
+
 
         Matrix3x2fStack matrices = context.getMatrices();
         matrices.pushMatrix();

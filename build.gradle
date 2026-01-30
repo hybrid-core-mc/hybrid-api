@@ -31,6 +31,11 @@ dependencies {
 
 	implementation "org.lwjgl:lwjgl-nanovg:3.3.3"
 	implementation "org.lwjgl:lwjgl-nanovg:3.3.3:natives-windows"
+
+	// SVG Rendering
+
+	implementation("com.github.weisj:jsvg:2.0.0")
+
 }
 
 processResources {

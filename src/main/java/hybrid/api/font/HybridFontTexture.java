@@ -14,21 +14,36 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
     public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, boolean shadow) {
 
         Font font = hybridRenderText.getFont();
-        if (font == null) {
-            throw new RuntimeException("Invalid font provided please recheck font assets");
+
+        boolean fontMode = text != null;
+        boolean svgMode = text == null;
+
+        if (fontMode && font == null) {
+            throw new RuntimeException("No font provided"); // todo: wtf bro use real logging errors
         }
 
-        FontRenderContext fontRenderContext = new FontRenderContext(new AffineTransform(), true, true);
-        GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, text);
-        Rectangle rectangle = glyphVector.getPixelBounds(null, 0, 0);
+        if (svgMode && hybridRenderText.getSvgDocument() == null) {
+            throw new RuntimeException("No SVG provided");
+        }
 
-        int width = Math.max(1, rectangle.width + (shadow ? 1 : 0)); // shadow gotta be considered lil bro
-        int height = Math.max(1, rectangle.height);
+        Rectangle rectangle;
+
+        if (fontMode) {
+            FontRenderContext frc = new FontRenderContext(new AffineTransform(), true, true);
+            GlyphVector gv = font.createGlyphVector(frc, text);
+            rectangle = gv.getPixelBounds(null, 0, 0);
+        } else {
+            var size = hybridRenderText.getSvgDocument().size();
+            rectangle = new Rectangle(0, 0, Math.max(1, (int) Math.ceil(size.width)), Math.max(1, (int) Math.ceil(size.height)));
+        }
+
+        int shadowPad = shadow ? 2 : 0;
+
+        int width = Math.max(1, rectangle.width + shadowPad);
+        int height = Math.max(1, rectangle.height + shadowPad);
 
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = bufferedImage.createGraphics();
-
-        graphics.setFont(font);
 
         graphics.setComposite(AlphaComposite.Clear);
         graphics.fillRect(0, 0, width, height);
@@ -38,23 +53,29 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
         graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        int drawX = -rectangle.x;
-        int drawY = -rectangle.y;
+        int drawX = fontMode ? -rectangle.x : 0;
+        int drawY = fontMode ? -rectangle.y : 0;
 
-        if (shadow) {
+        if (shadow && fontMode) {
+            graphics.setFont(font);
             graphics.setPaint(new Color(84, 84, 84, 203));
             graphics.drawString(text, drawX + 1, drawY + 1);
             graphics.drawString(text, drawX + 2, drawY + 2);
         }
 
-        graphics.setPaint(Color.WHITE);
-        graphics.drawString(text, drawX, drawY);
+        if (fontMode) {
+            graphics.setFont(font);
+            graphics.setPaint(Color.WHITE);
+            graphics.drawString(text, drawX, drawY);
+        } else {
+            hybridRenderText.getSvgDocument().render(null, graphics);
+        }
 
         graphics.dispose();
 
         NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
-
         int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+
         for (int i = 0; i < pixels.length; i++) {
             int x = i % width;
             int y = i / width;
@@ -66,5 +87,6 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
 
         return new HybridFontTexture(texture, rectangle, text);
     }
+
 
 }

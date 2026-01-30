@@ -1,15 +1,19 @@
 package hybrid.api.font;
 
+import com.github.weisj.jsvg.SVGDocument;
+import com.github.weisj.jsvg.parser.SVGLoader;
 import hybrid.api.HybridApi;
 import net.minecraft.client.gui.DrawContext;
 
 import java.awt.*;
+import java.net.URL;
 import java.util.*;
 import java.util.List;
 
 public class HybridTextRenderer {
 
     private static final Map<String, Font> fontCache = new HashMap<>();
+    private static final Map<String, SVGDocument> svgCache = new HashMap<>();
     private static final List<HybridRenderText> renderQueue = new ArrayList<>();
 
     public static void addText(String text, FontStyle style, int size, int x, int y, Color color) {
@@ -35,6 +39,22 @@ public class HybridTextRenderer {
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color, boolean shadow) {
         Font font = fromFont(style, size);
         return new HybridRenderText(text, x, y, font, color, shadow);
+    }
+
+    public static HybridRenderText getIconRenderer(String name, int x, int y, Color color) {
+        SVGDocument svgDocument = svgCache.computeIfAbsent(name, n -> {
+            try {
+                URL svgUrl = Objects.requireNonNull(
+                        HybridApi.class.getResource("/assets/hybrid-api/icon/" + n),
+                        "Cannot find svg icon: " + n
+                );
+                return new SVGLoader().load(svgUrl);
+            } catch (Exception e) {
+                throw new RuntimeException("unable to load svg: " + n, e);
+            }
+        });
+
+        return new HybridRenderText(x, y, svgDocument, color, false);
     }
 
     public static Font fromFont(FontStyle style, int size) {

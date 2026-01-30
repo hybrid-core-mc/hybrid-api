@@ -66,6 +66,8 @@ public class ModsScreenComponent extends ScreenComponent {
 
             offset += buttonHeight + buttonSpacing;
         }
+        HybridRenderText renderText = HybridTextRenderer.getIconRenderer("expand", 5, 5, Color.RED);
+        HybridTextRenderer.addText(renderText);
     }
 
 
@@ -87,6 +89,7 @@ public class ModsScreenComponent extends ScreenComponent {
                 Color.WHITE
                 , true
         );
+
 
         int offset = (int) (componentBounds.getHeight() * 0.18);
 
