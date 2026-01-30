@@ -15,6 +15,10 @@ import java.util.List;
 public class ModsScreenComponent extends ScreenComponent {
 
     public static List<ModButton> buttons = new ArrayList<>();
+    private int topLineY;
+    private int bottomLineY;
+    private HybridRenderText titleText;
+    private ScreenBounds titleBackground;
 
     public ModsScreenComponent() {
         if (!buttons.isEmpty()) return;
@@ -38,8 +42,9 @@ public class ModsScreenComponent extends ScreenComponent {
 
     }
 
+
     @Override
-    public void render(HybridRenderer hybridRenderer) {
+    public void renderPost(HybridRenderer hybridRenderer) {
 
         int offset = 0;
 
@@ -70,144 +75,89 @@ public class ModsScreenComponent extends ScreenComponent {
 
     }
 
-
     @Override
-    public void renderPost(HybridRenderer hybridRenderer) {
+    public void render(HybridRenderer hybridRenderer) {
 
-        hybridRenderer.drawQuad(componentBounds, Theme.modsBackgroundColor);
+        drawBackground(hybridRenderer);
+        drawDividers(hybridRenderer);
+        drawTitle(hybridRenderer);
+        drawBottomIcons(hybridRenderer);
 
-        ScreenBounds leftSlice = componentBounds.from(componentBounds);
-        leftSlice.setWidth(Theme.cornerRadius);
-        leftSlice.setX(componentBounds.getX() + componentBounds.getWidth() - Theme.cornerRadius);
+        super.render(hybridRenderer);
+    }
 
-        hybridRenderer.drawQuad(leftSlice, Theme.modsBackgroundColor, 0);
+    private void drawDividers(HybridRenderer r) {
+        int dividerOffset = (int) (componentBounds.getHeight() * 0.23f);
 
-        HybridRenderText text = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true
+        topLineY = componentBounds.getY() + dividerOffset;
+        bottomLineY = componentBounds.getY() + componentBounds.getHeight() - dividerOffset;
+
+        float fade = 0.5f;
+
+        r.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade
         );
 
-        int offset = (int) (componentBounds.getHeight() * 0.23);
+        r.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade);
+    }
 
-        int topLineY = componentBounds.getY() + offset;
-
-        int bottomLineY = componentBounds.getY() + componentBounds.getHeight() - offset;
-
-        float magic = 0.5f;
-
-        hybridRenderer.drawHorizontalLine(
-                new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1),
-                Theme.modButtonOutlineColor, magic
+    private void drawTitle(HybridRenderer r) {
+        titleText = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true
         );
 
-        hybridRenderer.drawHorizontalLine(
-                new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1),
-                Theme.modButtonOutlineColor, magic
+        int textX = componentBounds.getX() + (componentBounds.getWidth() - titleText.getWidth()) / 2;
+
+        int bandHeight = topLineY - componentBounds.getY();
+        int textY = componentBounds.getY() + (bandHeight - titleText.getHeight()) / 2;
+
+        titleText.setPosition(textX, textY);
+        HybridTextRenderer.addText(titleText);
+
+        int padX = 8;
+        int padY = 6;
+
+        titleBackground = new ScreenBounds(textX - padX, textY - padY, titleText.getWidth() + padX * 2, titleText.getHeight() + padY * 2
         );
 
-        int textX = componentBounds.getX()
-                + (componentBounds.getWidth() - text.getWidth()) / 2;
+        r.drawOutlineQuad(titleBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
+    }
 
-        int bandTop = componentBounds.getY();
-        int bandHeight = topLineY - bandTop;
-
-        int textY = bandTop + (bandHeight - text.getHeight()) / 2;
-
-        text.setPosition(textX, textY);
-        HybridTextRenderer.addText(text);
-
-
-        int titlePaddingX = 8;
-        int titlePaddingY = 6;
-
-        ScreenBounds titleBackground = new ScreenBounds(textX - titlePaddingX, textY - titlePaddingY, text.getWidth() + titlePaddingX * 2, text.getHeight() + titlePaddingY * 2);
-
-        hybridRenderer.drawOutlineQuad(titleBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
-
-        HybridRenderText icon1 = HybridTextRenderer.getIconRenderer("collapse", 0, 0, Color.WHITE);
-        HybridRenderText icon2 = HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE);
-        HybridRenderText icon3 = HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE);
+    private void drawBottomIcons(HybridRenderer r) {
+        HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("collapse", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE)};
 
         int iconBox = 18;
-
-        int iconsWidth = text.getWidth();
 
         int bottomBandHeight = componentBounds.getY() + componentBounds.getHeight() - bottomLineY;
 
         int iconsY = bottomLineY + (bottomBandHeight - iconBox) / 2;
 
-        ScreenBounds iconsBackground = new ScreenBounds(componentBounds.getX() + (componentBounds.getWidth() - titleBackground.getWidth()) / 2, iconsY - 4, titleBackground.getWidth(),
-                iconBox + 8
-        );
+        ScreenBounds iconsBackground = new ScreenBounds(componentBounds.getX() + (componentBounds.getWidth() - titleBackground.getWidth()) / 2, iconsY - 4, titleBackground.getWidth(), iconBox + 8);
 
-        hybridRenderer.drawOutlineQuad(iconsBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1
-        );
+        r.drawOutlineQuad(iconsBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
 
-        int iconCount = 3;
-
-        float step = iconsWidth / (float) iconCount;
-
-        float startCenterX = textX + step / 2f;
-        HybridRenderText[] icons = { icon1, icon2, icon3 };
+        float step = titleText.getWidth() / (float) icons.length;
+        float startCenterX = titleText.getX() + step / 2f;
 
         for (int i = 0; i < icons.length; i++) {
             HybridRenderText icon = icons[i];
 
             float centerX = startCenterX + i * step;
 
-            icon.setPosition(
-                    (int) (centerX - icon.getWidth() / 2f),
-                    iconsY + (iconBox - icon.getHeight()) / 2
+            icon.setPosition((int) (centerX - icon.getWidth() / 2f), iconsY + (iconBox - icon.getHeight()) / 2
             );
 
             HybridTextRenderer.addText(icon);
         }
+    }
 
-        super.renderPost(hybridRenderer);
+    private void drawBackground(HybridRenderer r) {
+        r.drawQuad(componentBounds, Theme.modsBackgroundColor);
+
+        ScreenBounds rightSlice = componentBounds.from(componentBounds);
+        rightSlice.setWidth(Theme.cornerRadius);
+        rightSlice.setX(componentBounds.getX() + componentBounds.getWidth() - Theme.cornerRadius);
+
+        r.drawQuad(rightSlice, Theme.modsBackgroundColor, 0);
     }
 
 
-
-    public static class ModButton { // todo: make thsi a real componenet XD
-        String name;
-
-        public ModButton(String name) {
-            this.name = name;
-        }
-
-        public void render(HybridRenderer renderer, ScreenBounds bounds) {
-
-
-            if(name == "Mono Bao"){
-                renderer.drawOutlineQuad(bounds,Theme.modBackgroundColor,Theme.modButtonOutlineColor,10,1);
-            } else {
-                renderer.drawQuad(bounds, Theme.modBackgroundColor, 10);
-            }
-            int circleSize = 6;
-            int padding = 8;
-
-            int circleX = bounds.getX() + padding;
-            int circleY = bounds.getY() + (bounds.getHeight() - circleSize) / 2;
-
-            renderer.drawCircle(
-                    new ScreenBounds(circleX, circleY, circleSize, circleSize),
-                    Color.GREEN
-            );
-
-            HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                    name,
-                    FontStyle.BOLD,
-                    20,
-                    Color.WHITE
-            );
-
-            int textX = circleX + circleSize + padding;
-            int textY = bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2;
-
-            text.setPosition(textX, textY);
-            HybridTextRenderer.addText(text);
-        }
-
-        public void onClick() {
-
-        }
-    }
 }

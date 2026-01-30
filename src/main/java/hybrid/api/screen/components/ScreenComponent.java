@@ -15,12 +15,12 @@ public abstract class ScreenComponent {
     }
 
     public void setOuterBounds(ScreenBounds outerBounds) {
-        this.outerBounds = outerBounds;
+        ScreenComponent.outerBounds = outerBounds;
     }
 
-    public abstract void render(HybridRenderer hybridRenderer);
+    public abstract void renderPost(HybridRenderer hybridRenderer);
 
-    public void renderPost(HybridRenderer hybridRenderer) {
+    public void render(HybridRenderer hybridRenderer) {
 
     }
 }

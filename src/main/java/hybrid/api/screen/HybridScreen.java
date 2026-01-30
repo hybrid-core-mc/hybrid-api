@@ -31,9 +31,9 @@ public class HybridScreen extends Screen {
 
         renderer.drawQuad(bounds, Theme.backgroundColor);
 
-        modsScreenComponent.renderPost(renderer);
-
         modsScreenComponent.render(renderer);
+
+        modsScreenComponent.renderPost(renderer);
 
 
         super.render(context, mouseX, mouseY, deltaTicks);
