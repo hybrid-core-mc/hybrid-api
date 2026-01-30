@@ -23,9 +23,18 @@ public class HybridTextRenderer {
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color) {
         return getTextRenderer(text, style, size,0,0, color);
     }
+
+    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color, boolean shadow) {
+        return getTextRenderer(text, style, size, 0, 0, color, shadow);
+    }
+
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color) {
+        return getTextRenderer(text, style, size, x, y, color, false);
+    }
+
+    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color, boolean shadow) {
         Font font = fromFont(style, size);
-        return new HybridRenderText(text, x, y, font, color);
+        return new HybridRenderText(text, x, y, font, color, shadow);
     }
 
     public static Font fromFont(FontStyle style, int size) {

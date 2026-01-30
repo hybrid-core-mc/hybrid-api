@@ -85,6 +85,7 @@ public class ModsScreenComponent extends ScreenComponent {
                 FontStyle.EXTRABOLD,
                 26,
                 Color.WHITE
+                , true
         );
 
         int offset = (int) (componentBounds.getHeight() * 0.18);
@@ -148,7 +149,7 @@ public class ModsScreenComponent extends ScreenComponent {
             HybridRenderText text = HybridTextRenderer.getTextRenderer(
                     name,
                     FontStyle.BOLD,
-                    21,
+                    20,
                     Color.WHITE
             );
 

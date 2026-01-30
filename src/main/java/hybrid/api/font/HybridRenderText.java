@@ -11,8 +11,6 @@ import org.joml.Matrix3x2fStack;
 
 import java.awt.*;
 
-import static hybrid.api.HybridApi.mc;
-
 public class HybridRenderText {
 
     // wrirtten fully by spalshani this is really optimized cant get any better actually wrote this because nvg doesnt work on mc 1.21.10+ (sadly)
@@ -21,17 +19,20 @@ public class HybridRenderText {
     int x, y;
     Color color;
     Font font;
+    boolean shadow;
 
     private HybridFontTexture cachedTexture;
 
-    public HybridRenderText(String text, int x, int y, Font font, Color color) {
+    public HybridRenderText(String text, int x, int y, Font font, Color color, boolean shadow) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.font = font;
         this.color = color;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, text);
+        this.shadow = shadow;
+        this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadow);
     }
+
 
 
     public Font getFont() {
@@ -40,7 +41,7 @@ public class HybridRenderText {
 
     public void draw(DrawContext context) {
         if (cachedTexture == null || !cachedTexture.text().equals(text)) {
-            cachedTexture = HybridFontTexture.createGlyph(this, text);
+            cachedTexture = HybridFontTexture.createGlyph(this, text, shadow);
         }
 
         Matrix3x2fStack matrices = context.getMatrices();
@@ -49,7 +50,7 @@ public class HybridRenderText {
 
         matrices.translate(x, y);
 
-        matrices.scale(0.5f, 0.5f); // todo : actually maek ts work
+        matrices.scale(0.5f, 0.5f); // todo : why does this work??
 
         context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(
                 RenderPipelines.GUI_TEXTURED,

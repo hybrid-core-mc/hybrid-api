@@ -11,12 +11,12 @@ import java.awt.image.BufferedImage;
 
 
 public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rectangle, String text) {
-
-    public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text) {
+    public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, boolean shadow) {
 
         Font font = hybridRenderText.getFont();
-
-        if (font == null) throw new RuntimeException("Unable to create glyph texture invalid font provided");
+        if (font == null) {
+            throw new RuntimeException("Invalid font provided please recheck font assets");
+        }
 
         FontRenderContext fontRenderContext = new FontRenderContext(new AffineTransform(), true, true);
         GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, text);
@@ -29,32 +29,43 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
         Graphics2D graphics = bufferedImage.createGraphics();
 
         graphics.setFont(font);
+
         graphics.setComposite(AlphaComposite.Clear);
         graphics.fillRect(0, 0, width, height);
         graphics.setComposite(AlphaComposite.SrcOver);
-        graphics.setPaint(Color.WHITE);
 
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
         graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        graphics.drawString(text, -rectangle.x, -rectangle.y);
+        int drawX = -rectangle.x;
+        int drawY = -rectangle.y;
+
+        if (shadow) {
+            graphics.setPaint(new Color(84, 84, 84, 220));
+            graphics.drawString(text, drawX + 1, drawY + 1);
+            graphics.drawString(text, drawX + 2, drawY + 2);
+
+        }
+
+        graphics.setPaint(Color.WHITE);
+        graphics.drawString(text, drawX, drawY);
+
         graphics.dispose();
 
         NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
 
-        int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width); // copy the awt texture into a mc texture LOL
-
+        int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
         for (int i = 0; i < pixels.length; i++) {
             int x = i % width;
             int y = i / width;
             nativeImage.setColorArgb(x, y, pixels[i]);
         }
 
-
         NativeImageBackedTexture texture = new NativeImageBackedTexture(() -> String.format("%s Custom Font", text), nativeImage);
         texture.upload();
 
         return new HybridFontTexture(texture, rectangle, text);
     }
+
 }
