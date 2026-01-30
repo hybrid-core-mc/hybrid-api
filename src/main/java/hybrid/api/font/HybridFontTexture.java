@@ -22,7 +22,7 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
         GlyphVector glyphVector = font.createGlyphVector(fontRenderContext, text);
         Rectangle rectangle = glyphVector.getPixelBounds(null, 0, 0);
 
-        int width = Math.max(1, rectangle.width);
+        int width = Math.max(1, rectangle.width + (shadow ? 1 : 0)); // shadow gotta be considered lil bro
         int height = Math.max(1, rectangle.height);
 
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -42,10 +42,9 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
         int drawY = -rectangle.y;
 
         if (shadow) {
-            graphics.setPaint(new Color(84, 84, 84, 220));
+            graphics.setPaint(new Color(84, 84, 84, 203));
             graphics.drawString(text, drawX + 1, drawY + 1);
             graphics.drawString(text, drawX + 2, drawY + 2);
-
         }
 
         graphics.setPaint(Color.WHITE);
