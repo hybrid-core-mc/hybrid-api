@@ -85,11 +85,8 @@ public class ModsScreenComponent extends ScreenComponent {
         HybridRenderText text = HybridTextRenderer.getTextRenderer(
                 "Hybrid Core",
                 FontStyle.EXTRABOLD,
-                26,
-                Color.WHITE
-                , true
+                26, Color.WHITE, true
         );
-
 
         int offset = (int) (componentBounds.getHeight() * 0.18);
 
@@ -97,43 +94,80 @@ public class ModsScreenComponent extends ScreenComponent {
         int bottomLineY = componentBounds.getY() + componentBounds.getHeight() - offset;
 
         float magic = 0.5f;
+
         hybridRenderer.drawHorizontalLine(
                 new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1),
-                Theme.modButtonOutlineColor,magic
+                Theme.modButtonOutlineColor, magic
         );
 
         hybridRenderer.drawHorizontalLine(
                 new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1),
-                Theme.modButtonOutlineColor,magic
+                Theme.modButtonOutlineColor, magic
         );
-
 
         int textX = componentBounds.getX()
                 + (componentBounds.getWidth() - text.getWidth()) / 2;
 
-
         int bandTop = componentBounds.getY();
         int bandHeight = topLineY - bandTop;
-
 
         int textY = bandTop + (bandHeight - text.getHeight()) / 2;
 
         text.setPosition(textX, textY);
         HybridTextRenderer.addText(text);
 
-        renderIcon("collapse",bottomLineY,0);
-        renderIcon("theme",bottomLineY,20);
-        renderIcon("settings",bottomLineY,30);
+        HybridRenderText icon1 = HybridTextRenderer.getIconRenderer("collapse", 0, 0, Color.WHITE);
+        HybridRenderText icon2 = HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE);
+        HybridRenderText icon3 = HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE);
 
+        int iconSpacing = 4;
+        int iconBox = 18;
+
+        int iconsWidth = text.getWidth();
+
+        int iconsStartX = textX;
+
+        int bottomBandHeight = componentBounds.getY() + componentBounds.getHeight() - bottomLineY;
+
+        int iconsY = bottomLineY + (bottomBandHeight - iconBox) / 2;
+
+        ScreenBounds iconsBackground = new ScreenBounds(
+                iconsStartX - 4,
+                iconsY - 4,
+                iconsWidth + 8,
+                iconBox + 8
+        );
+
+        hybridRenderer.drawQuad(
+                iconsBackground,
+                Theme.modBackgroundColor,
+                6
+        );
+
+        int iconCount = 3;
+
+        float step = iconsWidth / (float) iconCount;
+
+        float startCenterX = iconsStartX + step / 2f;
+        HybridRenderText[] icons = { icon1, icon2, icon3 };
+
+        for (int i = 0; i < icons.length; i++) {
+            HybridRenderText icon = icons[i];
+
+            float centerX = startCenterX + i * step;
+
+            icon.setPosition(
+                    (int) (centerX - icon.getWidth() / 2f),
+                    iconsY + (iconBox - icon.getHeight()) / 2
+            );
+
+            HybridTextRenderer.addText(icon);
+        }
 
         super.renderPost(hybridRenderer);
     }
 
-    public void renderIcon(String name, int y, int x) {
 
-        HybridRenderText renderText = HybridTextRenderer.getIconRenderer(name, componentBounds.getX() + x, y + 5, Color.WHITE);
-        HybridTextRenderer.addText(renderText);
-    }
 
     public static class ModButton { // todo: make thsi a real componenet XD
         String name;
