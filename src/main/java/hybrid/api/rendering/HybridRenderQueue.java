@@ -21,6 +21,10 @@ public class HybridRenderQueue {
         }
     }
 
+    public static Queue<RenderTask> getQueue() {
+        return queue;
+    }
+
     public static void clear() {
         queue.clear();
     }

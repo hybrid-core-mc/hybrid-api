@@ -122,16 +122,13 @@ public class ModScreenComponent extends ScreenComponent {
                 HybridTextRenderer.getIconRenderer("reset", 0, 0, Color.WHITE)
         };
 
-        // ---- Layout constants ----
         int iconBoxSize = 20;
         int iconPadding = 1;
         int bgMargin = 2;
 
-        // ---- Tight 2×2 grid size ----
         int gridWidth = iconBoxSize * 2 + iconPadding;
         int gridHeight = iconBoxSize * 2 + iconPadding;
 
-        // ---- CORRECT start X/Y (right side of heading) ----
         int iconGridX =
                 headingX
                         + headingWidth
@@ -142,7 +139,6 @@ public class ModScreenComponent extends ScreenComponent {
                 headingY
                         + (headingHeight - gridHeight) / 2;
 
-        // ---- Background box (2px margin) ----
         ScreenBounds iconsBackground = new ScreenBounds(
                 iconGridX - bgMargin,
                 iconGridY - bgMargin,
@@ -155,7 +151,6 @@ public class ModScreenComponent extends ScreenComponent {
                 Theme.modsBackgroundColor , Theme.modButtonOutlineColor,Theme.cornerRadius,1
         );
 
-        // ---- Render icons (NO SCALING) ----
         for (int i = 0; i < icons.length; i++) {
             HybridRenderText icon = icons[i];
 

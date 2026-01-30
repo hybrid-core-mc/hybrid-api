@@ -5,7 +5,6 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import hybrid.api.ui.Theme;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.gui.DrawContext;
@@ -36,6 +35,13 @@ public class HybridRenderer implements HybridRenderer2D {
         CONTEXT = nvgCreate(NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_DEBUG);
         if (CONTEXT == 0 || CONTEXT == -1L)
             throw new RuntimeException("couldnt init nvg context");
+
+        Runtime
+                .getRuntime()
+                .addShutdownHook(new Thread(() -> {
+                    RenderSystem.assertOnRenderThread();
+                    mc.execute(HybridRenderer::onShutdown);
+                }));
 
 
         nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
@@ -71,6 +77,8 @@ public class HybridRenderer implements HybridRenderer2D {
 
         float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
         nvgScale(CONTEXT, scale, scale);
+
+        HybridRenderQueue.clear();
 
         HybridRenderQueue.renderAll(RENDERER_INSTANCE);
 

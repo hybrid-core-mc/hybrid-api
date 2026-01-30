@@ -14,18 +14,19 @@ public class HybridTextRenderer {
 
     private static final Map<String, Font> fontCache = new HashMap<>();
     private static final Map<String, SVGDocument> svgCache = new HashMap<>();
+    private static final Map<String, HybridRenderText> textCache = new HashMap<>();
+    private static final Map<String, HybridRenderText> iconCache = new HashMap<>();
+
     private static final List<HybridRenderText> renderQueue = new ArrayList<>();
+
+
 
     public static void addText(String text, FontStyle style, int size, int x, int y, Color color) {
         renderQueue.add(getTextRenderer(text, style, size, x, y, color));
     }
 
-    public static void addText(HybridRenderText text) {
-        renderQueue.add(text);
-    }
-
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color) {
-        return getTextRenderer(text, style, size,0,0, color);
+        return getTextRenderer(text, style, size, 0, 0, color);
     }
 
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color, boolean shadow) {
@@ -37,15 +38,35 @@ public class HybridTextRenderer {
     }
 
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color, boolean shadow) {
-        Font font = fromFont(style, size);
-        return new HybridRenderText(text, x, y, font, color, shadow);
+
+        String key = text + "|" + style + "|" + size + "|" + color.getRGB() + "|" + shadow;
+
+        HybridRenderText renderer = textCache.get(key);
+
+        if (renderer == null) {
+            Font font = fromFont(style, size);
+            renderer = new HybridRenderText(text, 0, 0, font, color, shadow);
+            textCache.put(key, renderer);
+        }
+
+        renderer.setPosition(x, y);
+        return renderer;
     }
 
+
     public static HybridRenderText getIconRenderer(String name, int x, int y, Color color) {
+
+        String key = name + "|" + color.getRGB();
+
+        HybridRenderText icon = iconCache.get(key);
+        if (icon != null) {
+            icon.setPosition(x, y);
+            return icon;
+        }
+
         SVGDocument svgDocument = svgCache.computeIfAbsent(name, n -> {
             try {
-                URL svgUrl = Objects.requireNonNull(
-                        HybridApi.class.getResource("/assets/hybrid-api/icon/" + n.concat(".svg")),
+                URL svgUrl = Objects.requireNonNull(HybridApi.class.getResource("/assets/hybrid-api/icon/" + n + ".svg"),
                         "Cannot find svg icon: " + n
                 );
                 return new SVGLoader().load(svgUrl);
@@ -54,8 +75,13 @@ public class HybridTextRenderer {
             }
         });
 
-        return new HybridRenderText(x, y, svgDocument, color, false);
+        icon = new HybridRenderText(0, 0, svgDocument, color, false);
+        iconCache.put(key, icon);
+
+        icon.setPosition(x, y);
+        return icon;
     }
+
 
     public static Font fromFont(FontStyle style, int size) {
         String key = style + "|" + size;
@@ -90,12 +116,13 @@ public class HybridTextRenderer {
                     "Font missing: " + path
             )) {
                 return Font.createFont(Font.TRUETYPE_FONT, in)
-                        .deriveFont(awtStyle, (float) size);
+                           .deriveFont(awtStyle, (float) size);
             } catch (Exception e) {
                 throw new RuntimeException("Failed to load font: " + path, e);
             }
         });
     }
+
 
     public static void render(DrawContext context) {
         for (HybridRenderText text : renderQueue) {
@@ -103,4 +130,10 @@ public class HybridTextRenderer {
         }
         renderQueue.clear();
     }
+
+    public static void addText(HybridRenderText text) {
+        if (text == null) return;
+        renderQueue.add(text);
+    }
+
 }
