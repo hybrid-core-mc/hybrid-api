@@ -45,7 +45,7 @@ public class HybridTextRenderer {
         SVGDocument svgDocument = svgCache.computeIfAbsent(name, n -> {
             try {
                 URL svgUrl = Objects.requireNonNull(
-                        HybridApi.class.getResource("/assets/hybrid-api/icon/" + n),
+                        HybridApi.class.getResource("/assets/hybrid-api/icon/" + n.concat(".svg")),
                         "Cannot find svg icon: " + n
                 );
                 return new SVGLoader().load(svgUrl);
