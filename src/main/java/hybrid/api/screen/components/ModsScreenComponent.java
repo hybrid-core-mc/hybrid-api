@@ -1,6 +1,5 @@
 package hybrid.api.screen.components;
 
-import com.ibm.icu.impl.ICULocaleService;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
@@ -8,7 +7,6 @@ import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
-import net.minecraft.util.Identifier;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,10 +17,13 @@ public class ModsScreenComponent extends ScreenComponent {
     public static List<ModButton> buttons = new ArrayList<>();
 
     public ModsScreenComponent() {
+        if (!buttons.isEmpty()) return;
+
         for (String mod : HybridMods.mods) {
             buttons.add(new ModButton(mod));
         }
     }
+
 
 
     @Override
@@ -51,7 +52,6 @@ public class ModsScreenComponent extends ScreenComponent {
         int centerY = componentBounds.getY() + (componentBounds.getHeight() - totalHeight) / 2;
         int centerX = componentBounds.getX() + (componentBounds.getWidth() - buttonWidth) / 2;
 
-//        hybridRenderer.drawTexture(new ScreenBounds(0, 0, 50, 50), Identifier.of("hybrid-api", "texture/l1ogo.png"));
 
         for (ModButton button : buttons) {
 
@@ -87,10 +87,31 @@ public class ModsScreenComponent extends ScreenComponent {
                 Color.WHITE
         );
 
+        int offset = (int) (componentBounds.getHeight() * 0.18);
+
+        int topLineY = componentBounds.getY() + offset;
+        int bottomLineY = componentBounds.getY() + componentBounds.getHeight() - offset;
+
+        float magic = 0.5f;
+        hybridRenderer.drawHorizontalLine(
+                new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1),
+                Theme.modButtonOutlineColor,magic
+        );
+
+        hybridRenderer.drawHorizontalLine(
+                new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1),
+                Theme.modButtonOutlineColor,magic
+        );
+
         int textX = componentBounds.getX()
                 + (componentBounds.getWidth() - text.getWidth()) / 2;
 
-        int textY = componentBounds.getY() + 16;
+
+        int bandTop = componentBounds.getY();
+        int bandHeight = topLineY - bandTop;
+
+
+        int textY = bandTop + (bandHeight - text.getHeight()) / 2;
 
         text.setPosition(textX, textY);
         HybridTextRenderer.addText(text);

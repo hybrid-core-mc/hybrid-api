@@ -10,5 +10,6 @@ public class HybridMods {
         mods.add("PVP Stats");
         mods.add("Mono Bao");
         mods.add("Kill Cam");
+        mods.add("Test lol");
     }
 }

@@ -7,10 +7,8 @@ import com.mojang.blaze3d.textures.GpuTexture;
 import hybrid.api.ui.Theme;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.texture.GlTexture;
-import net.minecraft.util.Identifier;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 
@@ -175,10 +173,46 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgFillPaint(CONTEXT, GLOW_PAINT);
         nvgFill(CONTEXT);
     }
-
     @Override
-    public void drawTexture(ScreenBounds bounds, Identifier identifier) {
-        CONTEXT_LIST.add(r -> r.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of("hybrid-api","texture/logo.png"), 0, 0, 0, 0,64, 64, 64, 64));
+    public void drawHorizontalLine(ScreenBounds bounds, Color color,float percent) {
+
+        float y = bounds.y + bounds.height / 2f;
+
+        float halfWidth = bounds.width / 2f;
+        float solidHalf = halfWidth * percent;
+
+        float leftFadeStart = bounds.x + halfWidth - solidHalf;
+        float rightFadeStart = bounds.x + halfWidth + solidHalf;
+
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 0, GLOW_OUTER);
+
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 255, GLOW_INNER);
+
+        nvgLinearGradient(CONTEXT, bounds.x, y, leftFadeStart, y, GLOW_OUTER, GLOW_INNER, GLOW_PAINT);
+
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, bounds.x, y);
+        nvgLineTo(CONTEXT, leftFadeStart, y);
+        nvgStrokePaint(CONTEXT, GLOW_PAINT);
+        nvgStrokeWidth(CONTEXT, bounds.height);
+        nvgStroke(CONTEXT);
+
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, leftFadeStart, y);
+        nvgLineTo(CONTEXT, rightFadeStart, y);
+        nvgStrokeColor(CONTEXT, GLOW_INNER);
+        nvgStrokeWidth(CONTEXT, bounds.height);
+        nvgStroke(CONTEXT);
+
+        nvgLinearGradient(CONTEXT, rightFadeStart, y, bounds.x + bounds.width, y, GLOW_INNER, GLOW_OUTER, GLOW_PAINT);
+
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, rightFadeStart, y);
+        nvgLineTo(CONTEXT, bounds.x + bounds.width, y);
+        nvgStrokePaint(CONTEXT, GLOW_PAINT);
+        nvgStrokeWidth(CONTEXT, bounds.height);
+        nvgStroke(CONTEXT);
     }
+
 
 }

@@ -1,7 +1,5 @@
 package hybrid.api.rendering;
 
-import net.minecraft.util.Identifier;
-
 import java.awt.*;
 
 public interface HybridRenderer2D {
@@ -13,5 +11,5 @@ public interface HybridRenderer2D {
 
     void drawCircle(ScreenBounds bounds, Color color);
 
-    void drawTexture(ScreenBounds bounds, Identifier identifier);
+    void drawHorizontalLine(ScreenBounds bounds, Color colorStart,float i);
 }
