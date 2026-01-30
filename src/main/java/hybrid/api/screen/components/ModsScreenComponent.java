@@ -7,6 +7,7 @@ import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.screen.ScreenComponent;
 import hybrid.api.ui.Theme;
 import net.minecraft.client.gui.Click;
 
@@ -34,7 +35,7 @@ public class ModsScreenComponent extends ScreenComponent {
 
     @Override
     public void setupBounds() {
-        int leftMenuWidth = (int) (outerBounds.getWidth() * 0.24);
+        int leftMenuWidth = (int) (outerBounds.getWidth() * Theme.sidebarWidth);
 
         componentBounds = outerBounds.from(outerBounds);
 
@@ -46,7 +47,7 @@ public class ModsScreenComponent extends ScreenComponent {
 
 
     @Override
-    public void renderPost(HybridRenderer hybridRenderer) {
+    public void render(HybridRenderer hybridRenderer) {
 
         int offset = 0;
 
@@ -78,17 +79,17 @@ public class ModsScreenComponent extends ScreenComponent {
     }
 
     @Override
-    public void render(HybridRenderer hybridRenderer) {
+    public void renderPre(HybridRenderer hybridRenderer) {
 
         drawBackground(hybridRenderer);
         drawDividers(hybridRenderer);
         drawTitle(hybridRenderer);
         drawBottomIcons(hybridRenderer);
 
-        super.render(hybridRenderer);
+        super.renderPre(hybridRenderer);
     }
 
-    private void drawDividers(HybridRenderer r) {
+    private void drawDividers(HybridRenderer renderer) {
         int dividerOffset = (int) (componentBounds.getHeight() * 0.23f);
 
         topLineY = componentBounds.getY() + dividerOffset;
@@ -96,13 +97,13 @@ public class ModsScreenComponent extends ScreenComponent {
 
         float fade = 0.5f;
 
-        r.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade
+        renderer.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade
         );
 
-        r.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade);
+        renderer.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade);
     }
 
-    private void drawTitle(HybridRenderer r) {
+    private void drawTitle(HybridRenderer renderer) {
         titleText = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true
         );
 
@@ -120,10 +121,10 @@ public class ModsScreenComponent extends ScreenComponent {
         titleBackground = new ScreenBounds(textX - padX, textY - padY, titleText.getWidth() + padX * 2, titleText.getHeight() + padY * 2
         );
 
-        r.drawOutlineQuad(titleBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
+        renderer.drawOutlineQuad(titleBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
     }
 
-    private void drawBottomIcons(HybridRenderer r) {
+    private void drawBottomIcons(HybridRenderer renderer) {
         HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("collapse", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE)};
 
         int iconBox = 18;
@@ -134,7 +135,7 @@ public class ModsScreenComponent extends ScreenComponent {
 
         ScreenBounds iconsBackground = new ScreenBounds(componentBounds.getX() + (componentBounds.getWidth() - titleBackground.getWidth()) / 2, iconsY - 4, titleBackground.getWidth(), iconBox + 8);
 
-        r.drawOutlineQuad(iconsBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
+        renderer.drawOutlineQuad(iconsBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
 
         float step = titleText.getWidth() / (float) icons.length;
         float startCenterX = titleText.getX() + step / 2f;
@@ -151,14 +152,14 @@ public class ModsScreenComponent extends ScreenComponent {
         }
     }
 
-    private void drawBackground(HybridRenderer r) {
-        r.drawQuad(componentBounds, Theme.modsBackgroundColor);
+    private void drawBackground(HybridRenderer renderer) {
+        renderer.drawQuad(componentBounds, Theme.modsBackgroundColor);
 
         ScreenBounds rightSlice = componentBounds.from(componentBounds);
         rightSlice.setWidth(Theme.cornerRadius);
         rightSlice.setX(componentBounds.getX() + componentBounds.getWidth() - Theme.cornerRadius);
 
-        r.drawQuad(rightSlice, Theme.modsBackgroundColor, 0);
+        renderer.drawQuad(rightSlice, Theme.modsBackgroundColor, 0);
     }
 
     @Override

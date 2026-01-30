@@ -5,6 +5,7 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
 import hybrid.api.ui.Theme;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.gui.DrawContext;
@@ -36,7 +37,11 @@ public class HybridRenderer implements HybridRenderer2D {
         if (CONTEXT == 0 || CONTEXT == -1L)
             throw new RuntimeException("couldnt init nvg context");
 
+
         nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
+    }
+    public static void onShutdown(){
+        nvgDelete(CONTEXT);
     }
 
     public static void render() {
@@ -72,7 +77,7 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgEndFrame(CONTEXT);
         restore();
 
-        restore();
+
     }
 
     private static void setup() {
@@ -174,12 +179,12 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgFill(CONTEXT);
     }
     @Override
-    public void drawHorizontalLine(ScreenBounds bounds, Color color,float percent) {
+    public void drawHorizontalLine(ScreenBounds bounds, Color color, float distance) {
 
         float y = bounds.y + bounds.height / 2f;
 
         float halfWidth = bounds.width / 2f;
-        float solidHalf = halfWidth * percent;
+        float solidHalf = halfWidth * distance;
 
         float leftFadeStart = bounds.x + halfWidth - solidHalf;
         float rightFadeStart = bounds.x + halfWidth + solidHalf;
@@ -211,6 +216,47 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgLineTo(CONTEXT, bounds.x + bounds.width, y);
         nvgStrokePaint(CONTEXT, GLOW_PAINT);
         nvgStrokeWidth(CONTEXT, bounds.height);
+        nvgStroke(CONTEXT);
+    }
+
+    @Override
+    public void drawVerticalLine(ScreenBounds bounds, Color color, float distance) {
+
+        float x = bounds.x + bounds.width / 2f;
+
+        float halfHeight = bounds.height / 2f;
+        float solidHalf = halfHeight * distance;
+
+        float topFadeStart = bounds.y + halfHeight - solidHalf;
+        float bottomFadeStart = bounds.y + halfHeight + solidHalf;
+
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 0, GLOW_OUTER);
+
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 255, GLOW_INNER);
+
+        nvgLinearGradient(CONTEXT, x, bounds.y, x, topFadeStart, GLOW_OUTER, GLOW_INNER, GLOW_PAINT);
+
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, x, bounds.y);
+        nvgLineTo(CONTEXT, x, topFadeStart);
+        nvgStrokePaint(CONTEXT, GLOW_PAINT);
+        nvgStrokeWidth(CONTEXT, bounds.width);
+        nvgStroke(CONTEXT);
+
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, x, topFadeStart);
+        nvgLineTo(CONTEXT, x, bottomFadeStart);
+        nvgStrokeColor(CONTEXT, GLOW_INNER);
+        nvgStrokeWidth(CONTEXT, bounds.width);
+        nvgStroke(CONTEXT);
+
+        nvgLinearGradient(CONTEXT, x, bottomFadeStart, x, bounds.y + bounds.height, GLOW_INNER, GLOW_OUTER, GLOW_PAINT);
+
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, x, bottomFadeStart);
+        nvgLineTo(CONTEXT, x, bounds.y + bounds.height);
+        nvgStrokePaint(CONTEXT, GLOW_PAINT);
+        nvgStrokeWidth(CONTEXT, bounds.width);
         nvgStroke(CONTEXT);
     }
 

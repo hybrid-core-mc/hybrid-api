@@ -22,6 +22,9 @@ public abstract class HybridMod {
         return name;
     }
 
+    public String getDesc(){
+        return "Adds emojis to the minecraft chat its cool.\n TBh moaning bear is so maoning LOL xd";
+    }
     public List<ModSettingCategory> getCategories() {
         return modSettingCategories;
     }

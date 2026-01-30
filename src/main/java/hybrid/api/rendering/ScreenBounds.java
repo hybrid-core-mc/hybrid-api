@@ -3,13 +3,6 @@ package hybrid.api.rendering;
 public class ScreenBounds {
     int x, y, width, height;
 
-    public ScreenBounds() {
-    }
-
-    public ScreenBounds(int width, int height) {
-        this.width = width;
-        this.height = height;
-    }
 
     public ScreenBounds(int x, int y, int width, int height) {
         this.x = x;

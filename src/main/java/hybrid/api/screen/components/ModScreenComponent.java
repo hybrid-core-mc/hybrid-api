@@ -1,0 +1,181 @@
+package hybrid.api.screen.components;
+
+import hybrid.api.font.FontStyle;
+import hybrid.api.font.HybridRenderText;
+import hybrid.api.font.HybridTextRenderer;
+import hybrid.api.mods.HybridMod;
+import hybrid.api.rendering.HybridRenderer;
+import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.screen.ScreenComponent;
+import hybrid.api.ui.Theme;
+
+import java.awt.*;
+
+
+public class ModScreenComponent extends ScreenComponent {
+    HybridMod hybridMod;
+
+    public ModScreenComponent(HybridMod hybridMod) {
+        this.hybridMod = hybridMod;
+    }
+
+    @Override
+    public void setupBounds() {
+        componentBounds = outerBounds.from(outerBounds);
+
+        int leftMenuWidth = (int) (outerBounds.getWidth() * Theme.sidebarWidth);
+
+        componentBounds.setX(outerBounds.getX() + leftMenuWidth);
+        componentBounds.setWidth(outerBounds.getWidth() - leftMenuWidth);
+
+        super.setupBounds();
+    }
+
+    @Override
+    public void render(HybridRenderer hybridRenderer) {
+
+        hybridRenderer.drawQuad(componentBounds, Theme.backgroundColor);
+        ScreenBounds corner = new ScreenBounds(componentBounds.getX(), componentBounds.getY(), Theme.cornerRadius, componentBounds.getHeight());
+        hybridRenderer.drawQuad(corner, Theme.backgroundColor, 0);
+
+        drawHeading(hybridRenderer);
+    }
+
+    public void drawHeading(HybridRenderer renderer) {
+
+        int boxWidth = (int) (componentBounds.getWidth() * 0.9);
+        int boxHeight = 55;
+
+        int x = componentBounds.getX() + (componentBounds.getWidth() - boxWidth) / 2;
+        int y = componentBounds.getY() + 17;
+
+        renderer.drawQuad(new ScreenBounds(x, y, boxWidth, boxHeight), Theme.modBackgroundColor);
+
+        HybridRenderText title = HybridTextRenderer.getTextRenderer(hybridMod.getName(), FontStyle.BOLD, 24, Color.WHITE, true);
+
+        String[] descLines = hybridMod
+                .getDesc()
+                .split("\n");
+
+        int paddingX = 12;
+        int spacing = 4;
+
+        int descLineHeight = HybridTextRenderer
+                .getTextRenderer("A", FontStyle.REGULAR, 14, Color.LIGHT_GRAY, true)
+                .getHeight();
+
+        int totalDescHeight = descLines.length * descLineHeight + (descLines.length - 1) * spacing;
+
+        int totalTextHeight = title.getHeight() + spacing + totalDescHeight;
+
+        int startY = y + (boxHeight - totalTextHeight) / 2;
+
+        title.setPosition(x + paddingX, startY);
+        HybridTextRenderer.addText(title);
+
+        int currentY = startY + title.getHeight() + spacing;
+
+        for (String line : descLines) {
+            HybridRenderText descLine = HybridTextRenderer.getTextRenderer(line, FontStyle.REGULAR, 16, Color.LIGHT_GRAY, true);
+
+            descLine.setPosition(x + paddingX, currentY);
+            HybridTextRenderer.addText(descLine);
+
+            currentY += descLineHeight + spacing;
+        }
+
+        // icons
+
+
+        HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("github", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("modrinth", 0, 0, new Color(27, 217, 106)), HybridTextRenderer.getIconRenderer("star", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("reset", 0, 0, Color.WHITE)};
+        int iconBoxSize = 20;
+        int iconPadding = 1;
+
+        int iconQuadWidth = iconBoxSize * 2 + iconPadding;
+        int iconQuadHeight = iconBoxSize * 2 + iconPadding;
+
+        int iconQuadX = x + boxWidth - iconQuadWidth - paddingX;
+        int iconQuadY = y + (boxHeight - iconQuadHeight) / 2;
+
+
+        drawIconGrid(
+                renderer,
+                x,          // heading box X
+                y,          // heading box Y
+                boxWidth,   // heading box width
+                boxHeight,  // heading box height
+                paddingX    // same padding used for text
+        );
+    }
+
+    private void drawIconGrid(HybridRenderer renderer,
+                              int headingX,
+                              int headingY,
+                              int headingWidth,
+                              int headingHeight,
+                              int paddingX) {
+
+        HybridRenderText[] icons = {
+                HybridTextRenderer.getIconRenderer("github", 0, 0, Color.WHITE),
+                HybridTextRenderer.getIconRenderer("modrinth", 0, 0, new Color(27, 217, 106)),
+                HybridTextRenderer.getIconRenderer("star", 0, 0, Color.WHITE),
+                HybridTextRenderer.getIconRenderer("reset", 0, 0, Color.WHITE)
+        };
+
+        // ---- Layout constants ----
+        int iconBoxSize = 20;
+        int iconPadding = 1;
+        int bgMargin = 2;
+
+        // ---- Tight 2×2 grid size ----
+        int gridWidth = iconBoxSize * 2 + iconPadding;
+        int gridHeight = iconBoxSize * 2 + iconPadding;
+
+        // ---- CORRECT start X/Y (right side of heading) ----
+        int iconGridX =
+                headingX
+                        + headingWidth
+                        - gridWidth
+                        - paddingX;
+
+        int iconGridY =
+                headingY
+                        + (headingHeight - gridHeight) / 2;
+
+        // ---- Background box (2px margin) ----
+        ScreenBounds iconsBackground = new ScreenBounds(
+                iconGridX - bgMargin,
+                iconGridY - bgMargin,
+                gridWidth + bgMargin * 2,
+                gridHeight + bgMargin * 2
+        );
+
+        renderer.drawOutlineQuad(
+                iconsBackground,
+                Theme.modsBackgroundColor , Theme.modButtonOutlineColor,Theme.cornerRadius,1
+        );
+
+        // ---- Render icons (NO SCALING) ----
+        for (int i = 0; i < icons.length; i++) {
+            HybridRenderText icon = icons[i];
+
+            int col = i % 2;
+            int row = i / 2;
+
+            int iconX =
+                    iconGridX
+                            + col * (iconBoxSize + iconPadding)
+                            + (iconBoxSize - icon.getWidth()) / 2;
+
+            int iconY =
+                    iconGridY
+                            + row * (iconBoxSize + iconPadding)
+                            + (iconBoxSize - icon.getHeight()) / 2;
+
+            icon.setPosition(iconX, iconY);
+            HybridTextRenderer.addText(icon);
+        }
+    }
+
+
+}

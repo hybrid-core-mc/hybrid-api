@@ -11,5 +11,7 @@ public interface HybridRenderer2D {
 
     void drawCircle(ScreenBounds bounds, Color color);
 
-    void drawHorizontalLine(ScreenBounds bounds, Color colorStart,float i);
+    void drawHorizontalLine(ScreenBounds bounds, Color colorStart, float distance);
+    void drawVerticalLine(ScreenBounds bounds, Color colorStart,float i);
+
 }
