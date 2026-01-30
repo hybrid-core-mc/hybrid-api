@@ -3,6 +3,7 @@ package hybrid.api.screen.components;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
+import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
@@ -23,8 +24,8 @@ public class ModsScreenComponent extends ScreenComponent {
     public ModsScreenComponent() {
         if (!buttons.isEmpty()) return;
 
-        for (String mod : HybridMods.mods) {
-            buttons.add(new ModButton(mod));
+        for (HybridMod mod : HybridMods.mods) {
+            buttons.add(new ModButton(mod.getName()));
         }
     }
 
