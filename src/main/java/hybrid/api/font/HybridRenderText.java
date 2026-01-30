@@ -45,7 +45,6 @@ public class HybridRenderText {
     }
 
 
-
     public SVGDocument getSvgDocument() {
         return svgDocument;
     }

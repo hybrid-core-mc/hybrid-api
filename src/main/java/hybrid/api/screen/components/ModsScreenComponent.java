@@ -66,8 +66,8 @@ public class ModsScreenComponent extends ScreenComponent {
 
             offset += buttonHeight + buttonSpacing;
         }
-        HybridRenderText renderText = HybridTextRenderer.getIconRenderer("expand", 5, 5, Color.RED);
-        HybridTextRenderer.addText(renderText);
+
+
     }
 
 
@@ -107,6 +107,7 @@ public class ModsScreenComponent extends ScreenComponent {
                 Theme.modButtonOutlineColor,magic
         );
 
+
         int textX = componentBounds.getX()
                 + (componentBounds.getWidth() - text.getWidth()) / 2;
 
@@ -119,9 +120,20 @@ public class ModsScreenComponent extends ScreenComponent {
 
         text.setPosition(textX, textY);
         HybridTextRenderer.addText(text);
+
+        renderIcon("collapse",bottomLineY,0);
+        renderIcon("theme",bottomLineY,20);
+        renderIcon("settings",bottomLineY,30);
+
+
         super.renderPost(hybridRenderer);
     }
 
+    public void renderIcon(String name, int y, int x) {
+
+        HybridRenderText renderText = HybridTextRenderer.getIconRenderer(name, componentBounds.getX() + x, y + 5, Color.WHITE);
+        HybridTextRenderer.addText(renderText);
+    }
 
     public static class ModButton { // todo: make thsi a real componenet XD
         String name;
