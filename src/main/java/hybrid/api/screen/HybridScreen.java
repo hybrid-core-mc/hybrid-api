@@ -40,7 +40,8 @@ public class HybridScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(Click click, boolean doubled) {
-        return super.mouseClicked(click, doubled);
+    public boolean mouseReleased(Click click) {
+        modsScreenComponent.onMouseRelease(click);
+        return super.mouseReleased(click);
     }
 }

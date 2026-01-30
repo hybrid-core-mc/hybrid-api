@@ -8,6 +8,7 @@ import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
+import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -160,5 +161,21 @@ public class ModsScreenComponent extends ScreenComponent {
         r.drawQuad(rightSlice, Theme.modsBackgroundColor, 0);
     }
 
+    @Override
+    public void onMouseRelease(Click click) {
+
+        int mouseX = (int) click.x();
+        int mouseY = (int) click.y();
+
+        for (ModButton button : buttons) {
+            if (button.getBounds().contains(mouseX, mouseY)) {
+
+                buttons.forEach(b -> b.selected = (b == button));
+                break;
+            }
+        }
+
+        super.onMouseRelease(click);
+    }
 
 }

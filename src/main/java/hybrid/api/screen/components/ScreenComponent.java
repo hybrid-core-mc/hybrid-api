@@ -2,6 +2,7 @@ package hybrid.api.screen.components;
 
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import net.minecraft.client.gui.Click;
 
 public abstract class ScreenComponent {
     public ScreenBounds componentBounds;
@@ -20,6 +21,9 @@ public abstract class ScreenComponent {
 
     public abstract void renderPost(HybridRenderer hybridRenderer);
 
+    public void onMouseRelease(Click click) {
+
+    }
     public void render(HybridRenderer hybridRenderer) {
 
     }

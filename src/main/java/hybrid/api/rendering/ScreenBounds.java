@@ -86,4 +86,12 @@ public class ScreenBounds {
     public String toString() {
         return "x " + x + " y " + y + " width: " + width + " height " + height;
     }
+
+    public boolean contains(int mouseX, int mouseY) {
+        return mouseX >= x
+                && mouseX <= x + width
+                && mouseY >= y
+                && mouseY <= y + height;
+    }
+
 }

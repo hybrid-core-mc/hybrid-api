@@ -8,23 +8,38 @@ import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.ui.Theme;
 
 import java.awt.*;
-import java.util.Objects;
 
-public class ModButton { // todo: make thsi a real componenet XD
-    String name;
+public class ModButton { // todo: make this a real component XD
+
+    private final String name;
+    boolean selected;
 
     public ModButton(String name) {
         this.name = name;
     }
+    private ScreenBounds bounds;
+
+    public String getName() {
+        return name;
+    }
 
     public void render(HybridRenderer renderer, ScreenBounds bounds) {
+        this.bounds = bounds;
 
 
-        if (Objects.equals(name, "Mono Bao")) {
-            renderer.drawOutlineQuad(bounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 10, 1);
+        if (selected) {
+            renderer.drawOutlineQuad(
+                    bounds,
+                    Theme.modBackgroundColor,
+                    Theme.modButtonOutlineColor,
+                    10,
+                    1
+            );
         } else {
             renderer.drawQuad(bounds, Theme.modBackgroundColor, 10);
         }
+
+
         int circleSize = 6;
         int padding = 8;
 
@@ -50,7 +65,16 @@ public class ModButton { // todo: make thsi a real componenet XD
         HybridTextRenderer.addText(text);
     }
 
-    public void onClick() {
 
+    public ScreenBounds getBounds() {
+        return bounds;
+    }
+
+    public void onClick() {
+        System.out.println("Clicked mod: " + name);
+    }
+
+    public void setSelected(boolean b) {
+        this.selected = b;
     }
 }
