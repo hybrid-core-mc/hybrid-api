@@ -120,35 +120,32 @@ public class ModsScreenComponent extends ScreenComponent {
         HybridRenderText icon2 = HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE);
         HybridRenderText icon3 = HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE);
 
-        int iconSpacing = 4;
         int iconBox = 18;
 
         int iconsWidth = text.getWidth();
-
-        int iconsStartX = textX;
 
         int bottomBandHeight = componentBounds.getY() + componentBounds.getHeight() - bottomLineY;
 
         int iconsY = bottomLineY + (bottomBandHeight - iconBox) / 2;
 
         ScreenBounds iconsBackground = new ScreenBounds(
-                iconsStartX - 4,
+                textX - 4,
                 iconsY - 4,
                 iconsWidth + 8,
                 iconBox + 8
         );
 
-        hybridRenderer.drawQuad(
+        hybridRenderer.drawOutlineQuad(
                 iconsBackground,
                 Theme.modBackgroundColor,
-                6
+                Theme.modButtonOutlineColor,6,1
         );
 
         int iconCount = 3;
 
         float step = iconsWidth / (float) iconCount;
 
-        float startCenterX = iconsStartX + step / 2f;
+        float startCenterX = textX + step / 2f;
         HybridRenderText[] icons = { icon1, icon2, icon3 };
 
         for (int i = 0; i < icons.length; i++) {
