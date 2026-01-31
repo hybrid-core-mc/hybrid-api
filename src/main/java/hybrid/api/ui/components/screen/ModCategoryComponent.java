@@ -77,26 +77,40 @@ public class ModCategoryComponent extends HybridComponent {
         if (extended) {
 
 
-            int currentY = componentBounds.getY() + getNoneExtendedHeight() + 5;
+            int startY = componentBounds.getY() + getNoneExtendedHeight() + 5;
+            int currentY = startY;
 
             for (HybridComponent component : modSettingComponents) {
 
-                component.componentBounds = outerBounds.copy();
-
-                int width = outerBounds.getWidth();
                 int height = getDefaultHeight(component);
+                int width = componentBounds.getWidth() - (Theme.xPadding * 2);
+
+                component.outerBounds = new ScreenBounds(
+                        componentBounds.getX() + Theme.xPadding,
+                        currentY,
+                        width,
+                        height
+                );
+
+                component.componentBounds = component.outerBounds.copy();
 
 
-                component.outerBounds = new ScreenBounds(componentBounds.getX(), currentY, width, height);
+                currentY += height + 5;
+            }
 
 
-//                component.renderPre(hybridRenderer);
-//                component.render(hybridRenderer);
+            ScreenBounds background = new ScreenBounds(
+                    componentBounds.getX(),
+                    startY,
+                    componentBounds.getWidth(),
+                    currentY - startY
+            );
+            hybridRenderer.drawOutlineQuad(background, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 10, 1
+            );
 
-
-                hybridRenderer.drawQuad(component.outerBounds,Color.BLUE,0);
-                currentY += getDefaultHeight(component) + 5;
-
+            for (HybridComponent modSettingComponent : modSettingComponents) {
+                modSettingComponent.renderPre(hybridRenderer);
+                modSettingComponent.render(hybridRenderer);
             }
 
         }
