@@ -54,13 +54,12 @@ public class HybridTextRenderer {
     }
 
 
-    public static HybridRenderText getIconRenderer(String name, int x, int y, Color color) {
+    public static HybridRenderText getIconRenderer(String name, Color color) {
 
         String key = name + "|" + color.getRGB();
 
         HybridRenderText icon = iconCache.get(key);
         if (icon != null) {
-            icon.setPosition(x, y);
             return icon;
         }
 
@@ -78,7 +77,6 @@ public class HybridTextRenderer {
         icon = new HybridRenderText(0, 0, svgDocument, color, false);
         iconCache.put(key, icon);
 
-        icon.setPosition(x, y);
         return icon;
     }
 

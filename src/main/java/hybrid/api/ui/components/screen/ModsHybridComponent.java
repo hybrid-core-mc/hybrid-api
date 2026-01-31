@@ -96,15 +96,13 @@ public class ModsHybridComponent extends HybridComponent {
 
         float fade = 0.5f;
 
-        renderer.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade
-        );
+        renderer.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), topLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade);
 
         renderer.drawHorizontalLine(new ScreenBounds(componentBounds.getX(), bottomLineY, componentBounds.getWidth(), 1), Theme.modButtonOutlineColor, fade);
     }
 
     private void drawTitle(HybridRenderer renderer) {
-        titleText = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true
-        );
+        titleText = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true);
 
         int textX = componentBounds.getX() + (componentBounds.getWidth() - titleText.getWidth()) / 2;
 
@@ -117,14 +115,13 @@ public class ModsHybridComponent extends HybridComponent {
         int padX = 8;
         int padY = 6;
 
-        titleBackground = new ScreenBounds(textX - padX, textY - padY, titleText.getWidth() + padX * 2, titleText.getHeight() + padY * 2
-        );
+        titleBackground = new ScreenBounds(textX - padX, textY - padY, titleText.getWidth() + padX * 2, titleText.getHeight() + padY * 2);
 
         renderer.drawOutlineQuad(titleBackground, Theme.modBackgroundColor, Theme.uiOutlineColor, 6, 1);
     }
 
     private void drawBottomIcons(HybridRenderer renderer) {
-        HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("collapse", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("theme", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("settings", 0, 0, Color.WHITE)};
+        HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("collapse", Color.WHITE), HybridTextRenderer.getIconRenderer("theme", Color.WHITE), HybridTextRenderer.getIconRenderer("settings", Color.WHITE)};
 
         int iconBox = 18;
 

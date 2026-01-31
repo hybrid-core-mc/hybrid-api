@@ -9,6 +9,7 @@ import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
 import hybrid.api.ui.components.HybridComponent;
+import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -23,6 +24,10 @@ public class ModHybridComponent extends HybridComponent {
 
     public ModHybridComponent(HybridMod hybridMod) {
         this.hybridMod = hybridMod;
+        for (ModSettingCategory modSettingCategory : hybridMod.getModSettingCategories()) {
+            modCategoryComponents.add(new ModCategoryComponent(modSettingCategory));
+        }
+        System.out.println("init the componenet category");
     }
 
     @Override
@@ -45,29 +50,28 @@ public class ModHybridComponent extends HybridComponent {
 
 
     private void layoutCategories() {
-        modCategoryComponents.clear();
 
         int headingHeight = 55;
         int headingMarginTop = 17;
         int spacing = 8;
 
         int currentY = componentBounds.getY() + headingMarginTop + headingHeight + 20;
+        int categoryHeight = 50;
 
-        int categoryHeight = 70;
+        for (ModCategoryComponent component : modCategoryComponents) {
 
-        for (ModSettingCategory category : hybridMod.getModSettingCategories()) {
-
-            ModCategoryComponent component = new ModCategoryComponent(category);
-
-            component.outerBounds = (new ScreenBounds(componentBounds.getX(), currentY, boxWidth, categoryHeight));
+            component.outerBounds = new ScreenBounds(
+                    componentBounds.getX(),
+                    currentY,
+                    boxWidth,
+                    categoryHeight
+            );
 
             component.setupBounds();
-
-            modCategoryComponents.add(component);
-
             currentY += categoryHeight + spacing;
         }
     }
+
 
 
     @Override
@@ -86,16 +90,14 @@ public class ModHybridComponent extends HybridComponent {
 
     public void drawSettings(HybridRenderer renderer) {
 
-        int headingX = componentBounds.getX() + (componentBounds.getWidth() - boxWidth) / 2;
 
         for (ModCategoryComponent component : modCategoryComponents) {
 
             ScreenBounds bounds = component.componentBounds;
 
-            bounds.setX(headingX);
+            bounds.setX(getBoxX());
             bounds.setWidth(boxWidth);
 
-            component.setupBounds();
             component.render(renderer);
         }
     }
@@ -104,7 +106,7 @@ public class ModHybridComponent extends HybridComponent {
 
         int boxHeight = 55;
 
-        int x = componentBounds.getX() + (componentBounds.getWidth() - boxWidth) / 2;
+        int x = getBoxX();
 
         int y = componentBounds.getY() + 17;
 
@@ -116,23 +118,23 @@ public class ModHybridComponent extends HybridComponent {
                 .getDesc()
                 .split("\n");
 
-        int paddingX = 12;
-        int spacing = 4;
+        int paddingX = Theme.xPadding;
+        int lineSpacing = 4; // no need since this will alwas be the same
 
         int descLineHeight = HybridTextRenderer
-                .getTextRenderer("A", FontStyle.REGULAR, 14, Color.LIGHT_GRAY, true)
+                .getTextRenderer("A", FontStyle.REGULAR, 14, Color.LIGHT_GRAY, false)
                 .getHeight();
 
-        int totalDescHeight = descLines.length * descLineHeight + (descLines.length - 1) * spacing;
+        int totalDescHeight = descLines.length * descLineHeight + (descLines.length - 1) * lineSpacing;
 
-        int totalTextHeight = title.getHeight() + spacing + totalDescHeight;
+        int totalTextHeight = title.getHeight() + lineSpacing + totalDescHeight;
 
         int startY = y + (boxHeight - totalTextHeight) / 2;
 
         title.setPosition(x + paddingX, startY);
         HybridTextRenderer.addText(title);
 
-        int currentY = startY + title.getHeight() + spacing;
+        int currentY = startY + title.getHeight() + lineSpacing;
 
         for (String line : descLines) {
             HybridRenderText descLine = HybridTextRenderer.getTextRenderer(line, FontStyle.REGULAR, 16, Color.LIGHT_GRAY, true);
@@ -140,15 +142,13 @@ public class ModHybridComponent extends HybridComponent {
             descLine.setPosition(x + paddingX, currentY);
             HybridTextRenderer.addText(descLine);
 
-            currentY += descLineHeight + spacing;
+            currentY += descLineHeight + lineSpacing;
         }
 
         drawIconGrid(renderer, x, y, boxWidth, boxHeight, paddingX);
     }
 
-    // -------------------------------------------------
-    // Icons
-    // -------------------------------------------------
+
     private void drawIconGrid(HybridRenderer renderer,
                               int headingX,
                               int headingY,
@@ -157,10 +157,10 @@ public class ModHybridComponent extends HybridComponent {
                               int paddingX) {
 
         HybridRenderText[] icons = {
-                HybridTextRenderer.getIconRenderer("github", 0, 0, Color.WHITE),
-                HybridTextRenderer.getIconRenderer("modrinth", 0, 0, new Color(27, 217, 106)),
-                HybridTextRenderer.getIconRenderer("star", 0, 0, Color.WHITE),
-                HybridTextRenderer.getIconRenderer("reset", 0, 0, Color.WHITE)
+                HybridTextRenderer.getIconRenderer("github", Color.WHITE),
+                HybridTextRenderer.getIconRenderer("modrinth", new Color(27, 217, 106)),
+                HybridTextRenderer.getIconRenderer("star", Color.WHITE),
+                HybridTextRenderer.getIconRenderer("reset", Color.WHITE)
         };
 
         int iconBoxSize = 20;
@@ -203,5 +203,15 @@ public class ModHybridComponent extends HybridComponent {
             icon.setPosition(iconX, iconY);
             HybridTextRenderer.addText(icon);
         }
+    }
+
+    @Override
+    public void onMouseRelease(Click click) {
+        modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseRelease(click));
+        super.onMouseRelease(click);
+    }
+
+    public int getBoxX() {
+        return componentBounds.getX() + (componentBounds.getWidth() - boxWidth) / 2;
     }
 }

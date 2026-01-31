@@ -17,16 +17,17 @@ import java.util.List;
 public class HybridScreen extends Screen {
 
     private final ScreenBounds bounds;
-    private final List<HybridComponent> components = new ArrayList<>();
+    private final List<HybridComponent> hybridModComponentList = new ArrayList<>();
 
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));
 
         this.bounds = new ScreenBounds(0, 0, width, height);
 
-        components.add(new ModsHybridComponent());
-        components.add(new ModHybridComponent(HybridMods.mods.getFirst()));
+        hybridModComponentList.add(new ModsHybridComponent());
+        hybridModComponentList.add(new ModHybridComponent(HybridMods.mods.getFirst()));
     }
+
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
@@ -39,7 +40,7 @@ public class HybridScreen extends Screen {
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
 
-        for (HybridComponent component : components) {
+        for (HybridComponent component : hybridModComponentList) {
             component.outerBounds = bounds;
             component.setupBounds();
             component.renderPre(renderer);
@@ -52,7 +53,7 @@ public class HybridScreen extends Screen {
     @Override
     public boolean mouseReleased(Click click) {
 
-        for (HybridComponent component : components) {
+        for (HybridComponent component : hybridModComponentList) {
             component.onMouseRelease(click);
         }
 
