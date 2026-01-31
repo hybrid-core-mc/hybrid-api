@@ -1,10 +1,10 @@
-package hybrid.api.screen;
+package hybrid.api.ui.components;
 
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import net.minecraft.client.gui.Click;
 
-public abstract class ScreenComponent {
+public abstract class HybridComponent {
     public ScreenBounds componentBounds;
     public static ScreenBounds outerBounds;
 
@@ -16,7 +16,7 @@ public abstract class ScreenComponent {
     }
 
     public void setOuterBounds(ScreenBounds outerBounds) {
-        ScreenComponent.outerBounds = outerBounds;
+        HybridComponent.outerBounds = outerBounds;
     }
 
     public abstract void render(HybridRenderer hybridRenderer);

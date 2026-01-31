@@ -1,10 +1,11 @@
-package hybrid.api.screen;
+package hybrid.api.ui;
 
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.screen.components.ModScreenComponent;
-import hybrid.api.screen.components.ModsScreenComponent;
+import hybrid.api.ui.components.screen.ModHybridComponent;
+import hybrid.api.ui.components.screen.ModsHybridComponent;
+import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,15 +17,15 @@ import java.util.List;
 public class HybridScreen extends Screen {
 
     private final ScreenBounds bounds;
-    private final List<ScreenComponent> components = new ArrayList<>();
+    private final List<HybridComponent> components = new ArrayList<>();
 
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));
 
         this.bounds = new ScreenBounds(0, 0, width, height);
 
-        components.add(new ModsScreenComponent());
-        components.add(new ModScreenComponent(HybridMods.mods.getFirst()));
+        components.add(new ModsHybridComponent());
+        components.add(new ModHybridComponent(HybridMods.mods.getFirst()));
     }
 
     @Override
@@ -38,7 +39,7 @@ public class HybridScreen extends Screen {
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
 
-        for (ScreenComponent component : components) {
+        for (HybridComponent component : components) {
             component.setOuterBounds(bounds);
             component.setupBounds();
             component.renderPre(renderer);
@@ -51,7 +52,7 @@ public class HybridScreen extends Screen {
     @Override
     public boolean mouseReleased(Click click) {
 
-        for (ScreenComponent component : components) {
+        for (HybridComponent component : components) {
             component.onMouseRelease(click);
         }
 

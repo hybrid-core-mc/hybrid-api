@@ -1,4 +1,4 @@
-package hybrid.api.ui;
+package hybrid.api.theme;
 
 import java.awt.*;
 

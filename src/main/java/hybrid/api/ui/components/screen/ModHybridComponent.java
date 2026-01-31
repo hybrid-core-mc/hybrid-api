@@ -1,4 +1,4 @@
-package hybrid.api.screen.components;
+package hybrid.api.ui.components.screen;
 
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
@@ -6,16 +6,17 @@ import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.HybridMod;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.screen.ScreenComponent;
-import hybrid.api.ui.Theme;
+import hybrid.api.theme.Theme;
+import hybrid.api.ui.components.HybridComponent;
 
 import java.awt.*;
 
 
-public class ModScreenComponent extends ScreenComponent {
+public class ModHybridComponent extends HybridComponent {
     HybridMod hybridMod;
+    int boxWidth = (int) (componentBounds.getWidth() * 0.9);
 
-    public ModScreenComponent(HybridMod hybridMod) {
+    public ModHybridComponent(HybridMod hybridMod) {
         this.hybridMod = hybridMod;
     }
 
@@ -28,6 +29,11 @@ public class ModScreenComponent extends ScreenComponent {
         componentBounds.setX(outerBounds.getX() + leftMenuWidth);
         componentBounds.setWidth(outerBounds.getWidth() - leftMenuWidth);
 
+
+        // setup settings
+
+
+
         super.setupBounds();
     }
 
@@ -39,11 +45,15 @@ public class ModScreenComponent extends ScreenComponent {
         hybridRenderer.drawQuad(corner, Theme.backgroundColor, 0);
 
         drawHeading(hybridRenderer);
+        drawSettings(hybridRenderer);
+    }
+
+    public void drawSettings(HybridRenderer renderer) {
+
     }
 
     public void drawHeading(HybridRenderer renderer) {
 
-        int boxWidth = (int) (componentBounds.getWidth() * 0.9);
         int boxHeight = 55;
 
         int x = componentBounds.getX() + (componentBounds.getWidth() - boxWidth) / 2;
@@ -84,27 +94,8 @@ public class ModScreenComponent extends ScreenComponent {
             currentY += descLineHeight + spacing;
         }
 
-        // icons
 
-
-        HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("github", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("modrinth", 0, 0, new Color(27, 217, 106)), HybridTextRenderer.getIconRenderer("star", 0, 0, Color.WHITE), HybridTextRenderer.getIconRenderer("reset", 0, 0, Color.WHITE)};
-        int iconBoxSize = 20;
-        int iconPadding = 1;
-
-        int iconQuadWidth = iconBoxSize * 2 + iconPadding;
-        int iconQuadHeight = iconBoxSize * 2 + iconPadding;
-
-        int iconQuadX = x + boxWidth - iconQuadWidth - paddingX;
-        int iconQuadY = y + (boxHeight - iconQuadHeight) / 2;
-
-
-        drawIconGrid(
-                renderer,
-                x,          // heading box X
-                y,          // heading box Y
-                boxWidth,   // heading box width
-                boxHeight,  // heading box height
-                paddingX    // same padding used for text
+        drawIconGrid(renderer, x, y, boxWidth, boxHeight, paddingX
         );
     }
 
@@ -146,9 +137,7 @@ public class ModScreenComponent extends ScreenComponent {
                 gridHeight + bgMargin * 2
         );
 
-        renderer.drawOutlineQuad(
-                iconsBackground,
-                Theme.modsBackgroundColor , Theme.modButtonOutlineColor,Theme.cornerRadius,1
+        renderer.drawOutlineQuad(iconsBackground, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 10, 1
         );
 
         for (int i = 0; i < icons.length; i++) {

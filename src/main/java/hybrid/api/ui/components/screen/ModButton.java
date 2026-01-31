@@ -1,11 +1,11 @@
-package hybrid.api.screen.components;
+package hybrid.api.ui.components.screen;
 
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.ui.Theme;
+import hybrid.api.theme.Theme;
 
 import java.awt.*;
 

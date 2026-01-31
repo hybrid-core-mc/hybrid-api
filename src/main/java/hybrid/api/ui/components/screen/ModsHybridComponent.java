@@ -1,4 +1,4 @@
-package hybrid.api.screen.components;
+package hybrid.api.ui.components.screen;
 
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
@@ -7,15 +7,15 @@ import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.screen.ScreenComponent;
-import hybrid.api.ui.Theme;
+import hybrid.api.theme.Theme;
+import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModsScreenComponent extends ScreenComponent {
+public class ModsHybridComponent extends HybridComponent {
 
     public static List<ModButton> buttons = new ArrayList<>();
     private int topLineY;
@@ -23,7 +23,7 @@ public class ModsScreenComponent extends ScreenComponent {
     private HybridRenderText titleText;
     private ScreenBounds titleBackground;
 
-    public ModsScreenComponent() {
+    public ModsHybridComponent() {
         if (!buttons.isEmpty()) return;
 
         for (HybridMod mod : HybridMods.mods) {

@@ -6,12 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class HybridMod {
-    String name;
+    String name,desc;
     float version;
     protected final List<ModSettingCategory> modSettingCategories = new ArrayList<>();
 
     public HybridMod(String name, float version) {
         this.name = name;
+        this.version = version;
+        modSettingCategories.addAll(createSettings());
+    }
+
+    public List<ModSettingCategory> getModSettingCategories() {
+        return modSettingCategories;
+    }
+
+    public HybridMod(String name, String desc, float version) {
+        this.name = name;
+        this.desc = desc;
         this.version = version;
         modSettingCategories.addAll(createSettings());
     }
@@ -23,7 +34,7 @@ public abstract class HybridMod {
     }
 
     public String getDesc(){
-        return "Adds emojis to the minecraft chat its cool.\n TBh moaning bear is so maoning LOL xd";
+        return desc;
     }
     public List<ModSettingCategory> getCategories() {
         return modSettingCategories;
