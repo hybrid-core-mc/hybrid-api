@@ -36,13 +36,13 @@ public class HybridRenderer implements HybridRenderer2D {
         if (CONTEXT == 0 || CONTEXT == -1L)
             throw new RuntimeException("couldnt init nvg context");
 
-        Runtime
-                .getRuntime()
-                .addShutdownHook(new Thread(() -> {
-                    RenderSystem.assertOnRenderThread();
-                    mc.execute(HybridRenderer::onShutdown);
-                }));
-
+//        Runtime
+//                .getRuntime()
+//                .addShutdownHook(new Thread(() -> {
+//                    RenderSystem.assertOnRenderThread();
+//                    mc.execute(HybridRenderer::onShutdown);
+//                }));
+//
 
         nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
     }

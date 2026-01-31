@@ -11,14 +11,6 @@ public abstract class HybridComponent {
     public void setupBounds() {
     }
 
-    public void setComponentBounds(ScreenBounds componentBounds) {
-        this.componentBounds = componentBounds;
-    }
-
-    public void setOuterBounds(ScreenBounds outerBounds) {
-        this.outerBounds = outerBounds;
-    }
-
     public abstract void render(HybridRenderer hybridRenderer);
 
     public void onMouseRelease(Click click) {

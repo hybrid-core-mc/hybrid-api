@@ -41,7 +41,6 @@ public class ModsHybridComponent extends HybridComponent {
 
         componentBounds.setWidth(leftMenuWidth);
 
-        setComponentBounds(componentBounds);
 
     }
 

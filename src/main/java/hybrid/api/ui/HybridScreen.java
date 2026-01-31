@@ -3,9 +3,9 @@ package hybrid.api.ui;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.screen.ModHybridComponent;
 import hybrid.api.ui.components.screen.ModsHybridComponent;
-import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -40,7 +40,7 @@ public class HybridScreen extends Screen {
 
 
         for (HybridComponent component : components) {
-            component.setOuterBounds(bounds);
+            component.outerBounds = bounds;
             component.setupBounds();
             component.renderPre(renderer);
             component.render(renderer);

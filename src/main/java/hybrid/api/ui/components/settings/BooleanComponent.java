@@ -16,11 +16,7 @@ public class BooleanComponent extends HybridComponent {
     }
 
 
-    @Override
-    public void setupBounds() {
 
-        super.setupBounds();
-    }
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
