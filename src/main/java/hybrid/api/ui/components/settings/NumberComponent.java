@@ -4,6 +4,8 @@ import hybrid.api.mods.settings.NumberSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.ui.components.HybridComponent;
 
+import java.awt.*;
+
 public class NumberComponent extends HybridComponent {
     NumberSetting numberSetting;
 
@@ -11,13 +13,11 @@ public class NumberComponent extends HybridComponent {
         this.numberSetting = numberSetting;
     }
 
-    @Override
-    public void setupBounds() {
-        super.setupBounds();
-    }
+
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
+        hybridRenderer.drawQuad(componentBounds, Color.PINK);
 
     }
 }

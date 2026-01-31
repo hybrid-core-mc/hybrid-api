@@ -60,16 +60,12 @@ public class ModHybridComponent extends HybridComponent {
 
         for (ModCategoryComponent component : modCategoryComponents) {
 
-            component.outerBounds = new ScreenBounds(
-                    componentBounds.getX(),
-                    currentY,
-                    boxWidth,
-                    categoryHeight
-            );
+            component.outerBounds = new ScreenBounds(componentBounds.getX(), currentY, boxWidth, categoryHeight);
 
             component.setupBounds();
             currentY += categoryHeight + spacing;
         }
+
     }
 
 

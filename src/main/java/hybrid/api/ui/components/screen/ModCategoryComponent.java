@@ -22,7 +22,7 @@ import java.util.List;
 public class ModCategoryComponent extends HybridComponent {
 
     private final ModSettingCategory modSettingCategory;
-    private final List<HybridComponent> components = new ArrayList<>();
+    private final List<HybridComponent> modSettingComponents = new ArrayList<>();
      boolean extended;
 
     public ModCategoryComponent(ModSettingCategory modSettingCategory) {
@@ -30,8 +30,10 @@ public class ModCategoryComponent extends HybridComponent {
         this.extended = false;
 
         for (ModSetting<?> setting : modSettingCategory.settings()) {
-            if (setting instanceof BooleanSetting) components.add(new BooleanComponent((BooleanSetting) setting));
-            if (setting instanceof NumberSetting) components.add(new NumberComponent((NumberSetting) setting));
+            if (setting instanceof BooleanSetting)
+                modSettingComponents.add(new BooleanComponent((BooleanSetting) setting));
+            if (setting instanceof NumberSetting)
+                modSettingComponents.add(new NumberComponent((NumberSetting) setting));
         }
 
         System.out.println("init the category settings comp");
@@ -43,31 +45,11 @@ public class ModCategoryComponent extends HybridComponent {
 
         componentBounds = outerBounds.copy();
 
-        int paddingY = 10;
-        int spacing = 6;
-
-        int currentY = componentBounds.getY() + paddingY;
-        int centerX = componentBounds.getX() + componentBounds.getWidth() / 2;
-
-        for (HybridComponent component : components) {
-
-            component.componentBounds = outerBounds.copy();
-
-            int width = outerBounds.getWidth();
-            int height = getDefaultHeight(component);
-
-            int x = centerX - width / 2;
-
-            component.outerBounds = new ScreenBounds(x, currentY, width, height);
-            component.setupBounds();
-            currentY += height + spacing;
-        }
-
-
         componentBounds.setHeight(extended ? 80 : 34);
 
         super.setupBounds();
     }
+
     public int getNoneExtendedHeight(){
         return 34;
     }
@@ -94,10 +76,28 @@ public class ModCategoryComponent extends HybridComponent {
 
         if (extended) {
 
-//            components.forEach(hybridComponent -> {
-//                hybridComponent.renderPre(hybridRenderer);
-//                hybridComponent.render(hybridRenderer);
-//            });
+
+            int currentY = componentBounds.getY() + getNoneExtendedHeight() + 5;
+
+            for (HybridComponent component : modSettingComponents) {
+
+                component.componentBounds = outerBounds.copy();
+
+                int width = outerBounds.getWidth();
+                int height = getDefaultHeight(component);
+
+
+                component.outerBounds = new ScreenBounds(componentBounds.getX(), currentY, width, height);
+
+
+//                component.renderPre(hybridRenderer);
+//                component.render(hybridRenderer);
+
+
+                hybridRenderer.drawQuad(component.outerBounds,Color.BLUE,0);
+                currentY += getDefaultHeight(component) + 5;
+
+            }
 
         }
     }

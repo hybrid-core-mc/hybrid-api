@@ -16,10 +16,8 @@ public class BooleanComponent extends HybridComponent {
     }
 
 
-
-
     @Override
     public void render(HybridRenderer hybridRenderer) {
-        hybridRenderer.drawOutlineQuad(componentBounds,booleanSetting.get() ? Color.GREEN : Color.RED ,Color.WHITE,1,1);
+//        hybridRenderer.drawOutlineQuad(componentBounds,booleanSetting.get() ? Color.GREEN : Color.RED ,Color.WHITE,1,1);
     }
 }
