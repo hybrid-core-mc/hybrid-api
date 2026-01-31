@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ModsHybridComponent extends HybridComponent {
 
-    public static List<ModButton> buttons = new ArrayList<>();
+    public static List<ModButtonComponent> buttons = new ArrayList<>();
     private int topLineY;
     private int bottomLineY;
     private HybridRenderText titleText;
@@ -27,7 +27,7 @@ public class ModsHybridComponent extends HybridComponent {
         if (!buttons.isEmpty()) return;
 
         for (HybridMod mod : HybridMods.mods) {
-            buttons.add(new ModButton(mod.getName()));
+            buttons.add(new ModButtonComponent(mod.getName()));
         }
     }
 
@@ -37,7 +37,7 @@ public class ModsHybridComponent extends HybridComponent {
     public void setupBounds() {
         int leftMenuWidth = (int) (outerBounds.getWidth() * Theme.sidebarWidth);
 
-        componentBounds = outerBounds.from(outerBounds);
+        componentBounds = outerBounds.copy();
 
         componentBounds.setWidth(leftMenuWidth);
 
@@ -61,7 +61,7 @@ public class ModsHybridComponent extends HybridComponent {
         int centerX = componentBounds.getX() + (componentBounds.getWidth() - buttonWidth) / 2;
 
 
-        for (ModButton button : buttons) {
+        for (ModButtonComponent button : buttons) {
 
             ScreenBounds bounds = new ScreenBounds(
                     centerX,
@@ -155,7 +155,7 @@ public class ModsHybridComponent extends HybridComponent {
     private void drawBackground(HybridRenderer renderer) {
         renderer.drawQuad(componentBounds, Theme.modsBackgroundColor);
 
-        ScreenBounds rightSlice = componentBounds.from(componentBounds);
+        ScreenBounds rightSlice = componentBounds.copy();
         rightSlice.setWidth(Theme.cornerRadius);
         rightSlice.setX(componentBounds.getX() + componentBounds.getWidth() - Theme.cornerRadius);
 
@@ -168,7 +168,7 @@ public class ModsHybridComponent extends HybridComponent {
         int mouseX = (int) click.x();
         int mouseY = (int) click.y();
 
-        for (ModButton button : buttons) {
+        for (ModButtonComponent button : buttons) {
             if (button.getBounds().contains(mouseX, mouseY)) {
 
                 buttons.forEach(b -> b.selected = (b == button));

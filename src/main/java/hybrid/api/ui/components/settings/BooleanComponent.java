@@ -2,7 +2,6 @@ package hybrid.api.ui.components.settings;
 
 
 import hybrid.api.mods.settings.BooleanSetting;
-import hybrid.api.mods.settings.ModSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.ui.components.HybridComponent;
 

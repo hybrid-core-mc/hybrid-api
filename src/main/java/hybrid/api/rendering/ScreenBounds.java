@@ -37,9 +37,10 @@ public class ScreenBounds {
         this.y = (height - getHeight()) / 2;
     }
 
-    public ScreenBounds from(ScreenBounds bounds) {
-        return new ScreenBounds(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+    public ScreenBounds copy() {
+        return new ScreenBounds(x, y, width, height);
     }
+
     public int getCenterY(ScreenBounds outer) {
         return this.y = outer.y + (outer.height - this.height) / 2;
     }

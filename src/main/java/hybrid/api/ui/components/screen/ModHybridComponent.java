@@ -22,7 +22,7 @@ public class ModHybridComponent extends HybridComponent {
 
     @Override
     public void setupBounds() {
-        componentBounds = outerBounds.from(outerBounds);
+        componentBounds = outerBounds.copy();
 
         int leftMenuWidth = (int) (outerBounds.getWidth() * Theme.sidebarWidth);
 

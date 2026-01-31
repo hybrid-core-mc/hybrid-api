@@ -6,7 +6,7 @@ import net.minecraft.client.gui.Click;
 
 public abstract class HybridComponent {
     public ScreenBounds componentBounds;
-    public static ScreenBounds outerBounds;
+    public ScreenBounds outerBounds;
 
     public void setupBounds() {
     }
@@ -16,7 +16,7 @@ public abstract class HybridComponent {
     }
 
     public void setOuterBounds(ScreenBounds outerBounds) {
-        HybridComponent.outerBounds = outerBounds;
+        this.outerBounds = outerBounds;
     }
 
     public abstract void render(HybridRenderer hybridRenderer);

@@ -9,12 +9,12 @@ import hybrid.api.theme.Theme;
 
 import java.awt.*;
 
-public class ModButton { // todo: make this a real component XD
+public class ModButtonComponent { // todo: make this a real component XD
 
     private final String name;
     boolean selected;
 
-    public ModButton(String name) {
+    public ModButtonComponent(String name) {
         this.name = name;
     }
     private ScreenBounds bounds;
