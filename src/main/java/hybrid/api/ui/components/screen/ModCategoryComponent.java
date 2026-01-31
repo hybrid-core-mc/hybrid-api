@@ -45,7 +45,7 @@ public class ModCategoryComponent extends HybridComponent {
 
         componentBounds = outerBounds.copy();
 
-        componentBounds.setHeight(extended ? 120 : 34);
+        componentBounds.setHeight(extended ? 135 : 34);
 
         super.setupBounds();
     }
@@ -120,7 +120,7 @@ public class ModCategoryComponent extends HybridComponent {
 
 
     private int getDefaultHeight(HybridComponent component) {
-        if (component instanceof BooleanComponent) return 22;
+        if (component instanceof BooleanComponent) return 30;
         if (component instanceof NumberComponent) return 26;
         return 24;
     }

@@ -133,7 +133,7 @@ public class ModHybridComponent extends HybridComponent {
         int currentY = startY + title.getHeight() + lineSpacing;
 
         for (String line : descLines) {
-            HybridRenderText descLine = HybridTextRenderer.getTextRenderer(line, FontStyle.REGULAR, 16, Color.LIGHT_GRAY, true);
+            HybridRenderText descLine = HybridTextRenderer.getTextRenderer(line, FontStyle.REGULAR, 16, Color.LIGHT_GRAY,new Color(255, 255, 255, 1), true);
 
             descLine.setPosition(x + paddingX, currentY);
             HybridTextRenderer.addText(descLine);

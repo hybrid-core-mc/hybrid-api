@@ -18,21 +18,21 @@ public class HybridRenderText {
 
     String text;
     int x, y;
-    Color color;
+    Color color, shadowColor;
     Font font;
     SVGDocument svgDocument;
     boolean shadow;
 
     private HybridFontTexture cachedTexture;
 
-    public HybridRenderText(String text, int x, int y, Font font, Color color, boolean shadow) {
+    public HybridRenderText(String text, int x, int y, Font font, Color shadowColor,Color color, boolean shadow) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.font = font;
         this.color = color;
         this.shadow = shadow;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadow);
+        this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow);
     }
 
     public HybridRenderText(int x, int y, SVGDocument svgDocument, Color color, boolean shadow) {
@@ -41,7 +41,7 @@ public class HybridRenderText {
         this.svgDocument = svgDocument;
         this.color = color;
         this.shadow = shadow;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, null, shadow);
+        this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, shadow);
     }
 
 
@@ -56,7 +56,7 @@ public class HybridRenderText {
     public void draw(DrawContext context) {
 
         if (cachedTexture == null || (text != null && !text.equals(cachedTexture.text()))) {
-            cachedTexture = HybridFontTexture.createGlyph(this, text, shadow);
+            cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow);
         }
 
 

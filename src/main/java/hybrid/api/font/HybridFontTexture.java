@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
 
 
 public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rectangle, String text) {
-    public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, boolean shadow) {
+    public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, Color shadowColor,boolean shadow) {
 
         Font font = hybridRenderText.getFont();
 
@@ -58,7 +58,7 @@ public record HybridFontTexture(NativeImageBackedTexture texture, Rectangle rect
 
         if (shadow && fontMode) {
             graphics.setFont(font);
-            graphics.setPaint(new Color(84, 84, 84, 203));
+            graphics.setPaint(shadowColor);
             graphics.drawString(text, drawX + 1, drawY + 1);
             graphics.drawString(text, drawX + 2, drawY + 2);
         }
