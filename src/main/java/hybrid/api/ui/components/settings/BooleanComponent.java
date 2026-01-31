@@ -18,6 +18,6 @@ public class BooleanComponent extends HybridComponent {
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
-        hybridRenderer.drawQuad(componentBounds, booleanSetting.get() ? Color.GREEN : Color.RED);
+        hybridRenderer.drawQuad(componentBounds, new Color(0,255,255,100),0);
     }
 }

@@ -17,7 +17,7 @@ public class NumberComponent extends HybridComponent {
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
-        hybridRenderer.drawQuad(componentBounds, Color.PINK, 0);
+        hybridRenderer.drawQuad(componentBounds, new Color(255,255,1,100), 0);
 
     }
 }

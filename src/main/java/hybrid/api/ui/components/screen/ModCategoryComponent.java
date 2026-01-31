@@ -45,7 +45,7 @@ public class ModCategoryComponent extends HybridComponent {
 
         componentBounds = outerBounds.copy();
 
-        componentBounds.setHeight(extended ? 80 : 34);
+        componentBounds.setHeight(extended ? 120 : 34);
 
         super.setupBounds();
     }
@@ -57,64 +57,66 @@ public class ModCategoryComponent extends HybridComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
-
         hybridRenderer.drawQuad(componentBounds, Theme.modBackgroundColor);
+
         HybridRenderText text = HybridTextRenderer.getTextRenderer(modSettingCategory.name(), FontStyle.EXTRABOLD, 25, Color.WHITE, true);
 
         HybridRenderText toggleIndicator = HybridTextRenderer.getIconRenderer(extended ? "up" : "down", Color.WHITE);
 
-        int textY = componentBounds.getY() + getNoneExtendedHeight() / 2 - text.getHeight() / 2;
+        int headerCenterY = componentBounds.getY() + getNoneExtendedHeight() / 2;
 
-        int iconY = componentBounds.getY() + getNoneExtendedHeight() / 2 - toggleIndicator.getHeight() / 2;
+        text.setPosition(componentBounds.getX() + Theme.xPadding, headerCenterY - text.getHeight() / 2);
 
-        text.setPosition(componentBounds.getX() + Theme.xPadding, textY);
-
-        toggleIndicator.setPosition(componentBounds.getX() + componentBounds.getWidth() - (Theme.xPadding + 2) - toggleIndicator.getWidth(), iconY);
+        toggleIndicator.setPosition(componentBounds.getX() + componentBounds.getWidth() - (Theme.xPadding + 2) - toggleIndicator.getWidth(), headerCenterY - toggleIndicator.getHeight() / 2);
 
         HybridTextRenderer.addText(text);
         HybridTextRenderer.addText(toggleIndicator);
 
-        if (extended) {
+        if (!extended) return;
 
+        int spacing = 5;
+        int verticalPadding = 8;
+        int innerPadding = Theme.xPadding;
+        int magicOFFSET = 10;
 
-            int startY = componentBounds.getY() + getNoneExtendedHeight() + 5;
-            int currentY = startY;
+        int totalContentHeight = 0;
+        for (HybridComponent component : modSettingComponents) {
+            totalContentHeight += getDefaultHeight(component);
+        }
+        totalContentHeight += spacing * (modSettingComponents.size() - 1);
 
-            for (HybridComponent component : modSettingComponents) {
+        int bgWidth = componentBounds.getWidth() - (Theme.xPadding * 2) + magicOFFSET;
 
-                int height = getDefaultHeight(component);
-                int width = componentBounds.getWidth() - (Theme.xPadding * 2);
+        int bgX = componentBounds.getX() + (componentBounds.getWidth() - bgWidth) / 2;
 
-                component.outerBounds = new ScreenBounds(
-                        componentBounds.getX() + Theme.xPadding,
-                        currentY,
-                        width,
-                        height
-                );
+        int startY = componentBounds.getY() + getNoneExtendedHeight() + spacing;
 
-                component.componentBounds = component.outerBounds.copy();
+        int bgHeight = totalContentHeight + verticalPadding * 2;
 
+        ScreenBounds background = new ScreenBounds(bgX, startY, bgWidth, bgHeight);
 
-                currentY += height + 5;
-            }
+        hybridRenderer.drawOutlineQuad(background, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 10, 1);
 
+        int contentWidth = bgWidth - (innerPadding * 2);
+        int contentX = bgX + (bgWidth - contentWidth) / 2;
 
-            ScreenBounds background = new ScreenBounds(
-                    componentBounds.getX(),
-                    startY,
-                    componentBounds.getWidth(),
-                    currentY - startY
-            );
-            hybridRenderer.drawOutlineQuad(background, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 10, 1
-            );
+        int currentY = background.getY() + (background.getHeight() - totalContentHeight) / 2;
 
-            for (HybridComponent modSettingComponent : modSettingComponents) {
-                modSettingComponent.renderPre(hybridRenderer);
-                modSettingComponent.render(hybridRenderer);
-            }
+        for (HybridComponent component : modSettingComponents) {
 
+            int height = getDefaultHeight(component);
+
+            component.outerBounds = new ScreenBounds(contentX, currentY, contentWidth, height);
+
+            component.componentBounds = component.outerBounds.copy();
+
+            component.renderPre(hybridRenderer);
+            component.render(hybridRenderer);
+
+            currentY += height + spacing;
         }
     }
+
 
 
     private int getDefaultHeight(HybridComponent component) {
