@@ -23,7 +23,6 @@ public class ModeComponent extends HybridComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
-        // -------- Label --------
         HybridRenderText label = HybridTextRenderer.getTextRenderer(
                 modeSetting.getName(),
                 FontStyle.BOLD,
@@ -42,9 +41,8 @@ public class ModeComponent extends HybridComponent {
 
         HybridTextRenderer.addText(label);
 
-        // -------- Mode text --------
         HybridRenderText modeText = HybridTextRenderer.getTextRenderer(
-                modeSetting.get().name(), // ← IMPORTANT
+                modeSetting.get().name(),
                 FontStyle.BOLD,
                 18,
                 Color.LIGHT_GRAY,
@@ -62,7 +60,6 @@ public class ModeComponent extends HybridComponent {
                 1
         );
 
-        // -------- Center text inside box --------
         modeText.setPosition(
                 box.getX() + (box.getWidth() - modeText.getWidth()) / 2,
                 box.getY() + (box.getHeight() - modeText.getHeight()) / 2

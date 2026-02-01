@@ -28,6 +28,7 @@ public class HybridRenderer implements HybridRenderer2D {
     private static final NVGColor GLOW_INNER = NVGColor.create();
     private static final NVGColor GLOW_OUTER = NVGColor.create();
     private static final NVGPaint GLOW_PAINT = NVGPaint.create();
+    private static ColorPickerRenderer colorPicker;
 
     private static long CONTEXT = -1L;
 
@@ -45,6 +46,7 @@ public class HybridRenderer implements HybridRenderer2D {
 //
 
         nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
+        colorPicker = new ColorPickerRenderer(CONTEXT);
     }
 
 
@@ -108,6 +110,12 @@ public class HybridRenderer implements HybridRenderer2D {
 
         nvgFillColor(ctx, NVG_COLOR);
     }
+    @Override
+    public void drawColorTriangle(ScreenBounds bounds ,float hue,float padding) {
+        if (colorPicker == null) return;
+        colorPicker.drawColorPicker(bounds,hue,padding);
+    }
+
     private static void setStrokeColor(long ctx, Color color) {
         NVG_COLOR.r(color.getRed() / 255f)
                 .g(color.getGreen() / 255f)
@@ -124,6 +132,14 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
         nvgFill(CONTEXT);
     }
+
+
+
+    private Color hsvToRgb(float h, float s, float v) {
+        int rgb = Color.HSBtoRGB(h, s, v);
+        return new Color(rgb);
+    }
+
     @Override
     public void beginScissors(ScreenBounds bounds) {
         nvgSave(CONTEXT);
