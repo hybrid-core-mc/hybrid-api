@@ -60,10 +60,13 @@ public class HybridTextRenderer {
         return renderer;
     }
 
-
     public static HybridRenderText getIconRenderer(String name, Color color) {
+        return getIconRenderer(name, color, 0);
+    }
 
-        String key = name + "|" + color.getRGB();
+    public static HybridRenderText getIconRenderer(String name, Color color, int y) { // to prevent caching issues
+
+        String key = name + "|" + color.getRGB() + "|" + y ;
 
         HybridRenderText icon = iconCache.get(key);
         if (icon != null) {

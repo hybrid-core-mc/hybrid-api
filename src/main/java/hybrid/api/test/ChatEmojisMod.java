@@ -14,17 +14,25 @@ public class ChatEmojisMod extends HybridMod {
     }
 
 
-    @Override
     protected List<ModSettingCategory> createSettings() {
         return List.of(
                 new ModCategorySettingBuilder("General")
-                        .add(new BooleanSetting("Automatically Replace", true).onChange(aBoolean -> System.out.println("changed to" + aBoolean)))
-                        .add(new NumberSetting("Max Emojis", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
-                        .add(new NumberSetting("test", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
-                        .add(new NumberSetting("magic", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
-                        .add(new BooleanSetting("testing bear", true).onChange(aBoolean -> System.out.println("changed to" + aBoolean)))
+                        .add(new BooleanSetting("Automatically Replace", true).onChange(v -> System.out.println("changed to " + v)))
+                        .add(new NumberSetting("Max Emojis", 5, 1, 100).onChange(v -> System.out.println("updated new value to " + v)))
+                        .add(new NumberSetting("test", 5, 1, 100).onChange(v -> System.out.println("updated new value to " + v)))
+                        .add(new NumberSetting("magic", 5, 1, 100).onChange(v -> System.out.println("updated new value to " + v)))
+                        .add(new BooleanSetting("testing bear", true).onChange(v -> System.out.println("changed to " + v)))
+                        .build(),
+
+                new ModCategorySettingBuilder("Test Settings")
+                        .add(new BooleanSetting("Enable Chaos Mode", false).onChange(v -> System.out.println("Chaos Mode = " + v)))
+                        .add(new NumberSetting("Chaos Level", 50, 0, 100).onChange(v -> System.out.println("Chaos Level = " + v)))
+                        .add(new NumberSetting("Scroll Stress Test", 25, 1, 500).onChange(v -> System.out.println("Scroll Stress = " + v)))
+                        .add(new BooleanSetting("Debug Overlay", true).onChange(v -> System.out.println("Debug Overlay = " + v)))
+                        .add(new NumberSetting("FPS Limit", 144, 30, 360).onChange(v -> System.out.println("FPS Limit = " + v)))
                         .build()
-//                all of this =
+
         );
     }
+
 }

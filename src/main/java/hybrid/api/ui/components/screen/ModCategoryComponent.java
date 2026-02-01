@@ -60,10 +60,10 @@ public class ModCategoryComponent extends HybridComponent {
             totalContentHeight += spacing * (modSettingComponents.size() - 1);
         }
 
-        return getNoneExtendedHeight()     // header
-                + spacing                  // gap under header
-                + totalContentHeight       // settings
-                + extraBottomPadding;      // bottom padding
+        return getNoneExtendedHeight()
+                + spacing
+                + totalContentHeight
+                + extraBottomPadding;
     }
 
     private int computeExpandedHeight() {
@@ -107,14 +107,13 @@ public class ModCategoryComponent extends HybridComponent {
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
                 modSettingCategory.name(),
-                FontStyle.EXTRABOLD,
+                FontStyle.BOLD,
                 25,
                 Color.WHITE,
                 true
         );
 
-        HybridRenderText toggleIcon =
-                HybridTextRenderer.getIconRenderer(extended ? "up" : "down", Color.WHITE);
+        HybridRenderText toggleIcon = HybridTextRenderer.getIconRenderer(extended ? "up" : "down", Color.WHITE,componentBounds.getY());
 
         int headerCenterY = componentBounds.getY() + getNoneExtendedHeight() / 2;
 

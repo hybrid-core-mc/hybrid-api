@@ -94,7 +94,7 @@ public class ModHybridComponent extends HybridComponent {
             bounds.setWidth(boxWidth);
 
             component.render(renderer);
-            currentModY += modSpacing;
+            currentModY += modSpacing + component.getTotalHeight();
         }
     }
 
