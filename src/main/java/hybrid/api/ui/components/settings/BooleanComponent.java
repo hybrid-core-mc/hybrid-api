@@ -26,6 +26,10 @@ public class BooleanComponent extends HybridComponent {
 
         ScreenBounds bounds = componentBounds;
 
+        // ---------- Shared vertical center ----------
+        int centerY = bounds.getY() + bounds.getHeight() / 2;
+
+        // ---------- Text ----------
         HybridRenderText text = HybridTextRenderer.getTextRenderer(
                 booleanSetting.getName(),
                 FontStyle.BOLD,
@@ -36,27 +40,46 @@ public class BooleanComponent extends HybridComponent {
         );
 
         int textX = bounds.getX() + 4;
-        int textY = (bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2)-3;
+        int textY = centerY - text.getHeight() / 2;
 
-        text.setPosition(textX, textY);
-
-
+        text.setPosition(textX, textY+1);
         HybridTextRenderer.addText(text);
 
-        // todo remove the magic constantsss XD
-
         int toggleButtonWidth = 38;
-        ScreenBounds toggleBounds = componentBounds.copy();
-        toggleBounds.setPosition((componentBounds.getX() + componentBounds.getWidth()) - toggleButtonWidth, componentBounds.getY() + 2);
-        toggleBounds.setSize(toggleButtonWidth, (int) (componentBounds.getHeight() * 0.65));
+        int toggleButtonHeight = (int) (bounds.getHeight() * 0.65);
 
-        hybridRenderer.drawOutlineQuad(toggleBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 9, 1);
-        toggleBounds.setX(toggleBounds.getX() + 5);
-        toggleBounds.setWidth(10);
-        hybridRenderer.drawCircle(toggleBounds, Color.LIGHT_GRAY);
+        int toggleX = bounds.getX()
+                + bounds.getWidth()
+                - toggleButtonWidth;
 
+        int toggleY = centerY - toggleButtonHeight / 2;
 
+        ScreenBounds toggleBounds = new ScreenBounds(
+                toggleX,
+                toggleY,
+                toggleButtonWidth,
+                toggleButtonHeight
+        );
 
+        hybridRenderer.drawOutlineQuad(
+                toggleBounds,
+                Theme.modBackgroundColor,
+                Theme.modButtonOutlineColor,
+                9,
+                1
+        );
+
+        int knobSize = 10;
+
+        ScreenBounds knob = new ScreenBounds(
+                toggleBounds.getX() + 5,
+                centerY - knobSize / 2,
+                knobSize,
+                knobSize
+        );
+
+        hybridRenderer.drawCircle(knob, Color.LIGHT_GRAY);
     }
+
 
 }

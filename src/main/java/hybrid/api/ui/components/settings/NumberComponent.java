@@ -35,7 +35,7 @@ public class NumberComponent extends HybridComponent {
                 true
         );
 
-        int textX = bounds.getX() + 4;
+        int textX = bounds.getX();
         int textY = bounds.getY()
                 + (bounds.getHeight() - text.getHeight()) / 2;
 
@@ -46,19 +46,17 @@ public class NumberComponent extends HybridComponent {
         line.setY(bounds.getY() + bounds.getHeight());
         HybridTextRenderer.addText(text);
 
-        // the comp itself
 
-        int valueX = (bounds.getX() + bounds.getWidth() - Theme.xPadding) - 4;
-        HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.BOLD, 20, Color.WHITE, new Color(140, 140, 140, 255), true);
+        int valueX = ((textX + text.getWidth() + 5));
+        HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.REGULAR, 20, Color.WHITE, new Color(140, 140, 140, 255), false);
         valueText.setPosition(valueX, textY);
         HybridTextRenderer.addText(valueText);
 
 
-        // slider line
 
         ScreenBounds sliderLine = componentBounds.copy();
         sliderLine.setSize(100, 10);
-        sliderLine.setPosition((int) (valueX - (componentBounds.getWidth() * 0.39)), textY);
+        sliderLine.setPosition((int) (((bounds.getX() + bounds.getWidth())) - (componentBounds.getWidth() * 0.39)), textY);
 
         hybridRenderer.drawOutlineQuad(sliderLine, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 4, 1);
         int fillWidth = 50;

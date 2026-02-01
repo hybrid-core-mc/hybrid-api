@@ -45,7 +45,7 @@ public class ModCategoryComponent extends HybridComponent {
 
         componentBounds = outerBounds.copy();
 
-        componentBounds.setHeight(extended ? 135 : 34);
+        componentBounds.setHeight(extended ? 170 : 34);
 
         super.setupBounds();
     }
@@ -74,10 +74,8 @@ public class ModCategoryComponent extends HybridComponent {
 
         if (!extended) return;
 
-        int spacing = 5;
-        int verticalPadding = 8;
+        int spacing = 4;
         int innerPadding = Theme.xPadding;
-        int magicOFFSET = 10;
 
         int totalContentHeight = 0;
         for (HybridComponent component : modSettingComponents) {
@@ -85,13 +83,15 @@ public class ModCategoryComponent extends HybridComponent {
         }
         totalContentHeight += spacing * (modSettingComponents.size() - 1);
 
-        int bgWidth = componentBounds.getWidth() - (Theme.xPadding * 2) + magicOFFSET;
+        int bgWidth = componentBounds.getWidth() - (Theme.xPadding * 2);
+
+        int bgHeight = totalContentHeight;
 
         int bgX = componentBounds.getX() + (componentBounds.getWidth() - bgWidth) / 2;
 
-        int startY = componentBounds.getY() + getNoneExtendedHeight() + spacing;
+        int availableHeight = componentBounds.getHeight() - getNoneExtendedHeight() - spacing;
 
-        int bgHeight = totalContentHeight + verticalPadding * 2;
+        int startY = componentBounds.getY() + getNoneExtendedHeight() + spacing + (availableHeight - bgHeight) / 2;
 
         ScreenBounds background = new ScreenBounds(bgX, startY, bgWidth, bgHeight);
 
@@ -110,22 +110,26 @@ public class ModCategoryComponent extends HybridComponent {
 
             component.componentBounds = component.outerBounds.copy();
 
-
             component.renderPre(hybridRenderer);
             component.render(hybridRenderer);
 
-            if(!(modSettingComponents.getLast() == component)) { // border time
-                ScreenBounds line = component.outerBounds.copy();
+            boolean isLast = modSettingComponents.getLast() == component;
 
+            if (!isLast) {
+                ScreenBounds line = component.outerBounds.copy();
                 line.setSize(componentBounds.getWidth() - Theme.xPadding, 1);
                 line.setPosition(component.outerBounds.getX() - Theme.xPadding, component.outerBounds.getY() + component.outerBounds.getHeight());
                 hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
             }
+//            hybridRenderer.drawQuad(component.componentBounds,new Color(255,0,0,100),0);
 
-            currentY += height + spacing;
+            currentY += height;
+
+            if (component != modSettingComponents.getLast()) {
+                currentY += spacing;
+            }
         }
     }
-
 
 
     private int getDefaultHeight(HybridComponent component) {
