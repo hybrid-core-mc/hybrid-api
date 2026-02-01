@@ -158,6 +158,7 @@ public class ModsHybridComponent extends HybridComponent {
         renderer.drawQuad(rightSlice, Theme.modsBackgroundColor, 0);
     }
 
+
     @Override
     public void onMouseRelease(Click click) {
 

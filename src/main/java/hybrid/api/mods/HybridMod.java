@@ -9,7 +9,6 @@ public abstract class HybridMod {
     String name,desc;
     float version;
     protected final List<ModSettingCategory> modSettingCategories = new ArrayList<>();
-
     public HybridMod(String name, float version) {
         this.name = name;
         this.version = version;

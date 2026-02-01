@@ -36,8 +36,7 @@ public class BooleanComponent extends HybridComponent {
         );
 
         int textX = bounds.getX() + 4;
-        int textY = bounds.getY()
-                + (bounds.getHeight() - text.getHeight()) / 2;
+        int textY = (bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2)-3;
 
         text.setPosition(textX, textY);
 
@@ -48,15 +47,16 @@ public class BooleanComponent extends HybridComponent {
         hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
         HybridTextRenderer.addText(text);
 
+        // todo remove the magic constantsss XD
 
-        int toggleButtonWidth = 40;
+        int toggleButtonWidth = 38;
         ScreenBounds toggleBounds = componentBounds.copy();
-        toggleBounds.setX((componentBounds.getX() + componentBounds.getWidth()) - toggleButtonWidth);
-        toggleBounds.setSize(toggleButtonWidth, (int) (componentBounds.getHeight() * 0.73));
+        toggleBounds.setPosition((componentBounds.getX() + componentBounds.getWidth()) - toggleButtonWidth, componentBounds.getY() + 2);
+        toggleBounds.setSize(toggleButtonWidth, (int) (componentBounds.getHeight() * 0.65));
 
-        hybridRenderer.drawOutlineQuad(toggleBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 11, 1);
+        hybridRenderer.drawOutlineQuad(toggleBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 9, 1);
         toggleBounds.setX(toggleBounds.getX() + 5);
-        toggleBounds.setWidth(13);
+        toggleBounds.setWidth(10);
         hybridRenderer.drawCircle(toggleBounds, Color.LIGHT_GRAY);
 
     }

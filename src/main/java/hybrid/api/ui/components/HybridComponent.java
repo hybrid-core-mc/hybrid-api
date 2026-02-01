@@ -16,6 +16,10 @@ public abstract class HybridComponent {
     public void onMouseRelease(Click click) {
 
     }
+
+    public void onMouseClicked(Click click) {
+
+    }
     public void renderPre(HybridRenderer hybridRenderer) {
 
     }

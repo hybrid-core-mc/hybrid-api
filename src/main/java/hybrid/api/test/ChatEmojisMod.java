@@ -13,6 +13,7 @@ public class ChatEmojisMod extends HybridMod {
         super("Chat Emoji", "Adds emojis to the minecraft chat its cool.\n TBh moaning bear is so maoning LOL xd", 0.f);
     }
 
+
     @Override
     protected List<ModSettingCategory> createSettings() {
         return List.of(

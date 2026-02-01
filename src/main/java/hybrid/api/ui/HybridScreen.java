@@ -51,6 +51,14 @@ public class HybridScreen extends Screen {
     }
 
     @Override
+    public boolean mouseClicked(Click click, boolean doubled) {
+        for (HybridComponent component : hybridModComponentList) {
+            component.onMouseClicked(click);
+        }
+        return super.mouseClicked(click, doubled);
+    }
+
+    @Override
     public boolean mouseReleased(Click click) {
 
         for (HybridComponent component : hybridModComponentList) {
