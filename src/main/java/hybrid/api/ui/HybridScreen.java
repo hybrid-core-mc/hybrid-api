@@ -3,7 +3,6 @@ package hybrid.api.ui;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
 import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.screen.ModHybridComponent;
 import hybrid.api.ui.components.screen.ModsHybridComponent;
@@ -29,6 +28,9 @@ public class HybridScreen extends Screen {
         hybridModComponentList.add(new ModHybridComponent(HybridMods.mods.getFirst()));
     }
 
+    public ScreenBounds getBounds() {
+        return bounds;
+    }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
@@ -41,15 +43,14 @@ public class HybridScreen extends Screen {
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
 
+        renderer.beginScissors(bounds);
         for (HybridComponent component : hybridModComponentList) {
             component.outerBounds = bounds;
             component.setupBounds();
             component.renderPre(renderer);
-            if(!(hybridModComponentList.getLast() == component)){
-
-            }
             component.render(renderer);
         }
+        renderer.endScissors();
 
         super.render(context, mouseX, mouseY, deltaTicks);
     }

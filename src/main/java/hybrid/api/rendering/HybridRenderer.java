@@ -46,9 +46,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
         nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
     }
-    public static void onShutdown(){
-        nvgDelete(CONTEXT);
-    }
+
 
     public static void render() {
 
@@ -125,6 +123,21 @@ public class HybridRenderer implements HybridRenderer2D {
         setColor(CONTEXT, color);
         nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
         nvgFill(CONTEXT);
+    }
+    @Override
+    public void beginScissors(ScreenBounds bounds) {
+        nvgSave(CONTEXT);
+        nvgScissor(
+                CONTEXT,
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height
+        );
+    }
+
+    public void endScissors() {
+        nvgRestore(CONTEXT);
     }
 
     @Override
