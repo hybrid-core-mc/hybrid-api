@@ -202,9 +202,22 @@ public class ModHybridComponent extends HybridComponent {
     }
 
     @Override
+    public void onMouseClicked(Click click) {
+        modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseClicked(click));
+        super.onMouseClicked(click);
+    }
+
+    @Override
     public void onMouseRelease(Click click) {
         modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseRelease(click));
         super.onMouseRelease(click);
+    }
+
+    @Override
+    public void onMouseDrag(Click click) {
+        modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseDrag(click));
+
+        super.onMouseDrag(click);
     }
 
     public int getBoxX() {

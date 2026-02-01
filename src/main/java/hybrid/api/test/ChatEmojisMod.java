@@ -23,8 +23,8 @@ public class ChatEmojisMod extends HybridMod {
                         .add(new NumberSetting("test", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
                         .add(new NumberSetting("magic", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
                         .add(new BooleanSetting("testing bear", true).onChange(aBoolean -> System.out.println("changed to" + aBoolean)))
-
                         .build()
+//                all of this =
         );
     }
 }

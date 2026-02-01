@@ -9,13 +9,14 @@ import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
 import hybrid.api.ui.components.HybridComponent;
+import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 
 public class BooleanComponent extends HybridComponent {
 
     BooleanSetting booleanSetting;
-
+    ScreenBounds toggleBounds;
     public BooleanComponent(BooleanSetting booleanSetting) {
         this.booleanSetting = booleanSetting;
     }
@@ -43,8 +44,8 @@ public class BooleanComponent extends HybridComponent {
         text.setPosition(textX, textY+1);
         HybridTextRenderer.addText(text);
 
-        int toggleButtonWidth = 38;
-        int toggleButtonHeight = (int) (bounds.getHeight() * 0.65);
+        int toggleButtonWidth = 36;
+        int toggleButtonHeight = (int) (bounds.getHeight() * 0.63);
 
         int toggleX = bounds.getX()
                 + bounds.getWidth()
@@ -52,7 +53,7 @@ public class BooleanComponent extends HybridComponent {
 
         int toggleY = centerY - toggleButtonHeight / 2;
 
-        ScreenBounds toggleBounds = new ScreenBounds(
+        toggleBounds = new ScreenBounds(
                 toggleX,
                 toggleY,
                 toggleButtonWidth,
@@ -69,15 +70,20 @@ public class BooleanComponent extends HybridComponent {
 
         int knobSize = 10;
 
-        ScreenBounds knob = new ScreenBounds(
-                toggleBounds.getX() + 5,
-                centerY - knobSize / 2,
-                knobSize,
-                knobSize
-        );
+        int offset = booleanSetting.get() ? 20 : 5;
+        ScreenBounds knob = new ScreenBounds(toggleBounds.getX() + offset, (centerY - knobSize / 2), knobSize, knobSize);
 
         hybridRenderer.drawCircle(knob, Color.LIGHT_GRAY);
     }
 
+    @Override
+    public void onMouseRelease(Click click) {
 
+        if (toggleBounds == null) return;
+
+        if (toggleBounds.contains(click.x(), click.y())) {
+            booleanSetting.toggle();
+        }
+        super.onMouseRelease(click);
+    }
 }

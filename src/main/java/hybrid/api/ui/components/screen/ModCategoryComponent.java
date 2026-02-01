@@ -78,6 +78,7 @@ public class ModCategoryComponent extends HybridComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
+        if (extended) componentBounds.setHeight(componentBounds.getHeight() + 15);
         hybridRenderer.drawQuad(componentBounds, Theme.modBackgroundColor);
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
@@ -195,7 +196,23 @@ public class ModCategoryComponent extends HybridComponent {
             extended = !extended;
         }
 
+        modSettingComponents.forEach(hybridComponent -> hybridComponent.onMouseRelease(click));
+
         super.onMouseRelease(click);
+    }
+
+    @Override
+    public void onMouseClicked(Click click) {
+        modSettingComponents.forEach(hybridComponent -> hybridComponent.onMouseClicked(click));
+
+        super.onMouseClicked(click);
+    }
+
+    @Override
+    public void onMouseDrag(Click click) {
+        modSettingComponents.forEach(hybridComponent -> hybridComponent.onMouseDrag(click));
+
+        super.onMouseDrag(click);
     }
 
     private int getDefaultHeight(HybridComponent component) {

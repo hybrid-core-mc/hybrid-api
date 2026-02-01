@@ -13,20 +13,23 @@ import net.minecraft.client.gui.Click;
 import java.awt.*;
 
 public class NumberComponent extends HybridComponent {
-    NumberSetting numberSetting;
+
+
+    private final NumberSetting numberSetting;
+    private boolean dragging = false;
+    private ScreenBounds sliderBounds;
 
     public NumberComponent(NumberSetting numberSetting) {
         this.numberSetting = numberSetting;
     }
 
-
-
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
         ScreenBounds bounds = componentBounds;
+        int centerY = bounds.getY() + bounds.getHeight() / 2;
 
-        HybridRenderText text = HybridTextRenderer.getTextRenderer(
+        HybridRenderText label = HybridTextRenderer.getTextRenderer(
                 numberSetting.getName(),
                 FontStyle.BOLD,
                 20,
@@ -35,49 +38,96 @@ public class NumberComponent extends HybridComponent {
                 true
         );
 
-        int textX = bounds.getX();
-        int textY = bounds.getY()
-                + (bounds.getHeight() - text.getHeight()) / 2;
-
-        text.setPosition(textX, textY);
-
-        ScreenBounds line = bounds.copy();
-        line.setHeight(1);
-        line.setY(bounds.getY() + bounds.getHeight());
-        HybridTextRenderer.addText(text);
+        label.setPosition(bounds.getX(), centerY - label.getHeight() / 2);
+        HybridTextRenderer.addText(label);
 
 
-//        int valueX = ((textX + text.getWidth() + 5)); todo: show on hover
-//        HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.ITALIC, 15, Color.LIGHT_GRAY, new Color(255, 255, 255, 255), true);
-//        int valueY = bounds.getY() + (bounds.getHeight() - valueText.getHeight()) / 2;
-//        valueText.setPosition(valueX, valueY);
-//        HybridTextRenderer.addText(valueText);
+         int sliderWidth = 100;
+         int sliderHeight = 10;
+         int sliderRadius = 4;
+         int strokeWidth = 1;
+         int sliderCircleSize = 10;
+        
+        int sliderX = bounds.getX() + bounds.getWidth() - sliderWidth;
+        int sliderY = centerY - sliderHeight / 2;
+
+        sliderBounds = new ScreenBounds(sliderX, sliderY, sliderWidth, sliderHeight);
+
+        hybridRenderer.drawOutlineQuad(sliderBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, sliderRadius, strokeWidth);
+
+        double min = numberSetting.getMin();
+        double max = numberSetting.getMax();
+        double value = numberSetting.get();
+
+        double percent = (value - min) / (max - min);
+        percent = Math.max(0.0, Math.min(1.0, percent));
+
+        int fillWidth = (int) (sliderWidth * percent);
+
+        ScreenBounds fill = sliderBounds.copy();
+        fill.setWidth(fillWidth);
+
+        hybridRenderer.drawOutlineQuad(fill, Theme.modButtonOutlineColor.darker(), Theme.modButtonOutlineColor, sliderRadius - 1,
+                strokeWidth);
 
 
-        ScreenBounds sliderLine = componentBounds.copy();
-        sliderLine.setSize(100, 10);
-        sliderLine.setPosition((int) (((bounds.getX() + bounds.getWidth())) - (componentBounds.getWidth() * 0.39)), textY);
+        int knobX = sliderX + fillWidth - sliderCircleSize / 2;
+        int knobY = centerY - sliderCircleSize / 2;
 
-        hybridRenderer.drawOutlineQuad(sliderLine, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 4, 1);
-        int fillWidth = 50;
-        sliderLine.setWidth(fillWidth);
-        hybridRenderer.drawOutlineQuad(sliderLine, Theme.modButtonOutlineColor.darker(), Theme.modButtonOutlineColor, 4, 1);
+        ScreenBounds knobBounds = new ScreenBounds(knobX, knobY, sliderCircleSize, sliderCircleSize);
 
-        ScreenBounds sliderCircle = componentBounds.copy();
-        int circleScale = 10;
-        sliderCircle.setWidth(circleScale);
-        sliderCircle.setX(sliderLine.getX() + fillWidth - circleScale);
-        hybridRenderer.drawCircle(sliderCircle, Color.LIGHT_GRAY);
+        hybridRenderer.drawCircle(knobBounds, Color.LIGHT_GRAY);
+
+
+
+        if (dragging) {
+            HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.REGULAR, 14, Color.WHITE, true);
+
+            valueText.setPosition(knobBounds.getX() + sliderCircleSize / 2 - valueText.getWidth() / 2, knobBounds.getY() - valueText.getHeight() - 4);
+
+            HybridTextRenderer.addText(valueText);
+        }
+
+    }
+
+
+    @Override
+    public void onMouseClicked(Click click) {
+
+        if (sliderBounds != null && sliderBounds.contains(click.x(), click.y())) {
+            dragging = true;
+            updateValueFromMouse(click.x());
+        }
+
+        super.onMouseClicked(click);
     }
 
     @Override
     public void onMouseRelease(Click click) {
+        dragging = false;
         super.onMouseRelease(click);
     }
 
     @Override
-    public void onMouseClicked(Click click) {
-        System.out.println("we clicked");
-        super.onMouseClicked(click);
+    public void onMouseDrag(Click click) {
+
+        if (!dragging || sliderBounds == null) return;
+
+        updateValueFromMouse(click.x());
+    }
+
+
+    private void updateValueFromMouse(double mouseX) {
+
+        double minX = sliderBounds.getX();
+        double maxX = sliderBounds.getX() + sliderBounds.getWidth();
+
+        mouseX = Math.max(minX, Math.min(maxX, mouseX));
+
+        double percent = (mouseX - minX) / (maxX - minX);
+
+        double newValue = numberSetting.getMin() + percent * (numberSetting.getMax() - numberSetting.getMin());
+
+        numberSetting.set((float) newValue);
     }
 }
