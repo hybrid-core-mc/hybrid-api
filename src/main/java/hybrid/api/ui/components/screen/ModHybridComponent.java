@@ -89,7 +89,7 @@ public class ModHybridComponent extends HybridComponent {
             ScreenBounds bounds = component.componentBounds;
 
 
-            bounds.setPosition(getBoxX(), currentModY - scrollOffset); // uh  currentModY - scrollOffset
+            bounds.setPosition(getBoxX(), currentModY - scrollOffset);
 
             bounds.setWidth(boxWidth);
 

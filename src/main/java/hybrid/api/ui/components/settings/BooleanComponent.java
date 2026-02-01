@@ -60,6 +60,7 @@ public class BooleanComponent extends HybridComponent {
                 toggleButtonHeight
         );
 
+
         hybridRenderer.drawOutlineQuad(
                 toggleBounds,
                 Theme.modBackgroundColor,

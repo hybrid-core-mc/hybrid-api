@@ -6,12 +6,14 @@ import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.category.ModSettingCategory;
 import hybrid.api.mods.settings.BooleanSetting;
 import hybrid.api.mods.settings.ModSetting;
+import hybrid.api.mods.settings.ModeSetting;
 import hybrid.api.mods.settings.NumberSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
 import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.settings.BooleanComponent;
+import hybrid.api.ui.components.settings.ModeComponent;
 import hybrid.api.ui.components.settings.NumberComponent;
 import net.minecraft.client.gui.Click;
 
@@ -34,6 +36,9 @@ public class ModCategoryComponent extends HybridComponent {
                 modSettingComponents.add(new BooleanComponent((BooleanSetting) setting));
             if (setting instanceof NumberSetting)
                 modSettingComponents.add(new NumberComponent((NumberSetting) setting));
+            if(setting instanceof ModeSetting<?>){
+                modSettingComponents.add(new ModeComponent((ModeSetting<?>) setting));
+            }
         }
     }
 
@@ -239,8 +244,6 @@ public class ModCategoryComponent extends HybridComponent {
     }
 
     private int getDefaultHeight(HybridComponent component) {
-        if (component instanceof BooleanComponent) return 30;
-        if (component instanceof NumberComponent) return 30;
-        return 24;
+        return 30;
     }
 }
