@@ -25,7 +25,7 @@ public class HybridScreen extends Screen {
         this.bounds = new ScreenBounds(0, 0, width, height);
 
         hybridModComponentList.add(new ModsHybridComponent());
-        hybridModComponentList.add(new ModHybridComponent(HybridMods.mods.getFirst()));
+        hybridModComponentList.add(new ModHybridComponent(HybridMods.mods.getFirst(), height));
     }
 
     public ScreenBounds getBounds() {
@@ -35,10 +35,7 @@ public class HybridScreen extends Screen {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
 
-        bounds.setCentered(
-                context.getScaledWindowWidth(),
-                context.getScaledWindowHeight()
-        );
+        bounds.setCentered(context.getScaledWindowWidth(), context.getScaledWindowHeight());
 
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
@@ -80,5 +77,15 @@ public class HybridScreen extends Screen {
         }
 
         return super.mouseReleased(click);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+
+        for (HybridComponent component : hybridModComponentList) {
+            component.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
+        }
+
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 }

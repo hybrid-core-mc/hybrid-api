@@ -23,6 +23,9 @@ public abstract class HybridComponent {
     public void onMouseDrag(Click click) {
 
     }
+    public void onMouseScroll(double mouseX, double mouseY, double horizontalAmount, double verticalAmount){
+
+    }
 
     public void renderPre(HybridRenderer hybridRenderer) {
 

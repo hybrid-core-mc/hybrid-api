@@ -20,9 +20,11 @@ public class ModHybridComponent extends HybridComponent {
     private final HybridMod hybridMod;
     private final List<ModCategoryComponent> modCategoryComponents = new ArrayList<>();
 
-    private int boxWidth;
+    int scrollOffset = 0;
+    int currentY;
+    private int boxWidth, headingHeight;
 
-    public ModHybridComponent(HybridMod hybridMod) {
+    public ModHybridComponent(HybridMod hybridMod, int windowHeight) {
         this.hybridMod = hybridMod;
         for (ModSettingCategory modSettingCategory : hybridMod.getModSettingCategories()) {
             modCategoryComponents.add(new ModCategoryComponent(modSettingCategory));
@@ -32,41 +34,28 @@ public class ModHybridComponent extends HybridComponent {
 
     @Override
     public void setupBounds() {
+
         componentBounds = outerBounds.copy();
 
         int leftMenuWidth = (int) (outerBounds.getWidth() * Theme.sidebarWidth);
+
+        currentY = outerBounds.getY();
 
         componentBounds.setX(outerBounds.getX() + leftMenuWidth);
         componentBounds.setWidth(outerBounds.getWidth() - leftMenuWidth);
 
         boxWidth = (int) (componentBounds.getWidth() * 0.9);
 
-        layoutCategories();
+        for (ModCategoryComponent component : modCategoryComponents) {
+            component.outerBounds = componentBounds.copy();
+            component.setupBounds();
+        }
 
         modCategoryComponents.forEach(ModCategoryComponent::setupBounds);
 
         super.setupBounds();
     }
 
-
-    private void layoutCategories() {
-
-        int headingHeight = 55;
-        int headingMarginTop = 17;
-        int spacing = 8;
-
-        int currentY = componentBounds.getY() + headingMarginTop + headingHeight + 20;
-        int categoryHeight = 50;
-
-        for (ModCategoryComponent component : modCategoryComponents) {
-
-            component.outerBounds = new ScreenBounds(componentBounds.getX(), currentY, boxWidth, categoryHeight);
-
-            component.setupBounds();
-            currentY += categoryHeight + spacing;
-        }
-
-    }
 
 
 
@@ -81,20 +70,31 @@ public class ModHybridComponent extends HybridComponent {
 
         drawHeading(hybridRenderer);
         drawSettings(hybridRenderer);
+
+        ScreenBounds debug = componentBounds.copy();
+        debug.setHeight(modCategoryComponents
+                .getFirst()
+                .getTotalHeight() + headingHeight);
     }
 
 
     public void drawSettings(HybridRenderer renderer) {
 
 
+        int modSpacing = 10;
+        int currentModY = headingHeight + modSpacing + outerBounds.getY();
+
         for (ModCategoryComponent component : modCategoryComponents) {
 
             ScreenBounds bounds = component.componentBounds;
 
-            bounds.setX(getBoxX());
+
+            bounds.setPosition(getBoxX(), currentModY + scrollOffset); // uh  currentModY - scrollOffset
+
             bounds.setWidth(boxWidth);
 
             component.render(renderer);
+            currentModY += modSpacing;
         }
     }
 
@@ -104,7 +104,7 @@ public class ModHybridComponent extends HybridComponent {
 
         int x = getBoxX();
 
-        int y = componentBounds.getY() + 17;
+        int y = componentBounds.getY() + 17 + scrollOffset;
 
         renderer.drawQuad(new ScreenBounds(x, y, boxWidth, boxHeight), Theme.modBackgroundColor);
 
@@ -142,6 +142,7 @@ public class ModHybridComponent extends HybridComponent {
         }
 
         drawIconGrid(renderer, x, y, boxWidth, boxHeight, paddingX);
+        headingHeight = boxHeight + 17;
     }
 
 
@@ -216,9 +217,20 @@ public class ModHybridComponent extends HybridComponent {
     @Override
     public void onMouseDrag(Click click) {
         modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseDrag(click));
-
         super.onMouseDrag(click);
     }
+
+    @Override
+    public void onMouseScroll(double mouseX, double mouseY,
+                              double horizontalAmount, double verticalAmount) {
+
+        float scrollSpeed = 5f;
+
+        scrollOffset += (int) (verticalAmount * scrollSpeed);
+
+        super.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
 
     public int getBoxX() {
         return componentBounds.getX() + (componentBounds.getWidth() - boxWidth) / 2;

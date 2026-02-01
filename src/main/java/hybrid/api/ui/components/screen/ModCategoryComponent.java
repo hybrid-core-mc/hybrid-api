@@ -38,8 +38,32 @@ public class ModCategoryComponent extends HybridComponent {
     }
 
 
-    public int getNoneExtendedHeight() {
+    private int getNoneExtendedHeight() {
         return 34;
+    }
+    public int getTotalHeight() {
+
+
+        if (!extended) {
+            return getNoneExtendedHeight();
+        }
+
+        int spacing = 4;
+        int extraBottomPadding = 15;
+
+        int totalContentHeight = 0;
+        for (HybridComponent component : modSettingComponents) {
+            totalContentHeight += getDefaultHeight(component);
+        }
+
+        if (!modSettingComponents.isEmpty()) {
+            totalContentHeight += spacing * (modSettingComponents.size() - 1);
+        }
+
+        return getNoneExtendedHeight()     // header
+                + spacing                  // gap under header
+                + totalContentHeight       // settings
+                + extraBottomPadding;      // bottom padding
     }
 
     private int computeExpandedHeight() {
