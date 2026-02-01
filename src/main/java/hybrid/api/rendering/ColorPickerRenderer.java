@@ -44,7 +44,7 @@ public class ColorPickerRenderer {
 
         float inner = radius * 0.78f;
 
-        for (int i = 0; i < 360; i++) {
+        for (int i = 0; i < 720; i++) {
 
             float a0 = (float) Math.toRadians(i);
             float a1 = (float) Math.toRadians(i + 1);
