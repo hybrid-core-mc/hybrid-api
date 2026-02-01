@@ -89,7 +89,7 @@ public class ModHybridComponent extends HybridComponent {
             ScreenBounds bounds = component.componentBounds;
 
 
-            bounds.setPosition(getBoxX(), currentModY + scrollOffset); // uh  currentModY - scrollOffset
+            bounds.setPosition(getBoxX(), currentModY - scrollOffset); // uh  currentModY - scrollOffset
 
             bounds.setWidth(boxWidth);
 
@@ -104,7 +104,7 @@ public class ModHybridComponent extends HybridComponent {
 
         int x = getBoxX();
 
-        int y = componentBounds.getY() + 17 + scrollOffset;
+        int y = componentBounds.getY() + 17 - scrollOffset;
 
         renderer.drawQuad(new ScreenBounds(x, y, boxWidth, boxHeight), Theme.modBackgroundColor);
 
@@ -224,11 +224,25 @@ public class ModHybridComponent extends HybridComponent {
     public void onMouseScroll(double mouseX, double mouseY,
                               double horizontalAmount, double verticalAmount) {
 
-        float scrollSpeed = 5f;
+        float scrollSpeed = 20f;
 
-        scrollOffset += (int) (verticalAmount * scrollSpeed);
+        scrollOffset -= (int) (verticalAmount * scrollSpeed);
+
+        int contentHeight = 0;
+        for (ModCategoryComponent c : modCategoryComponents) {
+            contentHeight += c.getTotalHeight() + 8;
+        }
+
+        int viewportHeight = getViewportHeight();
+        int maxScroll = Math.max(0, contentHeight - viewportHeight);
+
+        // 🔒 CLAMP
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
 
         super.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+    private int getViewportHeight() {
+        return componentBounds.getHeight() - headingHeight - 20;
     }
 
 
