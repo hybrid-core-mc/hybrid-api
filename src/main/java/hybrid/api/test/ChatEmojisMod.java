@@ -20,6 +20,7 @@ public class ChatEmojisMod extends HybridMod {
                 new ModCategorySettingBuilder("General")
                         .add(new BooleanSetting("Automatically Replace", true).onChange(aBoolean -> System.out.println("changed to" + aBoolean)))
                         .add(new NumberSetting("Max Emojis", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
+                        .add(new NumberSetting("test", 5, 1, 100).onChange(e -> System.out.println("updated new value to" + e)))
                         .build()
         );
     }

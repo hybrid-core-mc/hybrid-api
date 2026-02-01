@@ -3,6 +3,7 @@ package hybrid.api.ui;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.theme.Theme;
 import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.screen.ModHybridComponent;
 import hybrid.api.ui.components.screen.ModsHybridComponent;
@@ -44,6 +45,9 @@ public class HybridScreen extends Screen {
             component.outerBounds = bounds;
             component.setupBounds();
             component.renderPre(renderer);
+            if(!(hybridModComponentList.getLast() == component)){
+
+            }
             component.render(renderer);
         }
 

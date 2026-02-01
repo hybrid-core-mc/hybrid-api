@@ -110,8 +110,17 @@ public class ModCategoryComponent extends HybridComponent {
 
             component.componentBounds = component.outerBounds.copy();
 
+
             component.renderPre(hybridRenderer);
             component.render(hybridRenderer);
+
+            if(!(modSettingComponents.getLast() == component)) { // border time
+                ScreenBounds line = component.outerBounds.copy();
+
+                line.setSize(componentBounds.getWidth() - Theme.xPadding, 1);
+                line.setPosition(component.outerBounds.getX() - Theme.xPadding, component.outerBounds.getY() + component.outerBounds.getHeight());
+                hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
+            }
 
             currentY += height + spacing;
         }
@@ -121,7 +130,7 @@ public class ModCategoryComponent extends HybridComponent {
 
     private int getDefaultHeight(HybridComponent component) {
         if (component instanceof BooleanComponent) return 30;
-        if (component instanceof NumberComponent) return 26;
+        if (component instanceof NumberComponent) return 30;
         return 24;
     }
 

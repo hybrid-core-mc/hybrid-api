@@ -40,11 +40,7 @@ public class BooleanComponent extends HybridComponent {
 
         text.setPosition(textX, textY);
 
-        ScreenBounds line = bounds.copy();
 
-        line.setSize(componentBounds.getWidth() + Theme.xPadding * 2, 1);
-        line.setPosition(bounds.getX() - Theme.xPadding, bounds.getY() + bounds.getHeight());
-        hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
         HybridTextRenderer.addText(text);
 
         // todo remove the magic constantsss XD
@@ -58,6 +54,8 @@ public class BooleanComponent extends HybridComponent {
         toggleBounds.setX(toggleBounds.getX() + 5);
         toggleBounds.setWidth(10);
         hybridRenderer.drawCircle(toggleBounds, Color.LIGHT_GRAY);
+
+
 
     }
 
