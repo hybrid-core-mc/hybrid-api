@@ -42,12 +42,23 @@ public class BooleanComponent extends HybridComponent {
         text.setPosition(textX, textY);
 
         ScreenBounds line = bounds.copy();
-        line.setHeight(1);
-        line.setY(bounds.getY() + bounds.getHeight());
 
-        hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.5f);
-
+        line.setSize(componentBounds.getWidth() + Theme.xPadding * 2, 1);
+        line.setPosition(bounds.getX() - Theme.xPadding, bounds.getY() + bounds.getHeight());
+        hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
         HybridTextRenderer.addText(text);
+
+
+        int toggleButtonWidth = 40;
+        ScreenBounds toggleBounds = componentBounds.copy();
+        toggleBounds.setX((componentBounds.getX() + componentBounds.getWidth()) - toggleButtonWidth);
+        toggleBounds.setSize(toggleButtonWidth, (int) (componentBounds.getHeight() * 0.73));
+
+        hybridRenderer.drawOutlineQuad(toggleBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 11, 1);
+        toggleBounds.setX(toggleBounds.getX() + 5);
+        toggleBounds.setWidth(13);
+        hybridRenderer.drawCircle(toggleBounds, Color.LIGHT_GRAY);
+
     }
 
 }

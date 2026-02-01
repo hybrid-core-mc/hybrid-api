@@ -186,6 +186,7 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgFillPaint(CONTEXT, GLOW_PAINT);
         nvgFill(CONTEXT);
     }
+
     @Override
     public void drawHorizontalLine(ScreenBounds bounds, Color color, float distance) {
 
