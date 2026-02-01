@@ -26,10 +26,8 @@ public class BooleanComponent extends HybridComponent {
 
         ScreenBounds bounds = componentBounds;
 
-        // ---------- Shared vertical center ----------
         int centerY = bounds.getY() + bounds.getHeight() / 2;
 
-        // ---------- Text ----------
         HybridRenderText text = HybridTextRenderer.getTextRenderer(
                 booleanSetting.getName(),
                 FontStyle.BOLD,
@@ -39,7 +37,7 @@ public class BooleanComponent extends HybridComponent {
                 true
         );
 
-        int textX = bounds.getX() + 4;
+        int textX = bounds.getX();
         int textY = centerY - text.getHeight() / 2;
 
         text.setPosition(textX, textY+1);

@@ -117,7 +117,7 @@ public class ModCategoryComponent extends HybridComponent {
 
             if (!isLast) {
                 ScreenBounds line = component.outerBounds.copy();
-                line.setSize(componentBounds.getWidth() - Theme.xPadding, 1);
+                line.setSize(componentBounds.getWidth() - (Theme.xPadding*2), 1);
                 line.setPosition(component.outerBounds.getX() - Theme.xPadding, component.outerBounds.getY() + component.outerBounds.getHeight());
                 hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
             }
@@ -141,7 +141,10 @@ public class ModCategoryComponent extends HybridComponent {
     @Override
     public void onMouseRelease(Click click) {
 
-        if (componentBounds.contains(click.x(), click.y())) {
+        ScreenBounds toggleBounds = componentBounds.copy();
+        toggleBounds.setHeight(getNoneExtendedHeight());
+
+        if (toggleBounds.contains(click.x(), click.y())) {
 
             extended = !extended;
 

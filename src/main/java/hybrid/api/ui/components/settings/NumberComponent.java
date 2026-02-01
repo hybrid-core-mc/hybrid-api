@@ -47,11 +47,11 @@ public class NumberComponent extends HybridComponent {
         HybridTextRenderer.addText(text);
 
 
-        int valueX = ((textX + text.getWidth() + 5));
-        HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.REGULAR, 20, Color.WHITE, new Color(140, 140, 140, 255), false);
-        valueText.setPosition(valueX, textY);
-        HybridTextRenderer.addText(valueText);
-
+//        int valueX = ((textX + text.getWidth() + 5)); todo: show on hover
+//        HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.ITALIC, 15, Color.LIGHT_GRAY, new Color(255, 255, 255, 255), true);
+//        int valueY = bounds.getY() + (bounds.getHeight() - valueText.getHeight()) / 2;
+//        valueText.setPosition(valueX, valueY);
+//        HybridTextRenderer.addText(valueText);
 
 
         ScreenBounds sliderLine = componentBounds.copy();

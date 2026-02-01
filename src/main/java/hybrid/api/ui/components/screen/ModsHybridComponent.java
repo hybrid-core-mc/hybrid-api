@@ -102,7 +102,7 @@ public class ModsHybridComponent extends HybridComponent {
     }
 
     private void drawTitle(HybridRenderer renderer) {
-        titleText = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE, true);
+        titleText = HybridTextRenderer.getTextRenderer("Hybrid Core", FontStyle.EXTRABOLD, 25, Color.WHITE,new Color(84, 84, 84, 203),true,2);
 
         int textX = componentBounds.getX() + (componentBounds.getWidth() - titleText.getWidth()) / 2;
 

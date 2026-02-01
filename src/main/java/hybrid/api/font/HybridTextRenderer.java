@@ -20,7 +20,6 @@ public class HybridTextRenderer {
     private static final List<HybridRenderText> renderQueue = new ArrayList<>();
 
 
-
     public static void addText(String text, FontStyle style, int size, int x, int y, Color color) {
         renderQueue.add(getTextRenderer(text, style, size, x, y, color));
     }
@@ -29,27 +28,31 @@ public class HybridTextRenderer {
         return getTextRenderer(text, style, size, 0, 0, color);
     }
 
+    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color, Color shadowColor, boolean shadow, int shadowRadius) {
+        return getTextRenderer(text, style, size, 0, 0, color, shadowColor, shadow, shadowRadius);
+    }
+
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color, Color shadowColor, boolean shadow) {
-        return getTextRenderer(text, style, size, 0, 0, color, shadowColor, shadow);
+        return getTextRenderer(text, style, size, 0, 0, color, shadowColor, shadow, 1);
     }
 
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, Color color, boolean shadow) {
-        return getTextRenderer(text, style, size, 0, 0, color, new Color(84, 84, 84, 203), shadow);
+        return getTextRenderer(text, style, size, 0, 0, color, new Color(84, 84, 84, 203), shadow, 1);
     }
 
     public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color) {
-        return getTextRenderer(text, style, size, x, y, color, null, false);
+        return getTextRenderer(text, style, size, x, y, color, null, false, 0);
     }
 
-    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color, Color shadowColor, boolean shadow) {
+    public static HybridRenderText getTextRenderer(String text, FontStyle style, int size, int x, int y, Color color, Color shadowColor, boolean shadow, int shadowRadius) {
 
-        String key = text + "|" + style + "|" + size + "|" + color.getRGB() + "|" + shadow + "|" + shadowColor;
+        String key = text + "|" + style + "|" + size + "|" + color.getRGB() + "|" + shadow + "|" + shadowColor + "|" + shadowRadius;
 
         HybridRenderText renderer = textCache.get(key);
 
         if (renderer == null) {
             Font font = fromFont(style, size);
-            renderer = new HybridRenderText(text, 0, 0, font,shadowColor, color, shadow);
+            renderer = new HybridRenderText(text, 0, 0, font,shadowColor, color, shadow,shadowRadius);
             textCache.put(key, renderer);
         }
 
@@ -78,7 +81,7 @@ public class HybridTextRenderer {
             }
         });
 
-        icon = new HybridRenderText(0, 0, svgDocument, color, false);
+        icon = new HybridRenderText(0, 0, svgDocument, color);
         iconCache.put(key, icon);
 
         return icon;
@@ -137,5 +140,6 @@ public class HybridTextRenderer {
         if (text == null) return;
         renderQueue.add(text);
     }
+
 
 }

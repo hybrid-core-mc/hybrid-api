@@ -17,7 +17,7 @@ public class HybridRenderText {
     // wrirtten fully by spalshani this is really optimized cant get any better actually wrote this because nvg doesnt work on mc 1.21.10+ (sadly)
 
     String text;
-    int x, y;
+    int x, y,shadowRadius;
     Color color, shadowColor;
     Font font;
     SVGDocument svgDocument;
@@ -25,23 +25,23 @@ public class HybridRenderText {
 
     private HybridFontTexture cachedTexture;
 
-    public HybridRenderText(String text, int x, int y, Font font, Color shadowColor,Color color, boolean shadow) {
+    public HybridRenderText(String text, int x, int y, Font font, Color shadowColor, Color color, boolean shadow, int shadowRadius) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.font = font;
         this.color = color;
         this.shadow = shadow;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow);
+        this.shadowRadius = shadowRadius;
+        this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow,shadowRadius);
     }
 
-    public HybridRenderText(int x, int y, SVGDocument svgDocument, Color color, boolean shadow) {
+    public HybridRenderText(int x, int y, SVGDocument svgDocument, Color color) {
         this.x = x;
         this.y = y;
         this.svgDocument = svgDocument;
         this.color = color;
-        this.shadow = shadow;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, shadow);
+        this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, false, 0);
     }
 
 
@@ -56,7 +56,7 @@ public class HybridRenderText {
     public void draw(DrawContext context) {
 
         if (cachedTexture == null || (text != null && !text.equals(cachedTexture.text()))) {
-            cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow);
+            cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
         }
 
 
