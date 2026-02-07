@@ -1,6 +1,7 @@
 package hybrid.api.ui.components.settings;
 
 import hybrid.api.font.FontStyle;
+import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.settings.ColorSetting;
 import hybrid.api.rendering.HybridRenderer;
@@ -48,7 +49,7 @@ public class ColorComponent extends HybridComponent {
     public void render(HybridRenderer renderer) {
 
         int pickerSize = HEIGHT - 25;
-
+        
         int centerY = componentBounds.getY() + (componentBounds.getHeight() - pickerSize) / 2;
 
         pickerBounds = new ScreenBounds(componentBounds.getX(), centerY, pickerSize, pickerSize);
@@ -72,16 +73,63 @@ public class ColorComponent extends HybridComponent {
         renderer.drawCircle(getSVSelectorBounds(cx, cy, inner), Color.WHITE);
         renderer.drawOutlineQuad(getSVSelectorBounds(cx, cy, inner), new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
 
-        HybridTextRenderer.addText(colorSetting.get().toString(), FontStyle.BOLD, 16, componentBounds.getX(), componentBounds.getY(), Color.WHITE);
+        HybridRenderText label = HybridTextRenderer.getTextRenderer(colorSetting.getName(), FontStyle.BOLD, 20, Color.WHITE, new Color(140, 140, 140, 255), true);
+
+        label.setPosition(componentBounds.getX(), pickerBounds.getY());
+        HybridTextRenderer.addText(label);
 
 
-        ScreenBounds magic = componentBounds.copy();
-        magic.setY(magic.getY() + 50);
-        magic.setSize(150, 20);
-        renderer.drawAlphaSlider(magic, colorSetting.get());
+        ScreenBounds alphaBounds = componentBounds.copy();
+        int alphaHeight = 20;
 
+        alphaBounds.setPosition(alphaBounds.getX() - 1, (pickerBounds.getY() + pickerBounds.getHeight()) - alphaHeight);
+
+        alphaBounds.setSize((int) ((componentBounds.getX() - pickerBounds.getWidth()) * 0.54), alphaHeight);
+
+        renderer.drawAlphaSlider(alphaBounds, colorSetting.get());
+
+
+        ScreenBounds colorBounds = alphaBounds.copy();
+        colorBounds.setHeight(colorBounds.getHeight() + 5);
+        colorBounds.setY(colorBounds.getY() - (colorBounds.getHeight() + 8));
+
+        renderer.drawOutlineQuad(colorBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 5, 1);
+
+
+        Color c = colorSetting.get();
+
+        String rgbText = c.getRed() + "   " + c.getGreen() + "   " + c.getBlue() + "   " + c.getAlpha();
+
+        String hexText = String.format("#%02X%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+
+        HybridRenderText rgbLabel = HybridTextRenderer.getTextRenderer(rgbText, FontStyle.BOLD, 18, Color.LIGHT_GRAY, new Color(140, 140, 140, 255), true);
+
+        HybridRenderText hexLabel = HybridTextRenderer.getTextRenderer(hexText, FontStyle.BOLD, 18, Color.LIGHT_GRAY, new Color(140, 140, 140, 255), true);
+
+        int textY = colorBounds.getY() + (colorBounds.getHeight() - rgbLabel.getHeight()) / 2;
+
+        int padding = 8;
+        int dividerWidth = 2;
+        int dividerHeight = colorBounds.getHeight() - 8;
+
+        int rgbX = colorBounds.getX() + padding;
+        rgbLabel.setPosition(rgbX, textY);
+        HybridTextRenderer.addText(rgbLabel);
+
+
+        int hexX = colorBounds.getX() + colorBounds.getWidth() - padding - hexLabel.getWidth();
+
+        hexLabel.setPosition(hexX, textY);
+        HybridTextRenderer.addText(hexLabel);
+
+
+        int rgbRight = rgbX + rgbLabel.getWidth();
+
+
+        int dividerX = rgbRight + (hexX - rgbRight - dividerWidth) / 2;
+
+        renderer.drawQuad(new ScreenBounds(dividerX, colorBounds.getY() + 4, dividerWidth, dividerHeight), Theme.modButtonOutlineColor);
     }
-
     @Override
     public void onMouseClicked(Click click) {
 

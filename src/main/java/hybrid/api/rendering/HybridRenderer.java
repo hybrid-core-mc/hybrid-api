@@ -174,7 +174,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
 
         float radius = 6f;
-        float innerStroke = 1.5f;
+        float innerStroke = 1.2f;
         float inset = innerStroke / 2f;
 
         NVGColor innerOrange = NVGColor.calloc();
