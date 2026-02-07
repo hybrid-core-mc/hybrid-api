@@ -21,11 +21,13 @@ public class ColorComponent extends HybridComponent {
     private float saturation;
     private float value;
 
-    private float svU = 1f;
-    private float svV = 0f;
-
     private boolean dragging = false;
     private DragMode dragMode = DragMode.NONE;
+
+    private ScreenBounds pickerBounds;
+
+    private float bcU = 1f;
+    private float bcV = 0f;
 
     public ColorComponent(ColorSetting colorSetting) {
         this.colorSetting = colorSetting;
@@ -35,9 +37,6 @@ public class ColorComponent extends HybridComponent {
         hue = hsv[0];
         saturation = hsv[1];
         value = hsv[2];
-
-        svU = saturation;
-        svV = clamp(value - saturation);
     }
 
     @Override
@@ -45,16 +44,20 @@ public class ColorComponent extends HybridComponent {
         componentBounds.setSize(componentBounds.getWidth(), HEIGHT);
     }
 
-
-
     @Override
     public void render(HybridRenderer renderer) {
 
-        renderer.drawQuad(componentBounds, Theme.modBackgroundColor);
+        int pickerSize = HEIGHT - 25;
 
-        int pickerSize = HEIGHT - 12;
+        int centerY = componentBounds.getY() + (componentBounds.getHeight() - pickerSize) / 2;
 
-        ScreenBounds pickerBounds = new ScreenBounds(componentBounds.getX() + 6, componentBounds.getY() + 6, pickerSize, pickerSize);
+        pickerBounds = new ScreenBounds(componentBounds.getX(), centerY, pickerSize, pickerSize);
+
+        ScreenBounds preview = new ScreenBounds(componentBounds.getX() + componentBounds.getWidth() - pickerSize, centerY, pickerSize, pickerSize);
+
+        pickerBounds.setX(preview.getX());
+
+        renderer.drawOutlineQuad(preview, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 6, 1);
 
         renderer.drawColorTriangle(pickerBounds, hue, 6f);
 
@@ -63,71 +66,68 @@ public class ColorComponent extends HybridComponent {
         float radius = pickerBounds.getWidth() / 2f;
         float inner = radius * 0.78f;
 
-        ScreenBounds hueSel = getHueSelectorBounds(cx, cy, radius);
-        renderer.drawCircle(hueSel, Color.WHITE);
-        renderer.drawOutlineQuad(hueSel, new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
+        renderer.drawCircle(getHueSelectorBounds(cx, cy, radius), Color.WHITE);
+        renderer.drawOutlineQuad(getHueSelectorBounds(cx, cy, radius), new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
 
-        ScreenBounds svSel = getSVSelectorBounds(cx, cy, inner);
-        renderer.drawCircle(svSel, Color.WHITE);
-        renderer.drawOutlineQuad(svSel, new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
-
-        ScreenBounds preview = new ScreenBounds(pickerBounds.getX() + pickerBounds.getWidth() + 10, pickerBounds.getY(), pickerSize, pickerSize);
-
-        renderer.drawQuad(preview, colorSetting.get(), 6);
+        renderer.drawCircle(getSVSelectorBounds(cx, cy, inner), Color.WHITE);
+        renderer.drawOutlineQuad(getSVSelectorBounds(cx, cy, inner), new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
 
         HybridTextRenderer.addText(colorSetting.get().toString(), FontStyle.BOLD, 16, componentBounds.getX(), componentBounds.getY(), Color.WHITE);
-    }
 
+
+        ScreenBounds magic = componentBounds.copy();
+        magic.setY(magic.getY() + 50);
+        magic.setSize(150, 20);
+        renderer.drawAlphaSlider(magic, colorSetting.get());
+
+    }
 
     @Override
     public void onMouseClicked(Click click) {
 
-        if (!componentBounds.contains((int) click.x(), (int) click.y())) return;
+        if (pickerBounds == null) return;
+        if (!pickerBounds.contains((int) click.x(), (int) click.y())) return;
 
         dragging = true;
         dragMode = DragMode.NONE;
 
-        int size = HEIGHT - 12;
-        float cx = componentBounds.getX() + 6 + size / 2f;
-        float cy = componentBounds.getY() + 6 + size / 2f;
+        float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
+        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f;
 
         float dx = (float) (click.x() - cx);
         float dy = (float) (click.y() - cy);
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        float radius = size / 2f;
+        float radius = pickerBounds.getWidth() / 2f;
         float inner = radius * 0.78f;
 
         if (dist <= radius && dist >= inner) {
             dragMode = DragMode.HUE;
             updateHue(click.x(), click.y(), cx, cy);
-            applyColor();
         } else if (dist < inner) {
             dragMode = DragMode.SV;
             pickSV(click.x(), click.y(), cx, cy, inner);
-            applyColor();
         }
+
+        applyColor();
     }
-
-
 
     @Override
     public void onMouseDrag(Click click) {
 
-        if (!dragging) return;
+        if (!dragging || pickerBounds == null) return;
 
-        int size = HEIGHT - 12;
-        float cx = componentBounds.getX() + 6 + size / 2f;
-        float cy = componentBounds.getY() + 6 + size / 2f;
-        float inner = (size / 2f) * 0.78f;
+        float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
+        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f;
+        float inner = (pickerBounds.getWidth() / 2f) * 0.78f;
 
         if (dragMode == DragMode.HUE) {
             updateHue(click.x(), click.y(), cx, cy);
-            applyColor();
         } else if (dragMode == DragMode.SV) {
             pickSV(click.x(), click.y(), cx, cy, inner);
-            applyColor();
         }
+
+        applyColor();
     }
 
     @Override
@@ -148,8 +148,10 @@ public class ColorComponent extends HybridComponent {
 
         float ax = cx + (float) Math.cos(a) * radius;
         float ay = cy + (float) Math.sin(a) * radius;
+
         float bx = cx + (float) Math.cos(a + 2f * Math.PI / 3f) * radius;
         float by = cy + (float) Math.sin(a + 2f * Math.PI / 3f) * radius;
+
         float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
         float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
 
@@ -167,27 +169,37 @@ public class ColorComponent extends HybridComponent {
         float d21 = v2x * v1x + v2y * v1y;
 
         float denom = d00 * d11 - d01 * d01;
-        if (denom == 0) return;
+        if (denom == 0f) return;
 
         float v = (d11 * d20 - d01 * d21) / denom;
         float w = (d00 * d21 - d01 * d20) / denom;
         float u = 1f - v - w;
 
-        u = clamp(u);
-        v = clamp(v);
-        w = clamp(w);
-
-        float sum = u + v + w;
-        if (sum != 0f) {
-            u /= sum;
-            v /= sum;
+        // project into triangle
+        if (u < 0f) {
+            float t = v / (v + w);
+            v = t;
+            w = 1f - t;
+            u = 0f;
+        }
+        if (v < 0f) {
+            float t = u / (u + w);
+            u = t;
+            w = 1f - t;
+            v = 0f;
+        }
+        if (w < 0f) {
+            float t = u / (u + v);
+            u = t;
+            v = 1f - t;
+            w = 0f;
         }
 
-        svU = u;
-        svV = v;
+        bcU = u;
+        bcV = v;
 
-        saturation = clamp(svU);
-        value = clamp(svU + svV);
+        saturation = clamp(1f - u);
+        value = clamp(1f - v);
     }
 
     private void applyColor() {
@@ -215,10 +227,10 @@ public class ColorComponent extends HybridComponent {
         float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
         float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
 
-        float w = 1f - svU - svV;
+        float w = 1f - bcU - bcV;
 
-        float px = ax * svU + bx * svV + cx2 * w;
-        float py = ay * svU + by * svV + cy2 * w;
+        float px = ax * bcU + bx * bcV + cx2 * w;
+        float py = ay * bcU + by * bcV + cy2 * w;
 
         return new ScreenBounds((int) (px - 4), (int) (py - 4), 8, 8);
     }

@@ -24,11 +24,13 @@ import static org.lwjgl.nanovg.NanoVGGL2.*;
 public class HybridRenderer implements HybridRenderer2D {
     public static final HybridRenderer RENDERER_INSTANCE = new HybridRenderer();
     public static final List<Consumer<DrawContext>> CONTEXT_LIST = new ArrayList<>();
+
     private static final NVGColor NVG_COLOR = NVGColor.create();
     private static final NVGColor GLOW_INNER = NVGColor.create();
     private static final NVGColor GLOW_OUTER = NVGColor.create();
     private static final NVGPaint GLOW_PAINT = NVGPaint.create();
     private static ColorPickerRenderer colorPicker;
+
 
     private static long CONTEXT = -1L;
 
@@ -37,15 +39,8 @@ public class HybridRenderer implements HybridRenderer2D {
         if (CONTEXT == 0 || CONTEXT == -1L)
             throw new RuntimeException("couldnt init nvg context");
 
-//        Runtime
-//                .getRuntime()
-//                .addShutdownHook(new Thread(() -> {
-//                    RenderSystem.assertOnRenderThread();
-//                    mc.execute(HybridRenderer::onShutdown);
-//                }));
-//
-
         nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
+
         colorPicker = new ColorPickerRenderer(CONTEXT);
     }
 
@@ -63,7 +58,6 @@ public class HybridRenderer implements HybridRenderer2D {
         GpuTexture depth = frameBuffer.getDepthAttachment();
 
         assert color != null;
-
 
         GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, ((GlTexture) color).getOrCreateFramebuffer(((GlBackend) RenderSystem.getDevice()).getBufferManager(), depth));
 
@@ -116,6 +110,130 @@ public class HybridRenderer implements HybridRenderer2D {
         colorPicker.drawColorPicker(bounds,hue,padding);
     }
 
+    @Override
+    public void drawAlphaSlider(ScreenBounds bounds, Color color) {
+
+        int checker = 6;
+
+        nvgSave(CONTEXT);
+
+
+        NVGColor c1 = NVGColor.calloc();
+        NVGColor c2 = NVGColor.calloc();
+
+        nvgRGBA((byte) 180, (byte) 180, (byte) 180, (byte) 255, c1);
+        nvgRGBA((byte) 120, (byte) 120, (byte) 120, (byte) 255, c2);
+
+        int bx = bounds.getX();
+        int by = bounds.getY();
+        int bw = bounds.getWidth();
+        int bh = bounds.getHeight();
+
+        int right1 = bx + bw;
+        int bottom = by + bh;
+
+        for (int x = bx; x < right1; x += checker) {
+            for (int y = by; y < bottom; y += checker) {
+
+                int w = Math.min(checker, right1 - x);
+                int h = Math.min(checker, bottom - y);
+
+                boolean even = ((x / checker) + (y / checker)) % 2 == 0;
+
+                nvgBeginPath(CONTEXT);
+                nvgRect(CONTEXT, x, y, w, h);
+                nvgFillColor(CONTEXT, even ? c1 : c2);
+                nvgFill(CONTEXT);
+            }
+        }
+
+
+        NVGColor left = NVGColor.calloc();
+        NVGColor right = NVGColor.calloc();
+
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 0, left);
+
+        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 255, right);
+
+        NVGPaint paint = NVGPaint.calloc();
+        nvgLinearGradient(CONTEXT, bounds.getX(), bounds.getY(), bounds.getX() + bounds.getWidth(), bounds.getY(), left, right, paint);
+
+        nvgBeginPath(CONTEXT);
+        nvgRect(CONTEXT, bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+        nvgFillPaint(CONTEXT, paint);
+        nvgFill(CONTEXT);
+
+        NVGColor outline = NVGColor.calloc();
+        nvgRGBA((byte) 0, (byte) 0, (byte) 0, (byte) 180, outline);
+
+        nvgBeginPath(CONTEXT);
+        nvgRect(CONTEXT, bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+        nvgStrokeColor(CONTEXT, outline);
+        nvgStrokeWidth(CONTEXT, 1f);
+        nvgStroke(CONTEXT);
+
+
+        float radius = 6f;
+        float innerStroke = 1.5f;
+        float inset = innerStroke / 2f;
+
+        NVGColor innerOrange = NVGColor.calloc();
+        Color innerBorder = Theme.modButtonOutlineColor;
+
+        nvgRGBA(
+                (byte) innerBorder.getRed(),
+                (byte) innerBorder.getGreen(),
+                (byte) innerBorder.getBlue(),
+                (byte) innerBorder.getAlpha(),
+                innerOrange
+        );
+
+
+
+        float outerStroke = 5f;
+        float expand = outerStroke / 5f;
+
+        NVGColor outerBlack = NVGColor.calloc();
+
+        Color c = Theme.modsBackgroundColor;
+
+        nvgRGBA((byte) c.getRed(), (byte) c.getGreen(), (byte) c.getBlue(), (byte) c.getAlpha(), outerBlack);
+        nvgBeginPath(CONTEXT);
+
+        nvgRoundedRect(CONTEXT, bounds.getX() - expand, bounds.getY() - expand, bounds.getWidth() + expand * 2, bounds.getHeight() + expand * 2, radius + expand);
+
+        nvgStrokeColor(CONTEXT, outerBlack);
+        nvgStrokeWidth(CONTEXT, outerStroke);
+        nvgStroke(CONTEXT);
+
+
+        nvgBeginPath(CONTEXT);
+        nvgRoundedRect(
+                CONTEXT,
+                bounds.getX() + inset,
+                bounds.getY() + inset,
+                bounds.getWidth() - inset * 2,
+                bounds.getHeight() - inset * 2,
+                radius
+        );
+        nvgStrokeColor(CONTEXT, innerOrange);
+        nvgStrokeWidth(CONTEXT, innerStroke);
+        nvgStroke(CONTEXT);
+
+        innerOrange.free();
+
+
+        outerBlack.free();
+
+        paint.free();
+        left.free();
+        right.free();
+        c1.free();
+        c2.free();
+        outline.free();
+
+        nvgRestore(CONTEXT);
+    }
     private static void setStrokeColor(long ctx, Color color) {
         NVG_COLOR.r(color.getRed() / 255f)
                 .g(color.getGreen() / 255f)
@@ -257,46 +375,8 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgStroke(CONTEXT);
     }
 
-    @Override
-    public void drawVerticalLine(ScreenBounds bounds, Color color, float distance) {
 
-        float x = bounds.x + bounds.width / 2f;
 
-        float halfHeight = bounds.height / 2f;
-        float solidHalf = halfHeight * distance;
-
-        float topFadeStart = bounds.y + halfHeight - solidHalf;
-        float bottomFadeStart = bounds.y + halfHeight + solidHalf;
-
-        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 0, GLOW_OUTER);
-
-        nvgRGBA((byte) color.getRed(), (byte) color.getGreen(), (byte) color.getBlue(), (byte) 255, GLOW_INNER);
-
-        nvgLinearGradient(CONTEXT, x, bounds.y, x, topFadeStart, GLOW_OUTER, GLOW_INNER, GLOW_PAINT);
-
-        nvgBeginPath(CONTEXT);
-        nvgMoveTo(CONTEXT, x, bounds.y);
-        nvgLineTo(CONTEXT, x, topFadeStart);
-        nvgStrokePaint(CONTEXT, GLOW_PAINT);
-        nvgStrokeWidth(CONTEXT, bounds.width);
-        nvgStroke(CONTEXT);
-
-        nvgBeginPath(CONTEXT);
-        nvgMoveTo(CONTEXT, x, topFadeStart);
-        nvgLineTo(CONTEXT, x, bottomFadeStart);
-        nvgStrokeColor(CONTEXT, GLOW_INNER);
-        nvgStrokeWidth(CONTEXT, bounds.width);
-        nvgStroke(CONTEXT);
-
-        nvgLinearGradient(CONTEXT, x, bottomFadeStart, x, bounds.y + bounds.height, GLOW_INNER, GLOW_OUTER, GLOW_PAINT);
-
-        nvgBeginPath(CONTEXT);
-        nvgMoveTo(CONTEXT, x, bottomFadeStart);
-        nvgLineTo(CONTEXT, x, bounds.y + bounds.height);
-        nvgStrokePaint(CONTEXT, GLOW_PAINT);
-        nvgStrokeWidth(CONTEXT, bounds.width);
-        nvgStroke(CONTEXT);
-    }
 
 
 }

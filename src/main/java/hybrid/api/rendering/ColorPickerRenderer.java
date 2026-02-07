@@ -40,7 +40,7 @@ public class ColorPickerRenderer {
     }
 
 
-    private void drawHueRing(float cx, float cy, float radius) {
+    private void drawHueRing(float cx, float cy, float radius) { // MAKE TS A SHADER LOL
 
         float inner = radius * 0.78f;
 
