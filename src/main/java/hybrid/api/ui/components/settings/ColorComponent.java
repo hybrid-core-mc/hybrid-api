@@ -49,65 +49,128 @@ public class ColorComponent extends HybridComponent {
     public void render(HybridRenderer renderer) {
 
         int pickerSize = HEIGHT - 25;
-        
         int centerY = componentBounds.getY() + (componentBounds.getHeight() - pickerSize) / 2;
 
-        pickerBounds = new ScreenBounds(componentBounds.getX(), centerY, pickerSize, pickerSize);
+        pickerBounds = new ScreenBounds(
+                componentBounds.getX(),
+                centerY,
+                pickerSize,
+                pickerSize
+        );
 
-        ScreenBounds preview = new ScreenBounds(componentBounds.getX() + componentBounds.getWidth() - pickerSize, centerY, pickerSize, pickerSize);
+        ScreenBounds preview = new ScreenBounds(
+                componentBounds.getX() + componentBounds.getWidth() - pickerSize,
+                centerY,
+                pickerSize,
+                pickerSize
+        );
 
         pickerBounds.setX(preview.getX());
 
-        renderer.drawOutlineQuad(preview, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 6, 1);
+        renderer.drawOutlineQuad(preview,
+                Theme.modsBackgroundColor,
+                Theme.modButtonOutlineColor,
+                6,
+                1
+        );
 
         renderer.drawColorTriangle(pickerBounds, hue, 6f);
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
         float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f;
         float radius = pickerBounds.getWidth() / 2f;
+
+        float angle = hue * (float) (Math.PI * 2.0f);
+
+        float rInner = radius * 0.78f;
+        float rOuter = radius * 0.95f;
+
+        ScreenBounds hueLine = getHueLineBounds(
+                cx,
+                cy,
+                angle,
+                rInner,
+                rOuter
+        );
+
+        renderer.drawLine(hueLine, Color.WHITE, 1.0f);
+
         float inner = radius * 0.78f;
 
-        renderer.drawCircle(getHueSelectorBounds(cx, cy, radius), Color.WHITE);
-        renderer.drawOutlineQuad(getHueSelectorBounds(cx, cy, radius), new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
-
         renderer.drawCircle(getSVSelectorBounds(cx, cy, inner), Color.WHITE);
-        renderer.drawOutlineQuad(getSVSelectorBounds(cx, cy, inner), new Color(0, 0, 0, 0), Color.BLACK, 4, 1);
+        renderer.drawOutlineQuad(
+                getSVSelectorBounds(cx, cy, inner),
+                new Color(0, 0, 0, 0),
+                Color.BLACK,
+                4,
+                1
+        );
 
-        HybridRenderText label = HybridTextRenderer.getTextRenderer(colorSetting.getName(), FontStyle.BOLD, 20, Color.WHITE, new Color(140, 140, 140, 255), true);
+        HybridRenderText label = HybridTextRenderer.getTextRenderer(
+                colorSetting.getName(),
+                FontStyle.BOLD,
+                20,
+                Color.WHITE,
+                new Color(140, 140, 140, 255),
+                true
+        );
 
         label.setPosition(componentBounds.getX(), pickerBounds.getY());
         HybridTextRenderer.addText(label);
 
-
         ScreenBounds alphaBounds = componentBounds.copy();
         int alphaHeight = 20;
 
-        alphaBounds.setPosition(alphaBounds.getX() - 1, (pickerBounds.getY() + pickerBounds.getHeight()) - alphaHeight);
+        alphaBounds.setPosition(
+                alphaBounds.getX() - 1,
+                pickerBounds.getY() + pickerBounds.getHeight() - alphaHeight
+        );
 
-        alphaBounds.setSize((int) ((componentBounds.getX() - pickerBounds.getWidth()) * 0.54), alphaHeight);
+        alphaBounds.setSize(
+                (int) ((componentBounds.getX() - pickerBounds.getWidth()) * 0.54),
+                alphaHeight
+        );
 
         renderer.drawAlphaSlider(alphaBounds, colorSetting.get());
-
 
         ScreenBounds colorBounds = alphaBounds.copy();
         colorBounds.setHeight(colorBounds.getHeight() + 5);
         colorBounds.setY(colorBounds.getY() - (colorBounds.getHeight() + 8));
 
-        renderer.drawOutlineQuad(colorBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, 5, 1);
-
+        renderer.drawOutlineQuad(
+                colorBounds,
+                Theme.modBackgroundColor,
+                Theme.modButtonOutlineColor,
+                5,
+                1
+        );
 
         Color c = colorSetting.get();
 
         String rgbText = c.getRed() + "   " + c.getGreen() + "   " + c.getBlue() + "   " + c.getAlpha();
+        String hexText = String.format("#%02X%02X%02X%02X",
+                c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()
+        );
 
-        String hexText = String.format("#%02X%02X%02X%02X", c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+        HybridRenderText rgbLabel = HybridTextRenderer.getTextRenderer(
+                rgbText,
+                FontStyle.BOLD,
+                18,
+                Color.LIGHT_GRAY,
+                new Color(140, 140, 140, 255),
+                true
+        );
 
-        HybridRenderText rgbLabel = HybridTextRenderer.getTextRenderer(rgbText, FontStyle.BOLD, 18, Color.LIGHT_GRAY, new Color(140, 140, 140, 255), true);
-
-        HybridRenderText hexLabel = HybridTextRenderer.getTextRenderer(hexText, FontStyle.BOLD, 18, Color.LIGHT_GRAY, new Color(140, 140, 140, 255), true);
+        HybridRenderText hexLabel = HybridTextRenderer.getTextRenderer(
+                hexText,
+                FontStyle.BOLD,
+                18,
+                Color.LIGHT_GRAY,
+                new Color(140, 140, 140, 255),
+                true
+        );
 
         int textY = colorBounds.getY() + (colorBounds.getHeight() - rgbLabel.getHeight()) / 2;
-
         int padding = 8;
         int dividerWidth = 2;
         int dividerHeight = colorBounds.getHeight() - 8;
@@ -116,20 +179,68 @@ public class ColorComponent extends HybridComponent {
         rgbLabel.setPosition(rgbX, textY);
         HybridTextRenderer.addText(rgbLabel);
 
-
         int hexX = colorBounds.getX() + colorBounds.getWidth() - padding - hexLabel.getWidth();
-
         hexLabel.setPosition(hexX, textY);
         HybridTextRenderer.addText(hexLabel);
 
-
         int rgbRight = rgbX + rgbLabel.getWidth();
-
-
         int dividerX = rgbRight + (hexX - rgbRight - dividerWidth) / 2;
 
-        renderer.drawQuad(new ScreenBounds(dividerX, colorBounds.getY() + 4, dividerWidth, dividerHeight), Theme.modButtonOutlineColor);
+        renderer.drawQuad(
+                new ScreenBounds(dividerX, colorBounds.getY() + 4, dividerWidth, dividerHeight),
+                Theme.modButtonOutlineColor
+        );
     }
+
+
+    private ScreenBounds getHueLineBounds(
+            float cx,
+            float cy,
+            float angle,
+            float rInner,
+            float rOuter
+    ) {
+        float x1 = cx + (float) Math.cos(angle) * rInner;
+        float y1 = cy + (float) Math.sin(angle) * rInner;
+
+        float x2 = cx + (float) Math.cos(angle) * rOuter;
+        float y2 = cy + (float) Math.sin(angle) * rOuter;
+
+        return new ScreenBounds(
+                Math.round(x1),
+                Math.round(y1),
+                Math.round(x2),
+                Math.round(y2)
+        );
+    }
+
+    private ScreenBounds getSVSelectorBounds(float cx, float cy, float radius) {
+
+        float a = hue * (float) (Math.PI * 2.0f);
+
+        float ax = cx + (float) Math.cos(a) * radius;
+        float ay = cy + (float) Math.sin(a) * radius;
+
+        float bx = cx + (float) Math.cos(a + 2f * Math.PI / 3f) * radius;
+        float by = cy + (float) Math.sin(a + 2f * Math.PI / 3f) * radius;
+
+        float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
+        float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
+
+        float w = 1f - bcU - bcV;
+
+        float px = ax * bcU + bx * bcV + cx2 * w;
+        float py = ay * bcU + by * bcV + cy2 * w;
+
+        return new ScreenBounds(
+                Math.round(px - 4),
+                Math.round(py - 4),
+                8,
+                8
+        );
+    }
+
+
     @Override
     public void onMouseClicked(Click click) {
 
@@ -186,13 +297,13 @@ public class ColorComponent extends HybridComponent {
 
     private void updateHue(double mx, double my, float cx, float cy) {
         float angle = (float) Math.atan2(my - cy, mx - cx);
-        hue = angle / (float) (Math.PI * 2.0);
+        hue = angle / (float) (Math.PI * 2.0f);
         if (hue < 0) hue += 1f;
     }
 
     private void pickSV(double mx, double my, float cx, float cy, float radius) {
 
-        float a = hue * (float) (Math.PI * 2.0);
+        float a = hue * (float) (Math.PI * 2.0f);
 
         float ax = cx + (float) Math.cos(a) * radius;
         float ay = cy + (float) Math.sin(a) * radius;
@@ -223,25 +334,9 @@ public class ColorComponent extends HybridComponent {
         float w = (d00 * d21 - d01 * d20) / denom;
         float u = 1f - v - w;
 
-        // project into triangle
-        if (u < 0f) {
-            float t = v / (v + w);
-            v = t;
-            w = 1f - t;
-            u = 0f;
-        }
-        if (v < 0f) {
-            float t = u / (u + w);
-            u = t;
-            w = 1f - t;
-            v = 0f;
-        }
-        if (w < 0f) {
-            float t = u / (u + v);
-            u = t;
-            v = 1f - t;
-            w = 0f;
-        }
+        if (u < 0f) { float t = v / (v + w); v = t; w = 1f - t; u = 0f; }
+        if (v < 0f) { float t = u / (u + w); u = t; w = 1f - t; v = 0f; }
+        if (w < 0f) { float t = u / (u + v); u = t; v = 1f - t; w = 0f; }
 
         bcU = u;
         bcV = v;
@@ -256,31 +351,6 @@ public class ColorComponent extends HybridComponent {
 
     private float clamp(float v) {
         return Math.max(0f, Math.min(1f, v));
-    }
-
-    private ScreenBounds getHueSelectorBounds(float cx, float cy, float radius) {
-        float a = hue * (float) (Math.PI * 2.0);
-        float r = radius * 0.89f;
-        return new ScreenBounds((int) (cx + Math.cos(a) * r - 4), (int) (cy + Math.sin(a) * r - 4), 8, 8);
-    }
-
-    private ScreenBounds getSVSelectorBounds(float cx, float cy, float radius) {
-
-        float a = hue * (float) (Math.PI * 2.0);
-
-        float ax = cx + (float) Math.cos(a) * radius;
-        float ay = cy + (float) Math.sin(a) * radius;
-        float bx = cx + (float) Math.cos(a + 2f * Math.PI / 3f) * radius;
-        float by = cy + (float) Math.sin(a + 2f * Math.PI / 3f) * radius;
-        float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
-        float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
-
-        float w = 1f - bcU - bcV;
-
-        float px = ax * bcU + bx * bcV + cx2 * w;
-        float py = ay * bcU + by * bcV + cy2 * w;
-
-        return new ScreenBounds((int) (px - 4), (int) (py - 4), 8, 8);
     }
 
     private enum DragMode {

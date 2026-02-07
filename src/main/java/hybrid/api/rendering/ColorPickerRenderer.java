@@ -9,126 +9,120 @@ import static org.lwjgl.nanovg.NanoVG.*;
 
 public class ColorPickerRenderer {
 
-    private final long vg;
+    private static final float HUE_RING_RATIO = 0.78f;
+    private static final float TRIANGLE_RATIO = 0.75f;
+    private static final float CENTER_Y_OFFSET = 5f;
 
-    private final NVGColor colorA = NVGColor.create();
-    private final NVGColor colorB = NVGColor.create();
+    private final long CONTEXT;
+
+    private final NVGColor cA = NVGColor.create();
+    private final NVGColor cB = NVGColor.create();
     private final NVGPaint paintA = NVGPaint.create();
     private final NVGPaint paintB = NVGPaint.create();
 
     public ColorPickerRenderer(long CONTEXT) {
-        this.vg = CONTEXT;
+        this.CONTEXT = CONTEXT;
     }
 
 
     public void drawColorPicker(ScreenBounds bounds, float hue, float padding) {
 
         float cx = bounds.x + bounds.width / 2f;
-        float cy = bounds.y + bounds.height / 2f;
+        float cy = bounds.y + bounds.height / 2f + CENTER_Y_OFFSET;
 
         float radius = (Math.min(bounds.width, bounds.height) / 2f) - padding;
-        if (radius <= 0) return;
+        if (radius <= 0f) return;
 
-        drawColorPickerInternal(cx, cy, radius, hue);
-    }
-
-
-
-    private void drawColorPickerInternal(float cx, float cy, float radius, float hue) {
         drawHueRing(cx, cy, radius);
-        drawColorTriangle(cx, cy, radius * 0.75f, hue);
+        drawColorTriangle(cx, cy, radius * TRIANGLE_RATIO, hue);
     }
 
 
-    private void drawHueRing(float cx, float cy, float radius) { // MAKE TS A SHADER LOL
+    private void drawHueRing(float cx, float cy, float radius) {
 
-        float inner = radius * 0.78f;
+        float inner = radius * HUE_RING_RATIO;
 
         for (int i = 0; i < 720; i++) {
 
             float a0 = (float) Math.toRadians(i);
             float a1 = (float) Math.toRadians(i + 1);
 
-            Color c0 = hsvToRgb(i / 360f, 1f, 1f);
-            Color c1 = hsvToRgb((i + 1) / 360f, 1f, 1f);
+            Color col0 = hsv(i / 360f);
+            Color col1 = hsv((i + 1) / 360f);
 
-            rgba(c0, colorA);
-            rgba(c1, colorB);
+            rgba(col0, cA);
+            rgba(col1, cB);
 
-            nvgLinearGradient(vg, cx + (float) Math.cos(a0) * inner, cy + (float) Math.sin(a0) * inner, cx + (float) Math.cos(a0) * radius, cy + (float) Math.sin(a0) * radius, colorA, colorB, paintA);
+            nvgLinearGradient(CONTEXT, cx + (float) Math.cos(a0) * inner, cy + (float) Math.sin(a0) * inner, cx + (float) Math.cos(a0) * radius, cy + (float) Math.sin(a0) * radius, cA, cB, paintA);
 
-            nvgBeginPath(vg);
-            nvgArc(vg, cx, cy, radius, a0, a1, NVG_CW);
-            nvgArc(vg, cx, cy, inner, a1, a0, NVG_CCW);
-            nvgClosePath(vg);
-            nvgFillPaint(vg, paintA);
-            nvgFill(vg);
+            nvgBeginPath(CONTEXT);
+            nvgArc(CONTEXT, cx, cy, radius, a0, a1, NVG_CW);
+            nvgArc(CONTEXT, cx, cy, inner, a1, a0, NVG_CCW);
+            nvgClosePath(CONTEXT);
+
+            nvgFillPaint(CONTEXT, paintA);
+            nvgFill(CONTEXT);
         }
     }
 
-
-
     private void drawColorTriangle(float cx, float cy, float radius, float hue) {
 
-        float angle = hue * (float) (Math.PI * 2.0);
+        float a = hue * (float) (Math.PI * 2.0);
 
-        float ax = cx + (float) Math.cos(angle) * radius;
-        float ay = cy + (float) Math.sin(angle) * radius;
+        float ax = cx + (float) Math.cos(a) * radius;
+        float ay = cy + (float) Math.sin(a) * radius;
 
-        float bx = cx + (float) Math.cos(angle + 2f * Math.PI / 3f) * radius;
-        float by = cy + (float) Math.sin(angle + 2f * Math.PI / 3f) * radius;
+        float bx = cx + (float) Math.cos(a + 2f * Math.PI / 3f) * radius;
+        float by = cy + (float) Math.sin(a + 2f * Math.PI / 3f) * radius;
 
-        float cx2 = cx + (float) Math.cos(angle + 4f * Math.PI / 3f) * radius;
-        float cy2 = cy + (float) Math.sin(angle + 4f * Math.PI / 3f) * radius;
+        float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
+        float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
 
-        Color hueColor = hsvToRgb(hue, 1f, 1f);
-        rgba(255, 255, 255, 255, colorA);
-        rgba(hueColor, colorB);
+        Color hueColor = hsv(hue);
 
-        nvgLinearGradient(vg, bx, by, ax, ay, colorA, colorB, paintA);
 
-        nvgBeginPath(vg);
-        nvgMoveTo(vg, ax, ay);
-        nvgLineTo(vg, bx, by);
-        nvgLineTo(vg, cx2, cy2);
-        nvgClosePath(vg);
-        nvgFillPaint(vg, paintA);
-        nvgFill(vg);
+        rgba(Color.WHITE, cA);
+        rgba(Color.BLACK, cB);
 
-        rgba(0, 0, 0, 0, colorA);
-        rgba(0, 0, 0, 255, colorB);
+        nvgLinearGradient(CONTEXT, ax, ay, bx, by, cA, cB, paintA);
+        drawTriangle(ax, ay, bx, by, cx2, cy2, paintA);
 
-        nvgLinearGradient(vg, cx2, cy2, (ax + bx) * 0.5f, (ay + by) * 0.5f, colorA, colorB, paintB);
 
-        nvgBeginPath(vg);
-        nvgMoveTo(vg, ax, ay);
-        nvgLineTo(vg, bx, by);
-        nvgLineTo(vg, cx2, cy2);
-        nvgClosePath(vg);
-        nvgFillPaint(vg, paintB);
-        nvgFill(vg);
+        rgba(new Color(0, 0, 0, 0), cA);
+        rgba(hueColor, cB);
 
-        nvgBeginPath(vg);
-        nvgMoveTo(vg, ax, ay);
-        nvgLineTo(vg, bx, by);
-        nvgLineTo(vg, cx2, cy2);
-        nvgClosePath(vg);
-        rgba(0, 0, 0, 160, colorA);
-        nvgStrokeColor(vg, colorA);
-        nvgStrokeWidth(vg, 1.0f);
-        nvgStroke(vg);
+        float mx = (ax + bx) * 0.5f;
+        float my = (ay + by) * 0.5f;
+
+        nvgLinearGradient(CONTEXT, cx2, cy2, mx, my, cB, cA, paintB);
+        drawTriangle(ax, ay, bx, by, cx2, cy2, paintB);
+
+        rgba(new Color(0, 0, 0, 160), cA);
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, ax, ay);
+        nvgLineTo(CONTEXT, bx, by);
+        nvgLineTo(CONTEXT, cx2, cy2);
+        nvgClosePath(CONTEXT);
+        nvgStrokeColor(CONTEXT, cA);
+        nvgStrokeWidth(CONTEXT, 1f);
+        nvgStroke(CONTEXT);
     }
 
+    private void drawTriangle(float ax, float ay, float bx, float by, float cx, float cy, NVGPaint paint) {
+        nvgBeginPath(CONTEXT);
+        nvgMoveTo(CONTEXT, ax, ay);
+        nvgLineTo(CONTEXT, bx, by);
+        nvgLineTo(CONTEXT, cx, cy);
+        nvgClosePath(CONTEXT);
+        nvgFillPaint(CONTEXT, paint);
+        nvgFill(CONTEXT);
+    }
 
     private void rgba(Color c, NVGColor out) {
-        rgba(c.getRed(), c.getGreen(), c.getBlue(), 255, out);
+        nvgRGBA((byte) c.getRed(), (byte) c.getGreen(), (byte) c.getBlue(), (byte) c.getAlpha(), out);
     }
 
-    private void rgba(int r, int g, int b, int a, NVGColor out) {
-        nvgRGBA((byte) r, (byte) g, (byte) b, (byte) a, out);
-    }
-
-    private Color hsvToRgb(float h, float s, float v) {
-        return new Color(Color.HSBtoRGB(h, s, v));
+    private Color hsv(float h) {
+        return new Color(Color.HSBtoRGB(h, (float) 1.0, (float) 1.0));
     }
 }

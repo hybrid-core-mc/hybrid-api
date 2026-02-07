@@ -253,6 +253,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
 
 
+
     private Color hsvToRgb(float h, float s, float v) {
         int rgb = Color.HSBtoRGB(h, s, v);
         return new Color(rgb);
@@ -375,8 +376,25 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgStroke(CONTEXT);
     }
 
+    @Override
+    public void drawLine(ScreenBounds bounds, Color color, float thickness) {
 
+        nvgBeginPath(CONTEXT);
 
+        nvgMoveTo(CONTEXT, bounds.getX(), bounds.getY());
+        nvgLineTo(CONTEXT, bounds.getWidth(), bounds.getHeight());
+
+        NVG_COLOR
+                .r(color.getRed() / 255f)
+                .g(color.getGreen() / 255f)
+                .b(color.getBlue() / 255f)
+                .a(color.getAlpha() / 255f);
+
+        nvgStrokeColor(CONTEXT, NVG_COLOR);
+        nvgStrokeWidth(CONTEXT, thickness);
+        nvgLineCap(CONTEXT, NVG_ROUND); // 🔥 smooth ends
+        nvgStroke(CONTEXT);
+    }
 
 
 }
