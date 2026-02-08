@@ -14,7 +14,12 @@ import java.awt.*;
 
 public class ColorComponent extends HybridComponent {
 
-    private static final int HEIGHT = 100;
+    private final int HEIGHT = 100;
+
+    private final float TRIANGLE_RATIO = 0.75f;
+    private final float CENTER_Y_OFFSET = 5f;
+
+    private final float PICKER_PADDING = 6f;
 
     private final ColorSetting colorSetting;
 
@@ -29,6 +34,10 @@ public class ColorComponent extends HybridComponent {
 
     private float bcU = 1f;
     private float bcV = 0f;
+
+    private float triAx, triAy;
+    private float triBx, triBy;
+    private float triCx, triCy;
 
     public ColorComponent(ColorSetting colorSetting) {
         this.colorSetting = colorSetting;
@@ -74,32 +83,22 @@ public class ColorComponent extends HybridComponent {
                 1
         );
 
-        renderer.drawColorTriangle(pickerBounds, hue, 6f);
+        renderer.drawColorTriangle(pickerBounds, hue, PICKER_PADDING);
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
-        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f;
-        float radius = pickerBounds.getWidth() / 2f;
+        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + CENTER_Y_OFFSET;
 
-        float angle = hue * (float) (Math.PI * 2.0f);
+        float baseRadius = (Math.min(pickerBounds.getWidth(), pickerBounds.getHeight()) / 2f) - PICKER_PADDING;
+        if (baseRadius <= 0f) return;
 
-        float rInner = radius * 0.78f;
-        float rOuter = radius * 0.95f;
+        float triRadius = baseRadius * TRIANGLE_RATIO;
 
-        ScreenBounds hueLine = getHueLineBounds(
-                cx,
-                cy,
-                angle,
-                rInner,
-                rOuter
-        );
+        updateTriangle(cx, cy, triRadius);
 
-        renderer.drawLine(hueLine, Color.WHITE, 1.0f);
 
-        float inner = radius * 0.78f;
-
-        renderer.drawCircle(getSVSelectorBounds(cx, cy, inner), Color.WHITE);
-        renderer.drawOutlineQuad(
-                getSVSelectorBounds(cx, cy, inner),
+        ScreenBounds svSel = getSVSelectorBoundsFromShared();
+        renderer.drawCircle(svSel, Color.WHITE);
+        renderer.drawOutlineQuad(svSel,
                 new Color(0, 0, 0, 0),
                 Color.BLACK,
                 4,
@@ -193,44 +192,31 @@ public class ColorComponent extends HybridComponent {
     }
 
 
-    private ScreenBounds getHueLineBounds(
-            float cx,
-            float cy,
-            float angle,
-            float rInner,
-            float rOuter
-    ) {
-        float x1 = cx + (float) Math.cos(angle) * rInner;
-        float y1 = cy + (float) Math.sin(angle) * rInner;
-
-        float x2 = cx + (float) Math.cos(angle) * rOuter;
-        float y2 = cy + (float) Math.sin(angle) * rOuter;
-
-        return new ScreenBounds(
-                Math.round(x1),
-                Math.round(y1),
-                Math.round(x2),
-                Math.round(y2)
-        );
-    }
-
-    private ScreenBounds getSVSelectorBounds(float cx, float cy, float radius) {
-
-        float a = hue * (float) (Math.PI * 2.0f);
+    private void updateTriangle(float cx, float cy, float radius) {
+        float a = hue * (float) (Math.PI * 2.0);
 
         float ax = cx + (float) Math.cos(a) * radius;
         float ay = cy + (float) Math.sin(a) * radius;
 
-        float bx = cx + (float) Math.cos(a + 2f * Math.PI / 3f) * radius;
-        float by = cy + (float) Math.sin(a + 2f * Math.PI / 3f) * radius;
+        float bx = cx + (float) Math.cos(a + 2f * (float) Math.PI / 3f) * radius;
+        float by = cy + (float) Math.sin(a + 2f * (float) Math.PI / 3f) * radius;
 
-        float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
-        float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
+        float cx2 = cx + (float) Math.cos(a + 4f * (float) Math.PI / 3f) * radius;
+        float cy2 = cy + (float) Math.sin(a + 4f * (float) Math.PI / 3f) * radius;
 
+        triAx = ax;
+        triAy = ay;
+        triBx = bx;
+        triBy = by;
+        triCx = cx2;
+        triCy = cy2;
+    }
+
+    private ScreenBounds getSVSelectorBoundsFromShared() {
         float w = 1f - bcU - bcV;
 
-        float px = ax * bcU + bx * bcV + cx2 * w;
-        float py = ay * bcU + by * bcV + cy2 * w;
+        float px = triAx * bcU + triBx * bcV + triCx * w;
+        float py = triAy * bcU + triBy * bcV + triCy * w;
 
         return new ScreenBounds(
                 Math.round(px - 4),
@@ -251,21 +237,26 @@ public class ColorComponent extends HybridComponent {
         dragMode = DragMode.NONE;
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
-        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f;
+        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + CENTER_Y_OFFSET;
+
+        float baseRadius = (Math.min(pickerBounds.getWidth(), pickerBounds.getHeight()) / 2f) - PICKER_PADDING;
+        if (baseRadius <= 0f) return;
+
+        float HUE_RING_RATIO = 0.78f;
+        float inner = baseRadius * HUE_RING_RATIO;
+        float triR = baseRadius * TRIANGLE_RATIO;
 
         float dx = (float) (click.x() - cx);
         float dy = (float) (click.y() - cy);
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        float radius = pickerBounds.getWidth() / 2f;
-        float inner = radius * 0.78f;
-
-        if (dist <= radius && dist >= inner) {
+        if (dist <= baseRadius && dist >= inner) {
             dragMode = DragMode.HUE;
             updateHue(click.x(), click.y(), cx, cy);
         } else if (dist < inner) {
             dragMode = DragMode.SV;
-            pickSV(click.x(), click.y(), cx, cy, inner);
+            updateTriangle(cx, cy, triR);
+            pickSVUsingShared(click.x(), click.y());
         }
 
         applyColor();
@@ -277,13 +268,19 @@ public class ColorComponent extends HybridComponent {
         if (!dragging || pickerBounds == null) return;
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
-        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f;
-        float inner = (pickerBounds.getWidth() / 2f) * 0.78f;
+        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + CENTER_Y_OFFSET;
+
+        float baseRadius = (Math.min(pickerBounds.getWidth(), pickerBounds.getHeight()) / 2f) - PICKER_PADDING;
+        if (baseRadius <= 0f) return;
+
+        float triR = baseRadius * TRIANGLE_RATIO;
 
         if (dragMode == DragMode.HUE) {
             updateHue(click.x(), click.y(), cx, cy);
+            updateTriangle(cx, cy, triR);
         } else if (dragMode == DragMode.SV) {
-            pickSV(click.x(), click.y(), cx, cy, inner);
+            updateTriangle(cx, cy, triR);
+            pickSVUsingShared(click.x(), click.y());
         }
 
         applyColor();
@@ -301,24 +298,17 @@ public class ColorComponent extends HybridComponent {
         if (hue < 0) hue += 1f;
     }
 
-    private void pickSV(double mx, double my, float cx, float cy, float radius) {
+    private void pickSVUsingShared(double mx, double my) {
 
-        float a = hue * (float) (Math.PI * 2.0f);
-
-        float ax = cx + (float) Math.cos(a) * radius;
-        float ay = cy + (float) Math.sin(a) * radius;
-
-        float bx = cx + (float) Math.cos(a + 2f * Math.PI / 3f) * radius;
-        float by = cy + (float) Math.sin(a + 2f * Math.PI / 3f) * radius;
-
-        float cx2 = cx + (float) Math.cos(a + 4f * Math.PI / 3f) * radius;
-        float cy2 = cy + (float) Math.sin(a + 4f * Math.PI / 3f) * radius;
+        float ax = triAx, ay = triAy;
+        float bx = triBx, by = triBy;
+        float cx = triCx, cy = triCy;
 
         float px = (float) mx;
         float py = (float) my;
 
         float v0x = bx - ax, v0y = by - ay;
-        float v1x = cx2 - ax, v1y = cy2 - ay;
+        float v1x = cx - ax, v1y = cy - ay;
         float v2x = px - ax, v2y = py - ay;
 
         float d00 = v0x * v0x + v0y * v0y;

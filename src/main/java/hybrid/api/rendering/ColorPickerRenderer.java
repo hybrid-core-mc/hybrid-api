@@ -9,10 +9,6 @@ import static org.lwjgl.nanovg.NanoVG.*;
 
 public class ColorPickerRenderer {
 
-    private static final float HUE_RING_RATIO = 0.78f;
-    private static final float TRIANGLE_RATIO = 0.75f;
-    private static final float CENTER_Y_OFFSET = 5f;
-
     private final long CONTEXT;
 
     private final NVGColor cA = NVGColor.create();
@@ -28,18 +24,21 @@ public class ColorPickerRenderer {
     public void drawColorPicker(ScreenBounds bounds, float hue, float padding) {
 
         float cx = bounds.x + bounds.width / 2f;
+        float CENTER_Y_OFFSET = 5f;
         float cy = bounds.y + bounds.height / 2f + CENTER_Y_OFFSET;
 
         float radius = (Math.min(bounds.width, bounds.height) / 2f) - padding;
         if (radius <= 0f) return;
 
         drawHueRing(cx, cy, radius);
+        float TRIANGLE_RATIO = 0.75f;
         drawColorTriangle(cx, cy, radius * TRIANGLE_RATIO, hue);
     }
 
 
     private void drawHueRing(float cx, float cy, float radius) {
 
+        float HUE_RING_RATIO = 0.78f;
         float inner = radius * HUE_RING_RATIO;
 
         for (int i = 0; i < 720; i++) {
