@@ -236,7 +236,6 @@ public class ModHybridComponent extends HybridComponent {
         int viewportHeight = getViewportHeight();
         int maxScroll = Math.max(0, contentHeight - viewportHeight);
 
-        // 🔒 CLAMP
         scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
 
         super.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);

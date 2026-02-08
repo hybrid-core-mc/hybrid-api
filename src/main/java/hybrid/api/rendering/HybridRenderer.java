@@ -378,11 +378,20 @@ public class HybridRenderer implements HybridRenderer2D {
 
     @Override
     public void drawLine(ScreenBounds bounds, Color color, float thickness) {
+        drawLine(bounds, color, thickness, 0f);
+    }
+
+    public void drawLine(ScreenBounds bounds, Color color, float thickness, float yOffsetPx) {
+
+        float x1 = bounds.getX();
+        float y1 = bounds.getY() + yOffsetPx;
+
+        float x2 = bounds.getWidth();
+        float y2 = bounds.getHeight() + yOffsetPx;
 
         nvgBeginPath(CONTEXT);
-
-        nvgMoveTo(CONTEXT, bounds.getX(), bounds.getY());
-        nvgLineTo(CONTEXT, bounds.getWidth(), bounds.getHeight());
+        nvgMoveTo(CONTEXT, x1, y1);
+        nvgLineTo(CONTEXT, x2, y2);
 
         NVG_COLOR
                 .r(color.getRed() / 255f)
@@ -392,9 +401,10 @@ public class HybridRenderer implements HybridRenderer2D {
 
         nvgStrokeColor(CONTEXT, NVG_COLOR);
         nvgStrokeWidth(CONTEXT, thickness);
-        nvgLineCap(CONTEXT, NVG_ROUND); // 🔥 smooth ends
+
+        nvgLineCap(CONTEXT, NVG_BUTT);
+
         nvgStroke(CONTEXT);
     }
-
 
 }
