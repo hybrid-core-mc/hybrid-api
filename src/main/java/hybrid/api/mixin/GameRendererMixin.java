@@ -1,6 +1,7 @@
 package hybrid.api.mixin;
 
 import hybrid.api.rendering.HybridRenderer;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.GameRenderer;
@@ -16,6 +17,9 @@ public class GameRendererMixin {
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     public void init(MinecraftClient client, HeldItemRenderer firstPersonHeldItemRenderer, BufferBuilderStorage buffers, BlockRenderManager blockRenderManager, CallbackInfo ci) {
         HybridRenderer.init();
+        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
+            HybridRenderer.render();
+        });
     }
 
 }
