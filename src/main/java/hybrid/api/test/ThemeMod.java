@@ -28,6 +28,8 @@ public class ThemeMod extends HybridMod {
                 case Background -> Theme.backgroundColor = c;
                 case ModsBackground -> Theme.modsBackgroundColor = c;
                 case ModBackground -> Theme.modBackgroundColor = c;
+                case Border -> Theme.modButtonOutlineColor = c;
+                case Border1 -> Theme.uiOutlineColor = c;
             }
         } else {
             Theme.backgroundColor = c.darker();
@@ -44,7 +46,9 @@ public class ThemeMod extends HybridMod {
                         .add(themeMode)
                         .add(colorOption)
                         .add(new ColorSetting("The color", Color.PINK).onChange(ThemeMod::updateColor))
-                        .add(new NumberSetting("Chaos Level", 50, 0, 100).onChange(v -> System.out.println("Chaos Level = " + v)))
+                        .add(new NumberSetting("Corner Radius", 8, 1, 30).onChange(v -> {
+                            Theme.cornerRadius = v.intValue();
+                        }))
                         .build()
         );
     }
@@ -54,7 +58,7 @@ public class ThemeMod extends HybridMod {
     }
 
     public enum ThemeColor {
-        Background, ModsBackground, ModBackground
+        Background, ModsBackground, ModBackground, Border, Border1
     }
 
 }
