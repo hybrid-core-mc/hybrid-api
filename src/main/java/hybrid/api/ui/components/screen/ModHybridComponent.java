@@ -115,7 +115,7 @@ public class ModHybridComponent extends HybridComponent {
                 .split("\n");
 
         int paddingX = Theme.xPadding;
-        int lineSpacing = 4;
+        int lineSpacing = 4; // no need since this will alwas be the same
 
         int descLineHeight = HybridTextRenderer
                 .getTextRenderer("A", FontStyle.REGULAR, 14, Color.LIGHT_GRAY, false)
