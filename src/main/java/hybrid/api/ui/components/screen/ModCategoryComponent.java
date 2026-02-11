@@ -24,11 +24,8 @@ public class ModCategoryComponent extends HybridComponent {
 
     private boolean extended;
 
-    /* ================= ANIMATION ================= */
-
     private final PositionAnimation heightAnim;
 
-    /* ================= CONSTRUCTOR ================= */
 
     public ModCategoryComponent(ModSettingCategory modSettingCategory) {
         this.modSettingCategory = modSettingCategory;
@@ -50,7 +47,6 @@ public class ModCategoryComponent extends HybridComponent {
         this.heightAnim.snap(collapsed);
     }
 
-    /* ================= HEIGHTS ================= */
 
     private int getCollapsedHeight() {
         return 34;
@@ -75,7 +71,6 @@ public class ModCategoryComponent extends HybridComponent {
         return (int) heightAnim.get();
     }
 
-    /* ================= BOUNDS ================= */
 
     @Override
     public void setupBounds() {
@@ -84,19 +79,14 @@ public class ModCategoryComponent extends HybridComponent {
         super.setupBounds();
     }
 
-    /* ================= RENDER ================= */
-
     @Override
     public void render(HybridRenderer renderer) {
 
-        /* ---- Animate height (NO target setting here) ---- */
         heightAnim.update();
         componentBounds.setHeight((int) heightAnim.get());
 
-        /* ---- Background ---- */
         renderer.drawQuad(componentBounds, Theme.modBackgroundColor);
 
-        /* ---- Header ---- */
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
                 modSettingCategory.name(),
                 FontStyle.BOLD,
@@ -127,11 +117,10 @@ public class ModCategoryComponent extends HybridComponent {
         HybridTextRenderer.addText(title);
         HybridTextRenderer.addText(toggleIcon);
 
-        /* ---- Stop if collapsed ---- */
         if (heightAnim.get() <= getCollapsedHeight() + 2)
             return;
 
-        /* ================= CONTENT ================= */
+
 
         int spacing = 4;
         int innerPadding = Theme.xPadding;
@@ -195,7 +184,6 @@ public class ModCategoryComponent extends HybridComponent {
         }
     }
 
-    /* ================= INPUT ================= */
 
     @Override
     public void onMouseRelease(Click click) {
@@ -226,7 +214,7 @@ public class ModCategoryComponent extends HybridComponent {
         super.onMouseDrag(click);
     }
 
-    /* ================= UTILS ================= */
+
 
     private int getDefaultHeight(HybridComponent component) {
         return component instanceof ColorComponent ? 100 : 30;

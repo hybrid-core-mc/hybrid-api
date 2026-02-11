@@ -62,11 +62,8 @@ public class ModHybridComponent extends HybridComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
-        hybridRenderer.drawQuad(componentBounds, Theme.backgroundColor);
+        hybridRenderer.drawQuad(componentBounds, Theme.backgroundColor,0,Theme.cornerRadius, Theme.cornerRadius,0);
 
-        ScreenBounds corner = new ScreenBounds(componentBounds.getX(), componentBounds.getY(), Theme.cornerRadius, componentBounds.getHeight());
-
-        hybridRenderer.drawQuad(corner, Theme.backgroundColor, 0);
 
         drawHeading(hybridRenderer);
         drawSettings(hybridRenderer);
@@ -106,7 +103,8 @@ public class ModHybridComponent extends HybridComponent {
 
         int y = componentBounds.getY() + 17 - scrollOffset;
 
-        renderer.drawQuad(new ScreenBounds(x, y, boxWidth, boxHeight), Theme.modBackgroundColor);
+        ScreenBounds bounds = new ScreenBounds(x,y,boxWidth,boxHeight);
+        renderer.drawQuad(bounds,Theme.modBackgroundColor,Theme.cornerRadius);
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(hybridMod.getName(), FontStyle.BOLD, 24, Color.WHITE, true);
 

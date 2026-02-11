@@ -7,6 +7,7 @@ import hybrid.api.mods.settings.ColorSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
+import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
@@ -14,27 +15,27 @@ import java.awt.*;
 
 public class ColorComponent extends HybridComponent {
 
-    private static final int HEIGHT = 100;
+    static final int HEIGHT = 100;
 
-    private final ColorSetting colorSetting;
+    final ColorSetting colorSetting;
 
-    private float hue;
-    private float saturation;
-    private float value;
-    private float alpha = 1f;
+    float hue;
+    float saturation;
+    float value;
+    float alpha;
+    PositionAnimation alphaAnim = new PositionAnimation(1f, 18f);
+    boolean dragging = false;
+    DragMode dragMode = DragMode.NONE;
 
-    private boolean dragging = false;
-    private DragMode dragMode = DragMode.NONE;
+    ScreenBounds pickerBounds;
+    ScreenBounds alphaBoundsShared;
 
-    private ScreenBounds pickerBounds;
-    private ScreenBounds alphaBoundsShared;
+    float bcU = 1f;
+    float bcV = 0f;
 
-    private float bcU = 1f;
-    private float bcV = 0f;
-
-    private float triAx, triAy;
-    private float triBx, triBy;
-    private float triCx, triCy;
+    float triAx, triAy;
+    float triBx, triBy;
+    float triCx, triCy;
 
     public ColorComponent(ColorSetting colorSetting) {
         this.colorSetting = colorSetting;
@@ -45,8 +46,20 @@ public class ColorComponent extends HybridComponent {
         saturation = hsv[1];
         value = hsv[2];
         alpha = c.getAlpha() / 255f;
-    }
+        alphaAnim.snap(alpha);
 
+        syncTriangleFromSV();
+    }
+    private void syncTriangleFromSV() {
+        bcU = clamp(1f - saturation);
+        bcV = clamp(1f - value);
+
+        float sum = bcU + bcV;
+        if (sum > 1f) {
+            bcU /= sum;
+            bcV /= sum;
+        }
+    }
     @Override
     public void setupBounds() {
         componentBounds.setSize(componentBounds.getWidth(), HEIGHT);
@@ -56,7 +69,7 @@ public class ColorComponent extends HybridComponent {
     public void render(HybridRenderer renderer) {
         int pickerSize = HEIGHT - 25;
         int centerY = componentBounds.getY() + (componentBounds.getHeight() - pickerSize) / 2;
-
+        alphaAnim.update();
         ScreenBounds preview = new ScreenBounds(
                 componentBounds.getX() + componentBounds.getWidth() - pickerSize,
                 centerY,
@@ -206,8 +219,7 @@ public class ColorComponent extends HybridComponent {
     private void drawAlphaIndicator(HybridRenderer renderer) {
         if (alphaBoundsShared == null) return;
 
-        float t = clamp(alpha);
-
+        float t = clamp(alphaAnim.get());
         float knobOuterR = 7.0f;
         float knobRing = 2.0f;
         float insetX = 2.0f;
@@ -351,8 +363,11 @@ public class ColorComponent extends HybridComponent {
 
     private void updateAlpha(double mx) {
         if (alphaBoundsShared == null) return;
-        float t = ((float) mx - alphaBoundsShared.getX()) / (float) alphaBoundsShared.getWidth();
+
+        float t = ((float) mx - alphaBoundsShared.getX()) / alphaBoundsShared.getWidth();
         alpha = clamp(t);
+
+        alphaAnim.setTarget(alpha);
     }
 
     private void pickSVUsingShared(double mx, double my) {
@@ -413,7 +428,6 @@ public class ColorComponent extends HybridComponent {
         int g = (rgb >> 8) & 0xFF;
         int b = (rgb) & 0xFF;
         int a = Math.round(alpha * 255f);
-
         colorSetting.set(new Color(r, g, b, a));
     }
 

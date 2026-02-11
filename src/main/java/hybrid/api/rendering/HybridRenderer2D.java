@@ -7,6 +7,7 @@ public interface HybridRenderer2D {
 
     void drawQuad(ScreenBounds bounds, Color color, int radius);
 
+    void drawQuad(ScreenBounds bounds, Color color, int topRight, int topLeft, int bottomRight, int bottomLeft);
     void drawOutlineQuad(ScreenBounds bounds, Color fill, Color outline, int radius, int outlineRadius);
 
     void drawCircle(ScreenBounds bounds, Color color);

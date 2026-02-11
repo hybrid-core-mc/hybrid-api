@@ -127,7 +127,7 @@ public class ModeComponent extends HybridComponent {
                 componentBounds.getY()
                         + (componentBounds.getHeight() - boxHeight) / 2;
 
-        return new ScreenBounds(boxX, boxY - 1, cachedBoxWidth, boxHeight);
+        return new ScreenBounds(boxX, boxY , cachedBoxWidth, boxHeight);
     }
 
 

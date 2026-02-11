@@ -149,15 +149,8 @@ public class ModsHybridComponent extends HybridComponent {
     }
 
     private void drawBackground(HybridRenderer renderer) {
-        renderer.drawQuad(componentBounds, Theme.modsBackgroundColor);
-
-        ScreenBounds rightSlice = componentBounds.copy();
-        rightSlice.setWidth(Theme.cornerRadius);
-        rightSlice.setX(componentBounds.getX() + componentBounds.getWidth() - Theme.cornerRadius);
-
-        renderer.drawQuad(rightSlice, Theme.modsBackgroundColor, 0);
+        renderer.drawQuad(componentBounds, Theme.modsBackgroundColor, Theme.cornerRadius, 0,0 , Theme.cornerRadius);
     }
-
 
     @Override
     public void onMouseRelease(Click click) {

@@ -252,7 +252,29 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgFill(CONTEXT);
     }
 
+    @Override
+    public void drawQuad(ScreenBounds bounds, Color color, int topRight, int topLeft, int bottomRight, int bottomLeft) {
 
+        /*
+         * 0---1
+         * 2---3
+         * */
+
+
+        nvgBeginPath(CONTEXT);
+        setColor(CONTEXT, color);
+
+        nvgRoundedRectVarying(
+                CONTEXT,
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height,
+                topRight, topLeft, bottomRight, bottomLeft
+        );
+
+        nvgFill(CONTEXT);
+    }
 
 
     private Color hsvToRgb(float h, float s, float v) {
