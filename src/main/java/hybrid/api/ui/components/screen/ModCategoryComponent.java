@@ -8,11 +8,9 @@ import hybrid.api.mods.settings.*;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
+import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
-import hybrid.api.ui.components.settings.BooleanComponent;
-import hybrid.api.ui.components.settings.ColorComponent;
-import hybrid.api.ui.components.settings.ModeComponent;
-import hybrid.api.ui.components.settings.NumberComponent;
+import hybrid.api.ui.components.settings.*;
 import net.minecraft.client.gui.Click;
 
 import java.awt.*;
@@ -23,11 +21,13 @@ public class ModCategoryComponent extends HybridComponent {
 
     private final ModSettingCategory modSettingCategory;
     private final List<HybridComponent> modSettingComponents = new ArrayList<>();
+
     private boolean extended;
+
+    private final PositionAnimation heightAnim;
 
     public ModCategoryComponent(ModSettingCategory modSettingCategory) {
         this.modSettingCategory = modSettingCategory;
-        this.extended = false;
 
         for (ModSetting<?> setting : modSettingCategory.settings()) {
             if (setting instanceof BooleanSetting)
@@ -41,75 +41,54 @@ public class ModCategoryComponent extends HybridComponent {
                 modSettingComponents.add(new ColorComponent((ColorSetting) setting));
             }
         }
+        this.heightAnim = new PositionAnimation(getCollapsedHeight(), 0.09f);
     }
 
 
-    private int getNoneExtendedHeight() {
+    private int getCollapsedHeight() {
         return 34;
     }
+
     public int getTotalHeight() {
-
-
-        if (!extended) {
-            return getNoneExtendedHeight();
-        }
+        if (!extended) return getCollapsedHeight();
 
         int spacing = 4;
         int extraBottomPadding = 15;
 
-        int totalContentHeight = 0;
-        for (HybridComponent component : modSettingComponents) {
-            totalContentHeight += getDefaultHeight(component);
+        int content = 0;
+        for (HybridComponent c : modSettingComponents) {
+            content += getDefaultHeight(c);
         }
 
         if (!modSettingComponents.isEmpty()) {
-            totalContentHeight += spacing * (modSettingComponents.size() - 1);
+            content += spacing * (modSettingComponents.size() - 1);
         }
 
-        return getNoneExtendedHeight()
-                + spacing
-                + totalContentHeight
-                + extraBottomPadding;
+        return getCollapsedHeight() + spacing + content + extraBottomPadding;
     }
 
-    private int computeExpandedHeight() {
-
-        int spacing = 4;
-
-        int totalContentHeight = 0;
-        for (HybridComponent component : modSettingComponents) {
-            totalContentHeight += getDefaultHeight(component);
-        }
-
-        if (!modSettingComponents.isEmpty()) {
-            totalContentHeight += spacing * (modSettingComponents.size() - 1);
-        }
-
-        return getNoneExtendedHeight()
-                + spacing
-                + totalContentHeight;
+    public int getAnimatedHeight() {
+        return (int) heightAnim.get();
     }
+
 
     @Override
     public void setupBounds() {
-
         componentBounds = outerBounds.copy();
-
-        componentBounds.setHeight(
-                extended
-                        ? computeExpandedHeight()
-                        : getNoneExtendedHeight()
-        );
-
+        componentBounds.setHeight(getAnimatedHeight());
         super.setupBounds();
     }
 
 
     @Override
-    public void render(HybridRenderer hybridRenderer) {
+    public void render(HybridRenderer renderer) {
 
-        if (extended) componentBounds.setHeight(componentBounds.getHeight() + 15);
-        hybridRenderer.drawQuad(componentBounds, Theme.modBackgroundColor);
+        heightAnim.setTarget(extended ? getTotalHeight() : getCollapsedHeight());
+        heightAnim.update();
+
+        componentBounds.setHeight(getAnimatedHeight());
+
+        renderer.drawQuad(componentBounds, Theme.modBackgroundColor);
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
                 modSettingCategory.name(),
@@ -119,9 +98,12 @@ public class ModCategoryComponent extends HybridComponent {
                 true
         );
 
-        HybridRenderText toggleIcon = HybridTextRenderer.getIconRenderer(extended ? "up" : "down", Color.WHITE,componentBounds.getY());
+        HybridRenderText toggleIcon = HybridTextRenderer.getIconRenderer(
+                extended ? "up" : "down",
+                Color.WHITE
+        );
 
-        int headerCenterY = componentBounds.getY() + getNoneExtendedHeight() / 2;
+        int headerCenterY = componentBounds.getY() + getCollapsedHeight() / 2;
 
         title.setPosition(
                 componentBounds.getX() + Theme.xPadding,
@@ -139,31 +121,27 @@ public class ModCategoryComponent extends HybridComponent {
         HybridTextRenderer.addText(title);
         HybridTextRenderer.addText(toggleIcon);
 
-        if (!extended) return;
+        if (getAnimatedHeight() <= getCollapsedHeight() + 1) return;
 
         int spacing = 4;
         int innerPadding = Theme.xPadding;
 
-        int bgWidth = componentBounds.getWidth() - (Theme.xPadding * 2);
+        int bgWidth = componentBounds.getWidth() - Theme.xPadding * 2;
         int bgX = componentBounds.getX() + (componentBounds.getWidth() - bgWidth) / 2;
 
-        int startY =
-                componentBounds.getY()
-                        + getNoneExtendedHeight()
-                        + spacing;
+        int startY = componentBounds.getY() + getCollapsedHeight() + spacing;
+        int availableHeight = getAnimatedHeight() - getCollapsedHeight() - spacing;
 
-        int totalContentHeight = computeExpandedHeight()
-                - getNoneExtendedHeight()
-                - spacing;
+        if (availableHeight <= 0) return;
 
         ScreenBounds background = new ScreenBounds(
                 bgX,
                 startY,
                 bgWidth,
-                totalContentHeight
+                availableHeight
         );
 
-        hybridRenderer.drawOutlineQuad(
+        renderer.drawOutlineQuad(
                 background,
                 Theme.modsBackgroundColor,
                 Theme.modButtonOutlineColor,
@@ -171,81 +149,42 @@ public class ModCategoryComponent extends HybridComponent {
                 1
         );
 
-        int contentWidth = bgWidth - (innerPadding * 2);
+        int contentWidth = bgWidth - innerPadding * 2;
         int contentX = bgX + (bgWidth - contentWidth) / 2;
 
         int currentY = background.getY();
 
         for (HybridComponent component : modSettingComponents) {
 
-            int height = getDefaultHeight(component);
+            int h = getDefaultHeight(component);
+            if (currentY + h > background.getY() + background.getHeight()) break;
 
-            component.outerBounds = new ScreenBounds(
-                    contentX,
-                    currentY,
-                    contentWidth,
-                    height
-            );
-
+            component.outerBounds = new ScreenBounds(contentX, currentY, contentWidth, h);
             component.componentBounds = component.outerBounds.copy();
 
-            component.renderPre(hybridRenderer);
-            component.render(hybridRenderer);
+            component.renderPre(renderer);
+            component.render(renderer);
 
-            boolean isLast = component == modSettingComponents.getLast();
-
-            if (!isLast) {
-                ScreenBounds line = component.outerBounds.copy();
-                line.setSize(
-                        componentBounds.getWidth() - (Theme.xPadding * 2),
-                        1
-                );
-                line.setPosition(
-                        component.outerBounds.getX() - Theme.xPadding,
-                        component.outerBounds.getY() + component.outerBounds.getHeight()
-                );
-                hybridRenderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
-            }
-
-            currentY += height;
-
-            if (!isLast) {
-                currentY += spacing;
-            }
+            currentY += h + spacing;
         }
     }
+
 
     @Override
     public void onMouseRelease(Click click) {
 
         ScreenBounds headerBounds = componentBounds.copy();
-        headerBounds.setHeight(getNoneExtendedHeight());
+        headerBounds.setHeight(getCollapsedHeight());
 
         if (headerBounds.contains(click.x(), click.y())) {
             extended = !extended;
         }
 
-        modSettingComponents.forEach(hybridComponent -> hybridComponent.onMouseRelease(click));
-
+        modSettingComponents.forEach(c -> c.onMouseRelease(click));
         super.onMouseRelease(click);
     }
 
-    @Override
-    public void onMouseClicked(Click click) {
-        modSettingComponents.forEach(hybridComponent -> hybridComponent.onMouseClicked(click));
-
-        super.onMouseClicked(click);
-    }
-
-    @Override
-    public void onMouseDrag(Click click) {
-        modSettingComponents.forEach(hybridComponent -> hybridComponent.onMouseDrag(click));
-
-        super.onMouseDrag(click);
-    }
-
     private int getDefaultHeight(HybridComponent component) {
-        if(component instanceof ColorComponent) return 100;
-        return 30;
+        return component instanceof ColorComponent ? 100 : 30;
     }
 }

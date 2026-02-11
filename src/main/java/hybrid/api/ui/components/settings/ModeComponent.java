@@ -7,6 +7,7 @@ import hybrid.api.mods.settings.ModeSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
+import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 import org.jetbrains.annotations.NotNull;
@@ -14,12 +15,19 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 public class ModeComponent extends HybridComponent {
-    ModeSetting<?> modeSetting;
-    ScreenBounds modeBox;
+
+    private final ModeSetting<?> modeSetting;
+    private ScreenBounds modeBox;
+
+    private  PositionAnimation boxAnimation = new PositionAnimation(1.0f, 0.8f);
+
+    private boolean pressed = false;
+
+    private int cachedBoxWidth = -1;
+
     public ModeComponent(ModeSetting<?> modeSetting) {
         this.modeSetting = modeSetting;
     }
-
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
@@ -42,63 +50,110 @@ public class ModeComponent extends HybridComponent {
 
         HybridTextRenderer.addText(label);
 
+        int textSize = pressed ? 16 : 18;
+
         HybridRenderText modeText = HybridTextRenderer.getTextRenderer(
                 modeSetting.get().name(),
                 FontStyle.BOLD,
-                18,
+                textSize,
                 Color.LIGHT_GRAY,
                 new Color(140, 140, 140, 255),
                 true
         );
 
-        modeBox = getScreenBounds(modeText);
+        modeBox = getScreenBounds();
 
-        hybridRenderer.drawOutlineQuad(modeBox,
+        boxAnimation.update();
+
+        float scale = boxAnimation.get();
+
+        float cx = modeBox.getX() + modeBox.getWidth() / 2f;
+        float cy = modeBox.getY() + modeBox.getHeight() / 2f;
+
+        float scaledW = modeBox.getWidth() * scale;
+        float scaledH = modeBox.getHeight() * scale;
+
+        ScreenBounds scaledBox = new ScreenBounds(
+                (int) (cx - scaledW / 2f),
+                (int) (cy - scaledH / 2f),
+                (int) scaledW,
+                (int) scaledH
+        );
+
+        hybridRenderer.drawOutlineQuad(
+                scaledBox,
                 Theme.modBackgroundColor,
                 Theme.modButtonOutlineColor,
                 5,
                 1
         );
 
-        modeText.setPosition(modeBox.getX() + (modeBox.getWidth() - modeText.getWidth()) / 2, modeBox.getY() + (modeBox.getHeight() - modeText.getHeight()) / 2
+        modeText.setPosition(
+                scaledBox.getX() + (scaledBox.getWidth() - modeText.getWidth()) / 2,
+                scaledBox.getY() + (scaledBox.getHeight() - modeText.getHeight()) / 2
         );
 
         HybridTextRenderer.addText(modeText);
     }
 
-    private @NotNull ScreenBounds getScreenBounds(HybridRenderText modeText) {
-        int paddingX = 10;
-        int boxWidth = modeText.getWidth() + paddingX * 2;
 
+
+    private @NotNull ScreenBounds getScreenBounds() {
+
+        int paddingX = 10;
         int boxHeight = (int) (componentBounds.getHeight() * 0.75);
+
+        if (cachedBoxWidth == -1) {
+            String longest = modeSetting.getLongestValue();
+
+            HybridRenderText measure = HybridTextRenderer.getTextRenderer(
+                    longest,
+                    FontStyle.BOLD,
+                    18,
+                    Color.LIGHT_GRAY,
+                    new Color(140, 140, 140, 255),
+                    true
+            );
+
+            cachedBoxWidth = measure.getWidth() + paddingX * 2;
+        }
 
         int boxX =
                 componentBounds.getX()
                         + componentBounds.getWidth()
-                        - boxWidth;
+                        - cachedBoxWidth;
 
         int boxY =
                 componentBounds.getY()
                         + (componentBounds.getHeight() - boxHeight) / 2;
 
-        return new ScreenBounds(boxX, boxY-1, boxWidth, boxHeight);
+        return new ScreenBounds(boxX, boxY - 1, cachedBoxWidth, boxHeight);
+    }
+
+
+    @Override
+    public void onMouseClicked(Click click) {
+        if (modeBox != null && modeBox.contains((int) click.x(), (int) click.y())) {
+            pressed = true;
+            boxAnimation.setTarget(0.92f);
+        }
+        super.onMouseClicked(click);
     }
 
     @Override
     public void onMouseRelease(Click click) {
         super.onMouseRelease(click);
 
+        pressed = false;
+        boxAnimation.setTarget(1.0f);
+
         if (modeBox == null) return;
+        if (!modeBox.contains((int) click.x(), (int) click.y())) return;
 
-        int mouseX = (int) click.x();
-        int mouseY = (int) click.y();
-
-        if (!modeBox.contains(mouseX, mouseY)) return;
-
-        if(click.button() == 0){
+        if (click.button() == 0) {
             modeSetting.cycle();
-        } else if(click.button() == 1) modeSetting.cycleBack();
-
-
+        } else if (click.button() == 1) {
+            modeSetting.cycleBack();
+        }
     }
 }

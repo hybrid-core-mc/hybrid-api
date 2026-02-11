@@ -9,10 +9,18 @@ public class ModeSetting<E extends Enum<E>> extends ModSetting<E> {
         this.values = defaultValue.getDeclaringClass().getEnumConstants();
     }
 
-    public E[] getValues() {
-        return values;
-    }
+    public String getLongestValue() {
+        String longest = values[0].name();
 
+        for (E value : values) {
+            String name = value.name();
+            if (name.length() > longest.length()) {
+                longest = name;
+            }
+        }
+
+        return longest;
+    }
     public void cycle() {
         doCycle(1);
     }

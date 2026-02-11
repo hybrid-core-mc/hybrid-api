@@ -70,6 +70,7 @@ public class HybridRenderer implements HybridRenderer2D {
         );
 
         float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
+//        scale = 0.3f; todo : scale animation
         nvgScale(CONTEXT, scale, scale);
 
         HybridRenderQueue.clear();

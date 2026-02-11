@@ -7,6 +7,7 @@ import hybrid.api.mods.settings.NumberSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.Theme;
+import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
@@ -14,7 +15,7 @@ import java.awt.*;
 
 public class NumberComponent extends HybridComponent {
 
-
+    private final PositionAnimation fillAnimation = new PositionAnimation(0f, 0.7f);
     private final NumberSetting numberSetting;
     private boolean dragging = false;
     private ScreenBounds sliderBounds;
@@ -62,7 +63,17 @@ public class NumberComponent extends HybridComponent {
         double percent = (value - min) / (max - min);
         percent = Math.max(0.0, Math.min(1.0, percent));
 
-        int fillWidth = (int) (sliderWidth * percent);
+        float targetWidth = (float) (sliderWidth * percent);
+
+        if (dragging) {
+            fillAnimation.setTarget(targetWidth);
+            fillAnimation.update();
+        } else {
+            fillAnimation.setTarget(targetWidth);
+            fillAnimation.update();
+        }
+
+        int fillWidth = (int) fillAnimation.get();
 
         ScreenBounds fill = sliderBounds.copy();
         fill.setWidth(fillWidth);
@@ -81,6 +92,7 @@ public class NumberComponent extends HybridComponent {
 
 
         if (dragging) {
+
             HybridRenderText valueText = HybridTextRenderer.getTextRenderer(String.valueOf(numberSetting.get()), FontStyle.REGULAR, 14, Color.WHITE, true);
 
             valueText.setPosition(knobBounds.getX() + sliderCircleSize / 2 - valueText.getWidth() / 2, knobBounds.getY() - valueText.getHeight() - 4);

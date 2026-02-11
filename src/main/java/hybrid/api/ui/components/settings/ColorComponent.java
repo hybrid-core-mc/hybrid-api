@@ -54,8 +54,8 @@ public class ColorComponent extends HybridComponent {
 
     @Override
     public void render(HybridRenderer renderer) {
-        final int pickerSize = HEIGHT - 25;
-        final int centerY = componentBounds.getY() + (componentBounds.getHeight() - pickerSize) / 2;
+        int pickerSize = HEIGHT - 25;
+        int centerY = componentBounds.getY() + (componentBounds.getHeight() - pickerSize) / 2;
 
         ScreenBounds preview = new ScreenBounds(
                 componentBounds.getX() + componentBounds.getWidth() - pickerSize,
@@ -73,17 +73,17 @@ public class ColorComponent extends HybridComponent {
                 1
         );
 
-        final float pickerPadding = 6f;
+        float pickerPadding = 6f;
         renderer.drawColorTriangle(pickerBounds, hue, pickerPadding);
 
-        final float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
-        final float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + 5f;
+        float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
+        float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + 5f;
 
-        final float baseRadius = (Math.min(pickerBounds.getWidth(), pickerBounds.getHeight()) / 2f) - pickerPadding;
+        float baseRadius = (Math.min(pickerBounds.getWidth(), pickerBounds.getHeight()) / 2f) - pickerPadding;
         if (baseRadius <= 0f) return;
 
-        final float ringInner = baseRadius * 0.78f;
-        final float triRadius = baseRadius * 0.75f;
+        float ringInner = baseRadius * 0.78f;
+        float triRadius = baseRadius * 0.75f;
 
         updateTriangle(cx, cy, triRadius);
         drawHueIndicator(renderer, cx, cy, ringInner, baseRadius);
@@ -109,7 +109,7 @@ public class ColorComponent extends HybridComponent {
         HybridTextRenderer.addText(label);
 
         ScreenBounds alphaBounds = componentBounds.copy();
-        final int alphaHeight = 20;
+        int alphaHeight = 20;
 
         alphaBounds.setPosition(
                 alphaBounds.getX() - 1,
@@ -158,22 +158,22 @@ public class ColorComponent extends HybridComponent {
                 true
         );
 
-        final int textY = colorBounds.getY() + (colorBounds.getHeight() - rgbLabel.getHeight()) / 2;
+        int textY = colorBounds.getY() + (colorBounds.getHeight() - rgbLabel.getHeight()) / 2;
 
-        final int padding = 8;
-        final int dividerWidth = 2;
-        final int dividerHeight = colorBounds.getHeight() - 8;
+        int padding = 8;
+        int dividerWidth = 2;
+        int dividerHeight = colorBounds.getHeight() - 8;
 
-        final int rgbX = colorBounds.getX() + padding;
+        int rgbX = colorBounds.getX() + padding;
         rgbLabel.setPosition(rgbX, textY);
         HybridTextRenderer.addText(rgbLabel);
 
-        final int hexX = colorBounds.getX() + colorBounds.getWidth() - padding - hexLabel.getWidth();
+        int hexX = colorBounds.getX() + colorBounds.getWidth() - padding - hexLabel.getWidth();
         hexLabel.setPosition(hexX, textY);
         HybridTextRenderer.addText(hexLabel);
 
-        final int rgbRight = rgbX + rgbLabel.getWidth();
-        final int dividerX = rgbRight + (hexX - rgbRight - dividerWidth) / 2;
+        int rgbRight = rgbX + rgbLabel.getWidth();
+        int dividerX = rgbRight + (hexX - rgbRight - dividerWidth) / 2;
 
         renderer.drawQuad(
                 new ScreenBounds(dividerX, colorBounds.getY() + 4, dividerWidth, dividerHeight),
@@ -182,20 +182,20 @@ public class ColorComponent extends HybridComponent {
     }
 
     private void drawHueIndicator(HybridRenderer renderer, float cx, float cy, float inner, float outer) {
-        final float a = hue * (float) (Math.PI * 2.0f);
+        float a = hue * (float) (Math.PI * 2.0f);
 
-        final float half = 3.0f * 0.5f;
-        final float inset = 0.8f;
-        final float extra = 0.75f;
+        float half = 3.0f * 0.5f;
+        float inset = 0.8f;
+        float extra = 0.75f;
 
-        final float r1 = (inner - half - extra) + inset;
-        final float r2 = (outer + half + extra) - inset;
+        float r1 = (inner - half - extra) + inset;
+        float r2 = (outer + half + extra) - inset;
 
-        final float x1 = cx + (float) Math.cos(a) * r1;
-        final float y1 = cy + (float) Math.sin(a) * r1;
+        float x1 = cx + (float) Math.cos(a) * r1;
+        float y1 = cy + (float) Math.sin(a) * r1;
 
-        final float x2 = cx + (float) Math.cos(a) * r2;
-        final float y2 = cy + (float) Math.sin(a) * r2;
+        float x2 = cx + (float) Math.cos(a) * r2;
+        float y2 = cy + (float) Math.sin(a) * r2;
 
         ScreenBounds line = lineEndpoints(x1, y1, x2, y2);
 
@@ -206,19 +206,19 @@ public class ColorComponent extends HybridComponent {
     private void drawAlphaIndicator(HybridRenderer renderer) {
         if (alphaBoundsShared == null) return;
 
-        final float t = clamp(alpha);
+        float t = clamp(alpha);
 
-        final float knobOuterR = 7.0f;
-        final float knobRing = 2.0f;
-        final float insetX = 2.0f;
+        float knobOuterR = 7.0f;
+        float knobRing = 2.0f;
+        float insetX = 2.0f;
 
-        final float minX = alphaBoundsShared.getX() + insetX + knobOuterR;
-        final float maxX = alphaBoundsShared.getX() + alphaBoundsShared.getWidth() - insetX - knobOuterR;
+        float minX = alphaBoundsShared.getX() + insetX + knobOuterR;
+        float maxX = alphaBoundsShared.getX() + alphaBoundsShared.getWidth() - insetX - knobOuterR;
 
-        final float x = minX + (maxX - minX) * t;
-        final float y = alphaBoundsShared.getY() + alphaBoundsShared.getHeight() / 2f;
+        float x = minX + (maxX - minX) * t;
+        float y = alphaBoundsShared.getY() + alphaBoundsShared.getHeight() / 2f;
 
-        final float innerR = Math.max(1f, knobOuterR - knobRing);
+        float innerR = Math.max(1f, knobOuterR - knobRing);
 
         ScreenBounds outer = new ScreenBounds(Math.round(x - knobOuterR), Math.round(y - knobOuterR), Math.round(knobOuterR * 2f), Math.round(knobOuterR * 2f));
 
@@ -277,7 +277,7 @@ public class ColorComponent extends HybridComponent {
         dragging = true;
         dragMode = DragMode.NONE;
 
-        final float pickerPadding = 6f;
+        float pickerPadding = 6f;
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
         float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + 5f;
@@ -316,7 +316,7 @@ public class ColorComponent extends HybridComponent {
 
         if (pickerBounds == null) return;
 
-        final float pickerPadding = 6f;
+        float pickerPadding = 6f;
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
         float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + 5f;

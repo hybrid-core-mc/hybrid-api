@@ -41,12 +41,6 @@ public class ScreenBounds {
         return new ScreenBounds(x, y, width, height);
     }
 
-    public int getCenterY(ScreenBounds outer) {
-        return this.y = outer.y + (outer.height - this.height) / 2;
-    }
-    public int getCenterX(ScreenBounds outer){
-        return this.x = outer.x + (outer.width - this.width) / 2;
-    }
 
     public void setWidth(int width) {
         this.width = width;
@@ -56,13 +50,6 @@ public class ScreenBounds {
         this.x = x;
     }
 
-    public void incrementX(int x) {
-        this.x += x;
-    }
-
-    public void decrementWidth(int width) {
-        this.width -= width;
-    }
     public void setY(int y) {
         this.y = y;
     }

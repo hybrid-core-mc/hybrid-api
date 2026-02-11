@@ -9,7 +9,7 @@ import hybrid.api.theme.Theme;
 
 import java.awt.*;
 
-public class ModButtonComponent { // todo: make this a real component XD
+public class ModButtonComponent {
 
     private final String name;
     boolean selected;
