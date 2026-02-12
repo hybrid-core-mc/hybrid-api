@@ -234,9 +234,14 @@ public class ModCategoryComponent extends HybridComponent {
             HybridComponent component = modSettingComponents.get(i);
             if (!isVisible(component)) continue;
 
-            int h = getDefaultHeight(component);
-            if (remaining < h) break;
 
+            int h = getDefaultHeight(component);
+
+            if (component instanceof ColorComponent) {
+                if (remaining < 40) break;
+            } else {
+                if (remaining < h) break;
+            }
             component.outerBounds = new ScreenBounds(contentX, currentY, contentWidth, h);
             component.componentBounds = component.outerBounds.copy();
 
