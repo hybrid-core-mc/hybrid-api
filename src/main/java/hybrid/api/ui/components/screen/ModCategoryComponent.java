@@ -7,7 +7,9 @@ import hybrid.api.mods.category.ModSettingCategory;
 import hybrid.api.mods.settings.*;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.settings.*;
@@ -85,7 +87,7 @@ public class ModCategoryComponent extends HybridComponent {
         heightAnim.update();
         componentBounds.setHeight((int) heightAnim.get());
 
-        renderer.drawQuad(componentBounds, Theme.modBackgroundColor);
+        renderer.drawQuad(componentBounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor));
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
                 modSettingCategory.name(),
@@ -104,13 +106,13 @@ public class ModCategoryComponent extends HybridComponent {
         int headerCenterY = componentBounds.getY() + getCollapsedHeight() / 2;
 
         title.setPosition(
-                componentBounds.getX() + Theme.xPadding,
+                componentBounds.getX() + HybridTheme.xPadding,
                 headerCenterY - title.getHeight() / 2
         );
 
         toggleIcon.setPosition(
                 componentBounds.getX() + componentBounds.getWidth()
-                        - Theme.xPadding - toggleIcon.getWidth(),
+                        - HybridTheme.xPadding - toggleIcon.getWidth(),
                 headerCenterY - toggleIcon.getHeight() / 2
         );
 
@@ -123,10 +125,10 @@ public class ModCategoryComponent extends HybridComponent {
 
 
         int spacing = 4;
-        int innerPadding = Theme.xPadding;
+        int innerPadding = HybridTheme.xPadding;
 
-        int bgWidth = componentBounds.getWidth() - (Theme.xPadding * 2);
-        int bgX = componentBounds.getX() + Theme.xPadding;
+        int bgWidth = componentBounds.getWidth() - (HybridTheme.xPadding * 2);
+        int bgX = componentBounds.getX() + HybridTheme.xPadding;
 
         int startY = componentBounds.getY() + getCollapsedHeight() + spacing;
 
@@ -147,8 +149,8 @@ public class ModCategoryComponent extends HybridComponent {
 
         renderer.drawOutlineQuad(
                 background,
-                Theme.modsBackgroundColor,
-                Theme.modButtonOutlineColor,
+                HybridThemeMap.get(ThemeColorKey.modsBackgroundColor),
+                HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
                 10,
                 1
         );
@@ -177,7 +179,7 @@ public class ModCategoryComponent extends HybridComponent {
                 ScreenBounds line = component.outerBounds.copy();
                 line.setSize(bgWidth, 1);
                 line.setPosition(bgX, component.outerBounds.getY() + height);
-                renderer.drawHorizontalLine(line, Theme.uiOutlineColor, 0.6f);
+                renderer.drawHorizontalLine(line, HybridThemeMap.get(ThemeColorKey.uiOutlineColor), 0.6f);
             }
 
             currentY += height + spacing;

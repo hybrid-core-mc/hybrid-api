@@ -5,7 +5,9 @@ import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 
 import java.awt.*;
 
@@ -30,13 +32,13 @@ public class ModButtonComponent {
         if (selected) {
             renderer.drawOutlineQuad(
                     bounds,
-                    Theme.modBackgroundColor,
-                    Theme.modButtonOutlineColor,
+                    HybridThemeMap.get(ThemeColorKey.modBackgroundColor),
+                    HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
                     10,
                     1
             );
         } else {
-            renderer.drawQuad(bounds, Theme.modBackgroundColor, 10);
+            renderer.drawQuad(bounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor), 10);
         }
 
 

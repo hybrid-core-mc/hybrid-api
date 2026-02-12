@@ -17,6 +17,7 @@ public class HybridConfig {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static File CLIENT_FOLDER = FabricLoader.getInstance().getGameDir().resolve(HybridApi.MOD_ID).toFile();
+    public static File THEME_FOLDER = new File(CLIENT_FOLDER + File.separator + "themes");
 
     public static void init() {
 

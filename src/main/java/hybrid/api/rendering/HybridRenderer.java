@@ -4,7 +4,9 @@ import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTexture;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.gui.DrawContext;
@@ -179,7 +181,7 @@ public class HybridRenderer implements HybridRenderer2D {
         float inset = innerStroke / 2f;
 
         NVGColor innerOrange = NVGColor.calloc();
-        Color innerBorder = Theme.modButtonOutlineColor;
+        Color innerBorder = HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor);
 
         nvgRGBA(
                 (byte) innerBorder.getRed(),
@@ -196,7 +198,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
         NVGColor outerBlack = NVGColor.calloc();
 
-        Color c = Theme.modsBackgroundColor;
+        Color c = HybridThemeMap.get(ThemeColorKey.modsBackgroundColor);
 
         nvgRGBA((byte) c.getRed(), (byte) c.getGreen(), (byte) c.getBlue(), (byte) c.getAlpha(), outerBlack);
         nvgBeginPath(CONTEXT);
@@ -334,7 +336,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
     @Override
     public void drawQuad(ScreenBounds bounds, Color color) {
-        drawQuad(bounds, color, Theme.cornerRadius);
+        drawQuad(bounds, color, HybridTheme.cornerRadius);
     }
 
     @Override

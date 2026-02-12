@@ -6,7 +6,9 @@ import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.settings.ColorSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
@@ -80,8 +82,8 @@ public class ColorComponent extends HybridComponent {
         pickerBounds = preview.copy();
 
         renderer.drawOutlineQuad(preview,
-                Theme.modsBackgroundColor,
-                Theme.modButtonOutlineColor,
+                HybridThemeMap.get(ThemeColorKey.modsBackgroundColor),
+                HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
                 6,
                 1
         );
@@ -144,8 +146,8 @@ public class ColorComponent extends HybridComponent {
 
         renderer.drawOutlineQuad(
                 colorBounds,
-                Theme.modBackgroundColor,
-                Theme.modButtonOutlineColor,
+                HybridThemeMap.get(ThemeColorKey.modBackgroundColor),
+                HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
                 5,
                 1
         );
@@ -190,7 +192,7 @@ public class ColorComponent extends HybridComponent {
 
         renderer.drawQuad(
                 new ScreenBounds(dividerX, colorBounds.getY() + 4, dividerWidth, dividerHeight),
-                Theme.modButtonOutlineColor
+                HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor)
         );
     }
 

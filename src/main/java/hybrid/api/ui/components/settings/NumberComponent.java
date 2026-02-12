@@ -6,7 +6,9 @@ import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.settings.NumberSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
@@ -54,7 +56,7 @@ public class NumberComponent extends HybridComponent {
 
         sliderBounds = new ScreenBounds(sliderX, sliderY, sliderWidth, sliderHeight);
 
-        hybridRenderer.drawOutlineQuad(sliderBounds, Theme.modBackgroundColor, Theme.modButtonOutlineColor, sliderRadius, strokeWidth);
+        hybridRenderer.drawOutlineQuad(sliderBounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor), HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor), sliderRadius, strokeWidth);
 
         double min = numberSetting.getMin();
         double max = numberSetting.getMax();
@@ -78,7 +80,7 @@ public class NumberComponent extends HybridComponent {
         ScreenBounds fill = sliderBounds.copy();
         fill.setWidth(fillWidth);
 
-        hybridRenderer.drawOutlineQuad(fill, Theme.modButtonOutlineColor.darker(), Theme.modButtonOutlineColor, sliderRadius - 1,
+        hybridRenderer.drawOutlineQuad(fill, HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor).darker(), HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor), sliderRadius - 1,
                 strokeWidth);
 
 

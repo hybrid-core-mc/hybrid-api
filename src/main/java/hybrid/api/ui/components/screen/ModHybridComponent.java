@@ -7,7 +7,9 @@ import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.category.ModSettingCategory;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
@@ -37,7 +39,7 @@ public class ModHybridComponent extends HybridComponent {
 
         componentBounds = outerBounds.copy();
 
-        int leftMenuWidth = (int) (outerBounds.getWidth() * Theme.sidebarWidth);
+        int leftMenuWidth = (int) (outerBounds.getWidth() * HybridTheme.sidebarWidth);
 
         currentY = outerBounds.getY();
 
@@ -62,7 +64,7 @@ public class ModHybridComponent extends HybridComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
-        hybridRenderer.drawQuad(componentBounds, Theme.backgroundColor,0,Theme.cornerRadius, Theme.cornerRadius,0);
+        hybridRenderer.drawQuad(componentBounds, HybridThemeMap.get(ThemeColorKey.backgroundColor),0, HybridTheme.cornerRadius, HybridTheme.cornerRadius,0);
 
 
         drawHeading(hybridRenderer);
@@ -104,7 +106,7 @@ public class ModHybridComponent extends HybridComponent {
         int y = componentBounds.getY() + 17 - scrollOffset;
 
         ScreenBounds bounds = new ScreenBounds(x,y,boxWidth,boxHeight);
-        renderer.drawQuad(bounds,Theme.modBackgroundColor,Theme.cornerRadius);
+        renderer.drawQuad(bounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor), HybridTheme.cornerRadius);
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(hybridMod.getFormattedName(), FontStyle.BOLD, 24, Color.WHITE, true);
 
@@ -112,7 +114,7 @@ public class ModHybridComponent extends HybridComponent {
                 .getDesc()
                 .split("\n");
 
-        int paddingX = Theme.xPadding;
+        int paddingX = HybridTheme.xPadding;
         int lineSpacing = 4; // no need since this will alwas be the same
 
         int descLineHeight = HybridTextRenderer
@@ -176,7 +178,7 @@ public class ModHybridComponent extends HybridComponent {
                 gridHeight + bgMargin * 2
         );
 
-        renderer.drawOutlineQuad(iconsBackground, Theme.modsBackgroundColor, Theme.modButtonOutlineColor, 10, 1
+        renderer.drawOutlineQuad(iconsBackground, HybridThemeMap.get(ThemeColorKey.modsBackgroundColor), HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor), 10, 1
         );
 
         for (int i = 0; i < icons.length; i++) {

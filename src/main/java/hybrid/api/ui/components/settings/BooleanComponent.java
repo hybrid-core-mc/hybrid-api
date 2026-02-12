@@ -6,7 +6,9 @@ import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.settings.BooleanSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
@@ -52,8 +54,8 @@ public class BooleanComponent extends HybridComponent {
 
         hybridRenderer.drawOutlineQuad(
                 toggleBounds,
-                Theme.modBackgroundColor,
-                Theme.modButtonOutlineColor,
+                HybridThemeMap.get(ThemeColorKey.modBackgroundColor),
+                HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
                 9,
                 1
         );

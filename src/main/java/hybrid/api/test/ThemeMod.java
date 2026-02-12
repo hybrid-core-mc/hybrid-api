@@ -6,7 +6,9 @@ import hybrid.api.mods.category.ModSettingCategory;
 import hybrid.api.mods.settings.ColorSetting;
 import hybrid.api.mods.settings.ModeSetting;
 import hybrid.api.mods.settings.NumberSetting;
-import hybrid.api.theme.Theme;
+import hybrid.api.theme.HybridTheme;
+import hybrid.api.theme.HybridThemeMap;
+import hybrid.api.theme.ThemeColorKey;
 
 import java.awt.*;
 import java.util.List;
@@ -25,16 +27,10 @@ public class ThemeMod extends HybridMod {
     private static void updateColor(Color c) {
         if (themeMode.get() == ThemeMode.Manual) {
             switch (colorOption.get()) {
-                case Background -> Theme.backgroundColor = c;
-                case ModsBackground -> Theme.modsBackgroundColor = c;
-                case ModBackground -> Theme.modBackgroundColor = c;
-                case Border -> Theme.modButtonOutlineColor = c;
-                case Border1 -> Theme.uiOutlineColor = c;
+
             }
         } else {
-            Theme.backgroundColor = c.darker();
-            Theme.modBackgroundColor = c.brighter();
-            Theme.modsBackgroundColor = c;
+
         }
 
     }
@@ -47,7 +43,15 @@ public class ThemeMod extends HybridMod {
                         .add(colorOption)
                         .add(new ColorSetting("The color", Color.PINK).onChange(ThemeMod::updateColor))
                         .add(new NumberSetting("Corner Radius", 8, 1, 30).onChange(v -> {
-                            Theme.cornerRadius = v.intValue();
+                            HybridTheme.cornerRadius = v.intValue();
+                        }))
+                        .build(),
+                new ModCategorySettingBuilder("Saved")
+                        .add(themeMode)
+                        .add(colorOption)
+                        .add(new ColorSetting("The color", Color.PINK).onChange(ThemeMod::updateColor))
+                        .add(new NumberSetting("Corner Radius", 8, 1, 30).onChange(v -> {
+                            HybridTheme.cornerRadius = v.intValue();
                         }))
                         .build()
         );

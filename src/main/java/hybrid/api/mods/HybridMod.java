@@ -12,6 +12,7 @@ public abstract class HybridMod {
     String name,desc;
     float version;
     File folder;
+    boolean saveSettings;
 
     protected final List<ModSettingCategory> modSettingCategories = new ArrayList<>();
     public HybridMod(String name, float version) {
@@ -85,5 +86,7 @@ public abstract class HybridMod {
         this.folder = folder;
     }
 
-
+    public void setSaveSettings(boolean saveSettings) {
+        this.saveSettings = saveSettings;
+    }
 }
