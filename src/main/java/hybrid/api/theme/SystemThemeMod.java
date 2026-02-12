@@ -10,9 +10,11 @@ import hybrid.api.mods.settings.ModeSetting;
 import java.awt.*;
 import java.util.List;
 
-public class SystemThemeMod extends HybridMod {
+import static hybrid.api.HybridApi.mc;
 
-    private final ModeSetting<ThemeColorKey> colorTarget =
+public  class SystemThemeMod extends HybridMod {
+
+    public ModeSetting<ThemeColorKey> colorTarget =
             new ModeSetting<>("Color Target", ThemeColorKey.backgroundColor);
 
     public SystemThemeMod() {
@@ -20,19 +22,19 @@ public class SystemThemeMod extends HybridMod {
         setSaveSettings(false);
     }
 
-    private void updateColor(Color c) {
-        ThemeColorKey key = colorTarget.get();
-        HybridThemeMap.set(key, c);
-    }
-
     @Override
     protected List<ModSettingCategory> createSettings() {
         return List.of(
                 new ModCategorySettingBuilder("Colors")
                         .add(colorTarget)
-                        .add(new ColorSetting("Mono color", Color.PINK)
-                                .onChange(this::updateColor))
+                        .add(new ColorSetting("Mono color", Color.PINK).onChange(this::applyColor))
                         .build()
         );
     }
+
+    private void applyColor(Color color) {
+        if (mc.world == null) return;
+        HybridThemeMap.set(colorTarget.get(), color);
+    }
+
 }

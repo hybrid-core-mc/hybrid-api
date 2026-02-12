@@ -6,7 +6,6 @@ import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.mods.settings.NumberSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;

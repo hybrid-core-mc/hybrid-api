@@ -37,7 +37,6 @@ public abstract class ModSetting<T> {
         return this;
     }
 
-
     public abstract void writeJson(JsonObject json);
 
     public abstract void readJson(JsonObject json);

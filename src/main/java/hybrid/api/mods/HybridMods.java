@@ -18,6 +18,11 @@ public class HybridMods {
         mods.add(new DeathPlus());
         mods.add(new KillcamMod());
         mods.add(new MCFMod());
-//        systemMods.add(new SystemThemeMod());
+
+        mods.forEach(HybridMod::init);
+
+        systemMods.add(new SystemThemeMod());
+        systemMods.forEach(HybridMod::init);
+
     }
 }

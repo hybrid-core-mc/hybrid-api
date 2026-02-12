@@ -25,7 +25,7 @@ public class HybridScreen extends Screen {
         this.bounds = new ScreenBounds(0, 0, width, height);
 
         hybridModComponentList.add(new ModsHybridComponent());
-        hybridModComponentList.add(new ModHybridComponent(HybridMods.mods.getFirst(), height));
+        hybridModComponentList.add(new ModHybridComponent(HybridMods.systemMods.getFirst(), height));
     }
 
     public ScreenBounds getBounds() {

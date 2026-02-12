@@ -9,28 +9,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class HybridMod {
-    String name,desc;
+
+    String name, desc;
     float version;
     File folder;
     boolean saveSettings;
 
     protected final List<ModSettingCategory> modSettingCategories = new ArrayList<>();
+
     public HybridMod(String name, float version) {
         this.name = name;
         this.version = version;
-        modSettingCategories.addAll(createSettings());
-    }
-
-    public List<ModSettingCategory> getModSettingCategories() {
-        return modSettingCategories;
     }
 
     public HybridMod(String name, String desc, float version) {
         this.name = name;
         this.desc = desc;
         this.version = version;
-        modSettingCategories.addAll(createSettings());
     }
+
+    public final void init() {
+        modSettingCategories.clear();
+
+        List<ModSettingCategory> settings = createSettings();
+        if (settings != null) {
+            modSettingCategories.addAll(settings);
+        }
+    }
+
+    public List<ModSettingCategory> getModSettingCategories() {
+        return modSettingCategories;
+    }
+
+    protected abstract List<ModSettingCategory> createSettings();
 
     public JsonObject getJson() {
         JsonObject modJson = new JsonObject();
@@ -39,6 +50,7 @@ public abstract class HybridMod {
         }
         return modJson;
     }
+
     public void loadJson(JsonObject json) {
         if (json == null) return;
 
@@ -53,8 +65,6 @@ public abstract class HybridMod {
         }
     }
 
-    protected abstract List<ModSettingCategory> createSettings();
-
     public String getName() {
         return name;
     }
@@ -68,13 +78,13 @@ public abstract class HybridMod {
 
             sb.append(Character.toUpperCase(part.charAt(0)))
               .append(part.substring(1).toLowerCase())
-              .append(" ")
-            ;
+              .append(" ");
         }
 
         return sb.toString().trim();
     }
-    public String getDesc(){
+
+    public String getDesc() {
         return desc;
     }
 
