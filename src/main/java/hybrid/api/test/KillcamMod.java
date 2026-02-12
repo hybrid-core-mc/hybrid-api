@@ -7,7 +7,7 @@ import java.util.List;
 
 public class KillcamMod extends HybridMod {
     public KillcamMod() {
-        super("KillCam", 0.5f);
+        super("kill-cam", 0.5f);
     }
 
     @Override

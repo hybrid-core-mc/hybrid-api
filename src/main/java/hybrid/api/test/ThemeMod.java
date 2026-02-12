@@ -19,7 +19,7 @@ public class ThemeMod extends HybridMod {
 
 
     public ThemeMod() {
-        super("Theme mod", "Change the colors and shit\n FOR MOANIGN BEAR XDDD LOL", 0.f);
+        super("theme-mod", "Change the colors and shit\n FOR MOANIGN BEAR XDDD LOL", 0.f);
     }
 
     private static void updateColor(Color c) {

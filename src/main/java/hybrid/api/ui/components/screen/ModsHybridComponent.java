@@ -27,7 +27,7 @@ public class ModsHybridComponent extends HybridComponent {
         if (!buttons.isEmpty()) return;
 
         for (HybridMod mod : HybridMods.mods) {
-            buttons.add(new ModButtonComponent(mod.getName()));
+            buttons.add(new ModButtonComponent(mod.getFormattedName()));
         }
     }
 

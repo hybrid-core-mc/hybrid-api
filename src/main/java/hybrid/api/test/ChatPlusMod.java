@@ -11,9 +11,9 @@ import hybrid.api.mods.settings.NumberSetting;
 import java.awt.*;
 import java.util.List;
 
-public class ChatEmojisMod extends HybridMod {
-    public ChatEmojisMod() {
-        super("Chat Emoji", "Adds emojis to the minecraft chat its cool.\n TBh moaning bear is so maoning LOL xd", 0.f);
+public class ChatPlusMod extends HybridMod {
+    public ChatPlusMod() {
+        super("chat-plus", "Adds emojis to the minecraft chat its cool.\n TBh moaning bear is so maoning LOL xd", 0.f);
     }
 
 

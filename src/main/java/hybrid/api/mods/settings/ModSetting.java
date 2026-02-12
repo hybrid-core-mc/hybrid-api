@@ -1,5 +1,7 @@
 package hybrid.api.mods.settings;
 
+import com.google.gson.JsonObject;
+
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -24,15 +26,10 @@ public abstract class ModSetting<T> {
     }
 
     public void set(T newValue) {
-        if (Objects.equals(value, newValue)) {
-            return;
-        }
+        if (Objects.equals(value, newValue)) return;
 
         this.value = newValue;
-
-        if (onChange != null) {
-            onChange.accept(newValue);
-        }
+        if (onChange != null) onChange.accept(newValue);
     }
 
     public ModSetting<T> onChange(Consumer<T> listener) {
@@ -40,4 +37,8 @@ public abstract class ModSetting<T> {
         return this;
     }
 
+
+    public abstract void writeJson(JsonObject json);
+
+    public abstract void readJson(JsonObject json);
 }

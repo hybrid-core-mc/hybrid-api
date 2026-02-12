@@ -7,7 +7,7 @@ import java.util.List;
 
 public class DeathPlus extends HybridMod {
     public DeathPlus() {
-        super("Death Plus", 1.f);
+        super("death-plus", 1.f);
     }
 
     @Override

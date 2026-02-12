@@ -106,7 +106,7 @@ public class ModHybridComponent extends HybridComponent {
         ScreenBounds bounds = new ScreenBounds(x,y,boxWidth,boxHeight);
         renderer.drawQuad(bounds,Theme.modBackgroundColor,Theme.cornerRadius);
 
-        HybridRenderText title = HybridTextRenderer.getTextRenderer(hybridMod.getName(), FontStyle.BOLD, 24, Color.WHITE, true);
+        HybridRenderText title = HybridTextRenderer.getTextRenderer(hybridMod.getFormattedName(), FontStyle.BOLD, 24, Color.WHITE, true);
 
         String[] descLines = hybridMod
                 .getDesc()
