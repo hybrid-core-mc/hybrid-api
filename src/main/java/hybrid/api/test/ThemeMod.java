@@ -7,8 +7,6 @@ import hybrid.api.mods.settings.ColorSetting;
 import hybrid.api.mods.settings.ModeSetting;
 import hybrid.api.mods.settings.NumberSetting;
 import hybrid.api.theme.HybridTheme;
-import hybrid.api.theme.HybridThemeMap;
-import hybrid.api.theme.ThemeColorKey;
 
 import java.awt.*;
 import java.util.List;

@@ -26,7 +26,7 @@ public class ModHybridComponent extends HybridComponent {
     int currentY;
     private int boxWidth, headingHeight;
 
-    public ModHybridComponent(HybridMod hybridMod, int windowHeight) {
+    public ModHybridComponent(HybridMod hybridMod) {
         this.hybridMod = hybridMod;
         for (ModSettingCategory modSettingCategory : hybridMod.getModSettingCategories()) {
             modCategoryComponents.add(new ModCategoryComponent(modSettingCategory));
@@ -93,6 +93,8 @@ public class ModHybridComponent extends HybridComponent {
             bounds.setWidth(boxWidth);
 
             component.render(renderer);
+
+
             currentModY += modSpacing + component.getTotalHeight();
         }
     }

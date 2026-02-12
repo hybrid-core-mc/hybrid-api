@@ -14,8 +14,8 @@ import static hybrid.api.HybridApi.mc;
 
 public  class SystemThemeMod extends HybridMod {
 
-    public ModeSetting<ThemeColorKey> colorTarget =
-            new ModeSetting<>("Color Target", ThemeColorKey.backgroundColor);
+    public ModeSetting<ThemeColorKey> colorTarget = new ModeSetting<>("Color Target", ThemeColorKey.backgroundColor);
+    public ModeSetting<ColorMode> colorMode = new ModeSetting<>("Color Mode", ColorMode.Auto);
 
     public SystemThemeMod() {
         super("Themes", "Customize the UI\nChange existing colours", HybridApi.VERSION);
@@ -26,8 +26,12 @@ public  class SystemThemeMod extends HybridMod {
     protected List<ModSettingCategory> createSettings() {
         return List.of(
                 new ModCategorySettingBuilder("Colors")
-                        .add(colorTarget)
-                        .add(new ColorSetting("Mono color", Color.PINK).onChange(this::applyColor))
+                        .add(colorMode)
+                        .add(colorTarget.visible(() ->
+                                colorMode.get() == ColorMode.Manual
+                        ))
+                        .add(new ColorSetting("Mono color", Color.PINK)
+                                .onChange(this::applyColor))
                         .build()
         );
     }
@@ -35,6 +39,11 @@ public  class SystemThemeMod extends HybridMod {
     private void applyColor(Color color) {
         if (mc.world == null) return;
         HybridThemeMap.set(colorTarget.get(), color);
+    }
+
+    public enum ColorMode {
+        Auto,
+        Manual
     }
 
 }

@@ -7,13 +7,13 @@ import net.minecraft.client.gui.Click;
 public abstract class HybridComponent {
     public ScreenBounds componentBounds;
     public ScreenBounds outerBounds;
-    public boolean visible = true;
 
 
     public void setupBounds() {
     }
 
-    public abstract void render(HybridRenderer hybridRenderer);
+    public void render(HybridRenderer hybridRenderer) {
+    }
 
     public void onMouseRelease(Click click) {
 
@@ -31,9 +31,6 @@ public abstract class HybridComponent {
 
     public void renderPre(HybridRenderer hybridRenderer) {
 
-    }
-    public void setVisible(boolean visible) {
-        this.visible = visible;
     }
 
 
