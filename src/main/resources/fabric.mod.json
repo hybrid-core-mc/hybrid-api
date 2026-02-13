@@ -22,6 +22,7 @@
 	"mixins": [
 		"hybrid-api.mixins.json"
 	],
+	"accessWidener": "hybrid.accesswidener",
 	"depends": {
 		"fabricloader": ">=0.18.4",
 		"minecraft": "~1.21.11",

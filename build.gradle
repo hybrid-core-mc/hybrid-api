@@ -67,6 +67,9 @@ jar {
 	}
 }
 
+loom{
+	accessWidenerPath = file("src/main/resources/hybrid.accesswidener")
+}
 // configure the maven publication
 publishing {
 	publications {
