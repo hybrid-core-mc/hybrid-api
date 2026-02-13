@@ -3,15 +3,16 @@ package hybrid.api.mixin;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.shader.HueShader;
 import hybrid.api.ui.HybridScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
-import org.joml.Matrix3x2fStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.awt.*;
 
 @Mixin(Screen.class)
 public abstract class ScreenMixin {
@@ -19,6 +20,8 @@ public abstract class ScreenMixin {
 
     @Inject(method = "renderBackground", at = @At("HEAD"), cancellable = true)
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
+        HueShader.fill(context, new ScreenBounds(5, 5, 100, 100));
+
         if (!((Object) this instanceof HybridScreen screen)) return;
 
         ci.cancel();

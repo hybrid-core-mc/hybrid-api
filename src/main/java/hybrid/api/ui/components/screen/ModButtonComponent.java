@@ -5,7 +5,6 @@ import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 
@@ -26,6 +25,8 @@ public class ModButtonComponent {
     }
 
     public void render(HybridRenderer renderer, ScreenBounds bounds) {
+
+
         this.bounds = bounds;
 
 
