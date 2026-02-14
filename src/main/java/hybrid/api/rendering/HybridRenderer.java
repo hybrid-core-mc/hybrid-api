@@ -9,15 +9,23 @@ import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.texture.GlTexture;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL11C;
+import org.lwjgl.opengl.GL30C;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import static hybrid.api.HybridApi.mc;
 import static org.lwjgl.nanovg.NanoVG.*;
@@ -32,7 +40,7 @@ public class HybridRenderer implements HybridRenderer2D {
     private static final NVGColor GLOW_OUTER = NVGColor.create();
     private static final NVGPaint GLOW_PAINT = NVGPaint.create();
     private static ColorPickerRenderer colorPicker;
-
+    private static GuiFramebuffer GUI_FBO;
 
     private static long CONTEXT = -1L;
 
@@ -46,24 +54,33 @@ public class HybridRenderer implements HybridRenderer2D {
         colorPicker = new ColorPickerRenderer(CONTEXT);
     }
 
-
     public static void render() {
 
-        Framebuffer frameBuffer = mc.getFramebuffer();
+        if (GUI_FBO == null) {
+            GUI_FBO = new GuiFramebuffer();
+        }
 
         int frameBufferWidth = mc.getWindow().getFramebufferWidth();
         int frameBufferHeight = mc.getWindow().getFramebufferHeight();
 
+        GUI_FBO.resize(frameBufferWidth, frameBufferHeight);
+
         setup();
 
-        GpuTexture color = frameBuffer.getColorAttachment();
-        GpuTexture depth = frameBuffer.getDepthAttachment();
+        Framebuffer guiFbo = GUI_FBO;
 
-        assert color != null;
+        GpuTexture guiColor = guiFbo.getColorAttachment();
+        assert guiColor != null;
 
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, ((GlTexture) color).getOrCreateFramebuffer(((GlBackend) RenderSystem.getDevice()).getBufferManager(), depth));
+        GlBackend backend = (GlBackend) RenderSystem.getDevice();
 
-        GlStateManager._viewport(0, 0, frameBufferWidth, frameBufferHeight);
+        int guiFboId = ((GlTexture) guiColor).getOrCreateFramebuffer(backend.getBufferManager(), null);
+
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, guiFboId);
+
+        GL11.glClearColor(0f, 0f, 0f, 0f);
+        GlStateManager._viewport(0, 0, guiFbo.textureWidth, guiFbo.textureHeight);
+        GlStateManager._clear(GlConst.GL_COLOR_BUFFER_BIT);
 
         nvgBeginFrame(CONTEXT,
                 mc.getWindow().getScaledWidth(),
@@ -75,15 +92,80 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgScale(CONTEXT, scale, scale);
 
         HybridRenderQueue.clear();
-
         HybridRenderQueue.renderAll(RENDERER_INSTANCE);
 
         nvgEndFrame(CONTEXT);
+
+
+        Framebuffer main = mc.getFramebuffer();
+
+        GpuTexture mainColor = main.getColorAttachment();
+        assert mainColor != null;
+
+        int mainFboId = ((GlTexture) mainColor).getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
+
+        debug(guiFboId,frameBufferWidth,frameBufferHeight);
+        GlStateManager._glBindFramebuffer(GL30C.GL_READ_FRAMEBUFFER, guiFboId);
+        GlStateManager._glBindFramebuffer(GL30C.GL_DRAW_FRAMEBUFFER, mainFboId);
+
+        GL30C.glBlitFramebuffer(0, 0, guiFbo.textureWidth, guiFbo.textureHeight, 0, 0, main.textureWidth, main.textureHeight, GL11C.GL_COLOR_BUFFER_BIT, GL11C.GL_NEAREST);
+
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, mainFboId);
+
+        GlStateManager._viewport(0, 0, frameBufferWidth, frameBufferHeight);
+
         restore();
-
-
     }
 
+    private static void debug(int guiFboId, int width, int height) {
+        RenderSystem.queueFencedTask(() -> {
+
+            GlStateManager._glBindFramebuffer(GL30C.GL_FRAMEBUFFER, guiFboId);
+
+            ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4);
+
+            GL11.glReadBuffer(GL30C.GL_COLOR_ATTACHMENT0);
+            GL11.glPixelStorei(GL11.GL_PACK_ALIGNMENT, 1);
+
+            GL11.glReadPixels(
+                    0, 0,
+                    width, height,
+                    GL11.GL_RGBA,
+                    GL11.GL_UNSIGNED_BYTE,
+                    buffer
+            );
+
+            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+
+                    int i = (x + (width * y)) * 4;
+
+                    int r = buffer.get(i) & 0xFF;
+                    int g = buffer.get(i + 1) & 0xFF;
+                    int b = buffer.get(i + 2) & 0xFF;
+                    int a = buffer.get(i + 3) & 0xFF;
+
+                    image.setRGB(
+                            x,
+                            height - y - 1,
+                            (a << 24) | (r << 16) | (g << 8) | b
+                    );
+                }
+            }
+
+            try {
+                Path desktop = Path.of(System.getProperty("user.home"), "Desktop\\gui");
+                Files.createDirectories(desktop);
+
+                Path file = desktop.resolve("gui_capture_" + System.currentTimeMillis() + ".png");
+                ImageIO.write(image, "PNG", file.toFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
     private static void setup() {
         GlStateManager._enableBlend();
         GlStateManager._blendFuncSeparate(GlConst.GL_SRC_ALPHA, GlConst.GL_ONE_MINUS_SRC_ALPHA, GlConst.GL_ONE, GlConst.GL_ONE_MINUS_SRC_ALPHA);
