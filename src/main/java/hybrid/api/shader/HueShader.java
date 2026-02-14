@@ -7,6 +7,7 @@ import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.platform.DepthTestFunction;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import hybrid.api.HybridApi;
 import hybrid.api.rendering.ScreenBounds;
 import net.minecraft.client.gl.DynamicUniformStorage;
 import net.minecraft.client.gl.RenderPipelines;
@@ -27,9 +28,9 @@ public class HueShader implements SimpleGuiElementRenderState {
 
     public static final RenderPipeline HUE_PIPELINE =
             RenderPipeline.builder(RenderPipelines.TRANSFORMS_AND_PROJECTION_SNIPPET)
-                          .withLocation(Identifier.of("hybrid-api", "pipeline/hue"))
-                          .withFragmentShader(Identifier.of("hybrid-api", "core/hue"))
-                          .withVertexShader(Identifier.of("hybrid-api", "core/position"))
+                          .withLocation(Identifier.of(HybridApi.MOD_ID, "pipeline/hue"))
+                          .withFragmentShader(Identifier.of(HybridApi.MOD_ID, "core/hue"))
+                          .withVertexShader(Identifier.of(HybridApi.MOD_ID, "core/position"))
                           .withDepthWrite(true)
                           .withCull(false)
                           .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
@@ -41,7 +42,7 @@ public class HueShader implements SimpleGuiElementRenderState {
 
     public static final ThreadLocal<GpuBufferSlice> CURRENT_UNIFORM = new ThreadLocal<>();
 
-    private static final int UNIFORM_SIZE = new Std140SizeCalculator().putVec4().get();
+    private static final int UNIFORM_SIZE = new Std140SizeCalculator().putVec4().putFloat().get();
 
     private static final DynamicUniformStorage<HueUniforms> UNIFORMS = new DynamicUniformStorage<>("Hue UBO", UNIFORM_SIZE, 4);
 

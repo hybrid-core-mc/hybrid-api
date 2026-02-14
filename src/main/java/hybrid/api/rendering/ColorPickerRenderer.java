@@ -1,5 +1,6 @@
 package hybrid.api.rendering;
 
+import hybrid.api.shader.HueShader;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 
@@ -37,31 +38,18 @@ public class ColorPickerRenderer {
 
 
     private void drawHueRing(float cx, float cy, float radius) {
+        radius = 48;
+        int size = (int) (radius * 2);
 
-        float HUE_RING_RATIO = 0.78f;
-        float inner = radius * HUE_RING_RATIO;
+        int x = (int) (cx - size * 0.5f);
+        int y = (int) (cy - size * 0.5f);
 
-        for (int i = 0; i < 720; i++) {
-
-            float a0 = (float) Math.toRadians(i);
-            float a1 = (float) Math.toRadians(i + 1);
-
-            Color col0 = hsv(i / 360f);
-            Color col1 = hsv((i + 1) / 360f);
-
-            rgba(col0, cA);
-            rgba(col1, cB);
-
-            nvgLinearGradient(CONTEXT, cx + (float) Math.cos(a0) * inner, cy + (float) Math.sin(a0) * inner, cx + (float) Math.cos(a0) * radius, cy + (float) Math.sin(a0) * radius, cA, cB, paintA);
-
-            nvgBeginPath(CONTEXT);
-            nvgArc(CONTEXT, cx, cy, radius, a0, a1, NVG_CW);
-            nvgArc(CONTEXT, cx, cy, inner, a1, a0, NVG_CCW);
-            nvgClosePath(CONTEXT);
-
-            nvgFillPaint(CONTEXT, paintA);
-            nvgFill(CONTEXT);
-        }
+        HybridRenderer.CONTEXT_LIST.add(context ->
+                HueShader.drawHueRing(
+                        context,
+                        new ScreenBounds(x, y, size, size)
+                )
+        );
     }
 
     private void drawColorTriangle(float cx, float cy, float radius, float hue) {
