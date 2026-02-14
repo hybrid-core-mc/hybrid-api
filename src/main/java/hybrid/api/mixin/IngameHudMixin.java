@@ -12,9 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import static hybrid.api.HybridApi.mc;
 
 @Mixin(InGameHud.class)
-public class DrawContextMixin {
+public class IngameHudMixin {
     @Inject(method = "renderCrosshair",at = @At(value = "HEAD"), cancellable = true)
     public void renderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (mc.currentScreen instanceof HybridScreen) ci.cancel();
     }
+
+
 }

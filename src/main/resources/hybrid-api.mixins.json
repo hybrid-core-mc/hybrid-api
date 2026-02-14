@@ -3,7 +3,7 @@
   "package": "hybrid.api.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "DrawContextMixin"
+    "IngameHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -18,7 +18,7 @@ public class GameRendererMixin {
     public void init(MinecraftClient client, HeldItemRenderer firstPersonHeldItemRenderer, BufferBuilderStorage buffers, BlockRenderManager blockRenderManager, CallbackInfo ci) {
         HybridRenderer.init();
         HudRenderCallback.EVENT.register((drawContext, tickDelta) -> {
-            HybridRenderer.render();
+            HybridRenderer.render(drawContext);
         });
     }
 
