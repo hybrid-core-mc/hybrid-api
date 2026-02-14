@@ -32,6 +32,7 @@ public class ColorPickerRenderer {
         if (radius <= 0f) return;
 
         drawHueRing(cx, cy, radius);
+
         float TRIANGLE_RATIO = 0.75f;
         drawColorTriangle(cx, cy, radius * TRIANGLE_RATIO, hue);
     }
@@ -44,7 +45,7 @@ public class ColorPickerRenderer {
         int x = (int) (cx - size * 0.5f);
         int y = (int) (cy - size * 0.5f);
 
-        HybridRenderer.CONTEXT_LIST.add(context ->
+        HybridRenderer.CONTEXT_LIST.add((context,magic) ->
                 HueShader.drawHueRing(
                         context,
                         new ScreenBounds(x, y, size, size)

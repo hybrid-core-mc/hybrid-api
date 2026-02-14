@@ -3,7 +3,6 @@ package hybrid.api.mixin;
 import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.shader.HueShader;
 import hybrid.api.ui.HybridScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -36,16 +35,13 @@ public abstract class ScreenMixin {
         HybridTextRenderer.render(context);
 
         for (var consumer : HybridRenderer.CONTEXT_LIST) {
-            consumer.accept(context);
+            consumer.render(context, HybridRenderer.RENDERER_INSTANCE);
         }
 
         HybridRenderer.CONTEXT_LIST.clear();
 
         context.disableScissor();
 
-        context.drawText(mc.textRenderer,
-                "size " + HybridRenderer.CONTEXT_LIST.size(),
-                5, 5, -1, true
-        );
+        context.drawText(mc.textRenderer, "size " + HybridRenderer.CONTEXT_LIST.size(), 5, 5, -1, true);
     }
 }

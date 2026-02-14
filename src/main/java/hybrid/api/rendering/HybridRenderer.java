@@ -25,7 +25,7 @@ import static org.lwjgl.nanovg.NanoVGGL2.*;
 
 public class HybridRenderer implements HybridRenderer2D {
     public static final HybridRenderer RENDERER_INSTANCE = new HybridRenderer();
-    public static final List<Consumer<DrawContext>> CONTEXT_LIST = new ArrayList<>();
+    public static final List<ContextRenderTask> CONTEXT_LIST = new ArrayList<>();
 
     private static final NVGColor NVG_COLOR = NVGColor.create();
     private static final NVGColor GLOW_INNER = NVGColor.create();
@@ -72,7 +72,6 @@ public class HybridRenderer implements HybridRenderer2D {
         );
 
         float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
-//        scale = 0.3f; todo : scale animation
         nvgScale(CONTEXT, scale, scale);
 
         HybridRenderQueue.clear();
