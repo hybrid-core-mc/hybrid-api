@@ -63,11 +63,12 @@ public class HybridRenderer implements HybridRenderer2D {
         int fbH = mc.getWindow().getFramebufferHeight();
 
         if (GUI_FBO.resizeIfNeeded(fbW, fbH)) {
+
             if (GUI_VIEW != null) {
                 GUI_VIEW.close();
             }
-            GUI_VIEW = RenderSystem.getDevice()
-                                   .createTextureView(GUI_FBO.getColorAttachment());
+
+            GUI_VIEW = RenderSystem.getDevice().createTextureView(GUI_FBO.getColorAttachment());
         }
 
         setup();
@@ -88,11 +89,6 @@ public class HybridRenderer implements HybridRenderer2D {
         int guiFboId = ((GlTexture) guiColor)
                 .getOrCreateFramebuffer(backend.getBufferManager(), null);
 
-        /*
-         * -----------------------------
-         * STEP 1: COPY MAIN → GUI FBO
-         * -----------------------------
-         */
 
         GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainFboId);
         GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, guiFboId);
@@ -104,11 +100,6 @@ public class HybridRenderer implements HybridRenderer2D {
                 GL11.GL_NEAREST
         );
 
-        /*
-         * -----------------------------
-         * STEP 2: DRAW NANOVG INTO GUI
-         * -----------------------------
-         */
 
         GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, guiFboId);
         GlStateManager._viewport(0, 0, fbW, fbH);
@@ -127,11 +118,6 @@ public class HybridRenderer implements HybridRenderer2D {
 
         nvgEndFrame(CONTEXT);
 
-        /*
-         * -----------------------------
-         * STEP 3: DRAW GUI FBO → MAIN
-         * -----------------------------
-         */
 
         GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, mainFboId);
         GlStateManager._viewport(0, 0, fbW, fbH);
