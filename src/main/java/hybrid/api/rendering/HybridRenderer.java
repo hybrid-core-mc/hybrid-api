@@ -20,6 +20,7 @@ import org.joml.Matrix3x2f;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -65,29 +66,60 @@ public class HybridRenderer implements HybridRenderer2D {
             if (GUI_VIEW != null) {
                 GUI_VIEW.close();
             }
-            GUI_VIEW = RenderSystem.getDevice().createTextureView(GUI_FBO.getColorAttachment());
+            GUI_VIEW = RenderSystem.getDevice()
+                                   .createTextureView(GUI_FBO.getColorAttachment());
         }
 
         setup();
 
+        Framebuffer main = mc.getFramebuffer();
         Framebuffer guiFbo = GUI_FBO;
+
+        guiFbo.copyDepthFrom(main);
+
         GpuTexture guiColor = guiFbo.getColorAttachment();
         if (guiColor == null) return;
 
         GlBackend backend = (GlBackend) RenderSystem.getDevice();
-        int guiFboId = ((GlTexture) guiColor).getOrCreateFramebuffer(backend.getBufferManager(), null);
 
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, guiFboId);
+        int mainFboId = ((GlTexture) main.getColorAttachment())
+                .getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
 
-        GL11.glClearColor(0f, 0f, 0f, 0f);
-        GlStateManager._viewport(0, 0, guiFbo.textureWidth, guiFbo.textureHeight);
-        GlStateManager._clear(GlConst.GL_COLOR_BUFFER_BIT);
+        int guiFboId = ((GlTexture) guiColor)
+                .getOrCreateFramebuffer(backend.getBufferManager(), null);
+
+        /*
+         * -----------------------------
+         * STEP 1: COPY MAIN → GUI FBO
+         * -----------------------------
+         */
+
+        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainFboId);
+        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, guiFboId);
+
+        GL30.glBlitFramebuffer(
+                0, 0, fbW, fbH,
+                0, 0, fbW, fbH,
+                GL11.GL_COLOR_BUFFER_BIT,
+                GL11.GL_NEAREST
+        );
+
+        /*
+         * -----------------------------
+         * STEP 2: DRAW NANOVG INTO GUI
+         * -----------------------------
+         */
+
+        GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, guiFboId);
+        GlStateManager._viewport(0, 0, fbW, fbH);
 
         float pixelRatio = (float) fbW / mc.getWindow().getWidth();
 
-        nvgBeginFrame(CONTEXT,
+        nvgBeginFrame(
+                CONTEXT,
                 mc.getWindow().getScaledWidth(),
-                mc.getWindow().getScaledHeight(), pixelRatio
+                mc.getWindow().getScaledHeight(),
+                pixelRatio
         );
 
         HybridRenderQueue.clear();
@@ -95,24 +127,43 @@ public class HybridRenderer implements HybridRenderer2D {
 
         nvgEndFrame(CONTEXT);
 
-        Framebuffer main = mc.getFramebuffer();
-        GpuTexture mainColor = main.getColorAttachment();
-        if (mainColor == null) return;
+        /*
+         * -----------------------------
+         * STEP 3: DRAW GUI FBO → MAIN
+         * -----------------------------
+         */
 
-        int mainFboId = ((GlTexture) mainColor).getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
-
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, mainFboId);
+        GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, mainFboId);
         GlStateManager._viewport(0, 0, fbW, fbH);
 
         if (GUI_VIEW == null) {
-            GUI_VIEW = RenderSystem.getDevice().createTextureView(GUI_FBO.getColorAttachment());
+            GUI_VIEW = RenderSystem.getDevice()
+                                   .createTextureView(GUI_FBO.getColorAttachment());
         }
 
-        context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(RenderPipelines.GUI_TEXTURED, TextureSetup.of(GUI_VIEW, RenderSystem.getSamplerCache().get(FilterMode.NEAREST)), new Matrix3x2f(context.getMatrices()), 0, 0, mc.getWindow().getScaledWidth(), mc.getWindow().getScaledHeight(), 0.0f, 1.0f, 1.0f, 0.0f, -1, context.scissorStack.peekLast()));
+        context.state.addSimpleElement(
+                new TexturedQuadGuiElementRenderState(
+                        RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA,
+                        TextureSetup.of(
+                                GUI_VIEW,
+                                RenderSystem.getSamplerCache().get(FilterMode.NEAREST)
+                        ),
+                        new Matrix3x2f(context.getMatrices()),
+                        0,
+                        0,
+                        mc.getWindow().getScaledWidth(),
+                        mc.getWindow().getScaledHeight(),
+                        0.0f,
+                        1.0f,
+                        1.0f,
+                        0.0f,
+                        -1,
+                        context.scissorStack.peekLast()
+                )
+        );
 
         restore();
     }
-
     private static void setup() {
         GlStateManager._enableBlend();
         GlStateManager._blendFuncSeparate(GlConst.GL_SRC_ALPHA, GlConst.GL_ONE_MINUS_SRC_ALPHA, GlConst.GL_ONE, GlConst.GL_ONE_MINUS_SRC_ALPHA);
