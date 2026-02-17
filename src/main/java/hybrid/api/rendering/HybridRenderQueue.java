@@ -28,5 +28,7 @@ public class HybridRenderQueue {
     public static void clear() {
         queue.clear();
     }
-
+    public static int size() {
+        return queue.size();
+    }
 }

@@ -17,6 +17,9 @@ public class IngameHudMixin {
     public void renderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (mc.currentScreen instanceof HybridScreen) ci.cancel();
     }
-
+   /* @Inject(method = "renderCrosshair",at = @At(value = "HEAD"), cancellable = true)
+    public void renderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+        if (mc.currentScreen instanceof HybridScreen) ci.cancel();
+    }*/
 
 }

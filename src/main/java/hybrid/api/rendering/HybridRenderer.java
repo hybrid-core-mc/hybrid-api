@@ -9,11 +9,13 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
+import hybrid.api.ui.HybridScreen;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.texture.GlTexture;
 import net.minecraft.client.texture.TextureSetup;
 import org.joml.Matrix3x2f;
@@ -53,7 +55,9 @@ public class HybridRenderer implements HybridRenderer2D {
         colorPicker = new ColorPickerRenderer(CONTEXT);
     }
 
-    public static void render(DrawContext context) {
+    public static void render(DrawContext context, RenderTickCounter tickDelta) {
+
+        if (!(mc.currentScreen instanceof HybridScreen)) return;
 
         if (GUI_FBO == null) {
             GUI_FBO = new GuiFramebuffer();
@@ -87,7 +91,7 @@ public class HybridRenderer implements HybridRenderer2D {
                 .getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
 
         int guiFboId = ((GlTexture) guiColor)
-                .getOrCreateFramebuffer(backend.getBufferManager(), null);
+                .getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
 
 
         GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainFboId);
@@ -123,13 +127,12 @@ public class HybridRenderer implements HybridRenderer2D {
         GlStateManager._viewport(0, 0, fbW, fbH);
 
         if (GUI_VIEW == null) {
-            GUI_VIEW = RenderSystem.getDevice()
-                                   .createTextureView(GUI_FBO.getColorAttachment());
+            GUI_VIEW = RenderSystem.getDevice().createTextureView(GUI_FBO.getColorAttachment());
         }
 
         context.state.addSimpleElement(
                 new TexturedQuadGuiElementRenderState(
-                        RenderPipelines.GUI_TEXTURED_PREMULTIPLIED_ALPHA,
+                        RenderPipelines.GUI_TEXTURED,
                         TextureSetup.of(
                                 GUI_VIEW,
                                 RenderSystem.getSamplerCache().get(FilterMode.NEAREST)
