@@ -17,7 +17,7 @@ public class GameRendererMixin {
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     public void init(MinecraftClient client, HeldItemRenderer firstPersonHeldItemRenderer, BufferBuilderStorage buffers, BlockRenderManager blockRenderManager, CallbackInfo ci) {
         HybridRenderer.init();
-        HudRenderCallback.EVENT.register(HybridRenderer::render);
+        HudRenderCallback.EVENT.register((context, tickDelta) -> HybridRenderer.render(context));
     }
 
 }

@@ -15,7 +15,6 @@ import net.minecraft.client.gl.GlBackend;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.texture.GlTexture;
 import net.minecraft.client.texture.TextureSetup;
 import org.joml.Matrix3x2f;
@@ -55,7 +54,7 @@ public class HybridRenderer implements HybridRenderer2D {
         colorPicker = new ColorPickerRenderer(CONTEXT);
     }
 
-    public static void render(DrawContext context, RenderTickCounter tickDelta) {
+    public static void render(DrawContext context) {
 
         if (!(mc.currentScreen instanceof HybridScreen)) return;
 
@@ -117,8 +116,6 @@ public class HybridRenderer implements HybridRenderer2D {
                 pixelRatio
         );
 
-        HybridRenderQueue.clear();
-        HybridRenderQueue.renderAll(RENDERER_INSTANCE);
 
         nvgEndFrame(CONTEXT);
 
