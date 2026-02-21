@@ -22,7 +22,7 @@ public class ColorPickerRenderer {
     }
 
 
-    public void drawColorPicker(ScreenBounds bounds, float hue, float padding) {
+    public void drawColorPicker(ScreenBounds bounds, float hue, float padding,Color color) {
 
         float cx = bounds.x + bounds.width / 2f;
         float CENTER_Y_OFFSET = 5f;
@@ -31,14 +31,14 @@ public class ColorPickerRenderer {
         float radius = (Math.min(bounds.width, bounds.height) / 2f) - padding;
         if (radius <= 0f) return;
 
-        drawHueRing(cx, cy, radius);
+        drawHueRing(cx, cy, radius,color);
 
         float TRIANGLE_RATIO = 0.75f;
         drawColorTriangle(cx, cy, radius * TRIANGLE_RATIO, hue);
     }
 
 
-    private void drawHueRing(float cx, float cy, float radius) {
+    private void drawHueRing(float cx, float cy, float radius,Color color) {
         radius = 48;
         int size = (int) (radius * 2);
 
@@ -48,7 +48,7 @@ public class ColorPickerRenderer {
         HybridRenderer.CONTEXT_LIST.add((context,magic) ->
                 HueShader.drawHueRing(
                         context,
-                        new ScreenBounds(x, y, size, size)
+                        new ScreenBounds(x, y, size, size), color
                 )
         );
     }

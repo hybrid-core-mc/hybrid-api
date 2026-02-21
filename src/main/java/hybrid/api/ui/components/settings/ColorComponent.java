@@ -89,7 +89,7 @@ public class ColorComponent extends HybridComponent {
         );
 
         float pickerPadding = 6f;
-        renderer.drawColorTriangle(pickerBounds, hue, pickerPadding);
+        renderer.drawColorTriangle(pickerBounds, hue, pickerPadding,colorSetting.get());
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
         float cy = pickerBounds.getY() + pickerBounds.getHeight() / 2f + 5f;

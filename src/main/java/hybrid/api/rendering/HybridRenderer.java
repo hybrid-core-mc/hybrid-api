@@ -174,9 +174,9 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void drawColorTriangle(ScreenBounds bounds, float hue, float padding) {
+    public void drawColorTriangle(ScreenBounds bounds, float hue, float padding,Color color) {
         if (colorPicker == null) return;
-        colorPicker.drawColorPicker(bounds, hue, padding);
+        colorPicker.drawColorPicker(bounds, hue, padding,color);
     }
 
     @Override

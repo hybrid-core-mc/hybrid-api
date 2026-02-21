@@ -22,6 +22,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.Objects;
 
 public class HueShader implements SimpleGuiElementRenderState {
@@ -48,15 +49,17 @@ public class HueShader implements SimpleGuiElementRenderState {
 
     private final DrawContext context;
     private final ScreenBounds bounds;
+    private final Color color;
     private final TextureSetup textureSetup = TextureSetup.empty();
 
-    public HueShader(DrawContext context, ScreenBounds bounds) {
+    public HueShader(DrawContext context, ScreenBounds bounds,Color color) {
         this.context = context;
         this.bounds = bounds;
+        this.color = color;
     }
 
-    public static void drawHueRing(DrawContext context, ScreenBounds bounds) {
-        context.state.addSimpleElement(new HueShader(context, bounds));
+    public static void drawHueRing(DrawContext context, ScreenBounds bounds,Color color) {
+        context.state.addSimpleElement(new HueShader(context, bounds,color));
     }
 
     public static void clearUniforms() {
@@ -76,7 +79,7 @@ public class HueShader implements SimpleGuiElementRenderState {
         vertices.vertex(x2, y2, 0);
         vertices.vertex(x2, y1, 0);
 
-        GpuBufferSlice slice = UNIFORMS.write(new HueUniforms(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight()));
+        GpuBufferSlice slice = UNIFORMS.write(new HueUniforms(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight(),color));
 
         CURRENT_UNIFORM.set(slice);
     }
@@ -103,11 +106,11 @@ public class HueShader implements SimpleGuiElementRenderState {
         return scissor == null ? rect : Objects.requireNonNull(scissor).intersection(rect);
     }
 
-    public record HueUniforms(float x, float y, float width, float height) implements DynamicUniformStorage.Uploadable {
+    public record HueUniforms(float x, float y, float width, float height, Color color) implements DynamicUniformStorage.Uploadable {
 
         @Override
         public void write(java.nio.ByteBuffer buffer) {
-            Std140Builder.intoBuffer(buffer).putVec4(x, y, width, height);
+            Std140Builder.intoBuffer(buffer).putVec4(x, y, width, height).putVec4((float) color.getRed() /255, (float) color.getGreen() /255, (float) color.getBlue() /255,1.0f);
         }
     }
 }

@@ -17,7 +17,7 @@ public interface HybridRenderer2D {
 
     void beginScissors(ScreenBounds bounds);
     void endScissors();
-    void drawColorTriangle(ScreenBounds bounds ,float hue,float padding);
+    void drawColorTriangle(ScreenBounds bounds ,float hue,float padding,Color color);
     void drawAlphaSlider(ScreenBounds bounds, Color color);
 
 }
