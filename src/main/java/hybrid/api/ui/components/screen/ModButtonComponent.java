@@ -8,39 +8,43 @@ import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
+import hybrid.api.ui.animation.AlphaAnimation;
 
 import java.awt.*;
 
 public class ModButtonComponent {
 
-     HybridMod mod;
-    boolean selected;
+    HybridMod mod;
+    private boolean selected;
+    private ScreenBounds bounds;
+    AlphaAnimation animation;
 
     public ModButtonComponent(HybridMod name) {
         this.mod = name;
+        animation = new AlphaAnimation(0f,0.2f);
     }
-    private ScreenBounds bounds;
-
-
 
     public void render(HybridRenderer renderer, ScreenBounds bounds) {
 
-
         this.bounds = bounds;
 
+        animation.update();
 
-        if (selected) {
+        renderer.drawQuad(bounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor),10);
+
+        float alpha = animation.get();
+
+        if(alpha > 0.001f){
+
+
             renderer.drawOutlineQuad(
                     bounds,
                     HybridThemeMap.get(ThemeColorKey.modBackgroundColor),
-                    HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
-                    10,
+                    animation.withAlpha(HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor)),
+                    6,
                     1
             );
-        } else {
-            renderer.drawQuad(bounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor), 10);
         }
-
 
         int circleSize = 6;
         int padding = 8;
@@ -63,10 +67,9 @@ public class ModButtonComponent {
         int textX = circleX + circleSize + padding;
         int textY = bounds.getY() + (bounds.getHeight() - text.getHeight()) / 2;
 
-        text.setPosition(textX, textY);
+        text.setPosition(textX,textY);
         HybridTextRenderer.addText(text);
     }
-
 
     public ScreenBounds getBounds() {
         return bounds;
@@ -74,5 +77,10 @@ public class ModButtonComponent {
 
     public void setSelected(boolean b) {
         this.selected = b;
+        animation.setTarget(b ? 1f : 0f);
+    }
+
+    public boolean isSelected(){
+        return selected;
     }
 }

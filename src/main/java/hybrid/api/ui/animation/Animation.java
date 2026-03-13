@@ -12,7 +12,8 @@ public abstract class Animation {
 
     }
 
-    int lerp(int a, int b, float t) {
-        return (int) (a + (b - a) * t);
+    float lerp(float a, float b, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        return a + (b - a) * t;
     }
 }

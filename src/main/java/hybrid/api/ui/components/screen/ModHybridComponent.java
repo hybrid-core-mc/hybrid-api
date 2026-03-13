@@ -10,6 +10,7 @@ import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
+import hybrid.api.ui.animation.AlphaAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
@@ -21,7 +22,7 @@ public class ModHybridComponent extends HybridComponent {
 
     private HybridMod hybridMod;
     private final List<ModCategoryComponent> modCategoryComponents = new ArrayList<>();
-
+    AlphaAnimation alphaAnimation;
     int scrollOffset = 0;
     int currentY;
     private int boxWidth, headingHeight;
@@ -33,6 +34,8 @@ public class ModHybridComponent extends HybridComponent {
         for (ModSettingCategory modSettingCategory : hybridMod.getModSettingCategories()) {
             modCategoryComponents.add(new ModCategoryComponent(modSettingCategory));
         }
+        alphaAnimation = new AlphaAnimation(0.35f, 0.35f);
+        alphaAnimation.setTarget(1f);
     }
     @Override
     public void setupBounds() {
@@ -61,7 +64,7 @@ public class ModHybridComponent extends HybridComponent {
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
-
+        alphaAnimation.update();
         hybridRenderer.drawQuad(componentBounds,
                 HybridThemeMap.get(ThemeColorKey.backgroundColor),
                 0,
@@ -114,7 +117,7 @@ public class ModHybridComponent extends HybridComponent {
 
             bounds.setWidth(boxWidth);
 
-            component.render(renderer);
+            component.render(renderer, alphaAnimation);
 
 
             currentModY += modSpacing + component.getTotalHeight();
@@ -132,14 +135,20 @@ public class ModHybridComponent extends HybridComponent {
         ScreenBounds bounds = new ScreenBounds(x,y,boxWidth,boxHeight);
         renderer.drawQuad(bounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor), HybridTheme.cornerRadius);
 
-        HybridRenderText title = HybridTextRenderer.getTextRenderer(hybridMod.getFormattedName(), FontStyle.BOLD, 24, Color.WHITE, true);
+        HybridRenderText title = HybridTextRenderer.getTextRenderer(
+                hybridMod.getFormattedName(),
+                FontStyle.BOLD,
+                24,
+                alphaAnimation.withAlpha(Color.WHITE),
+                true
+        );
 
         String[] descLines = hybridMod
                 .getDesc()
                 .split("\n");
 
         int paddingX = HybridTheme.xPadding;
-        int lineSpacing = 4; // no need since this will alwas be the same
+        int lineSpacing = 4;
 
         int descLineHeight = HybridTextRenderer
                 .getTextRenderer("A", FontStyle.REGULAR, 14, Color.LIGHT_GRAY, false)
@@ -157,7 +166,14 @@ public class ModHybridComponent extends HybridComponent {
         int currentY = startY + title.getHeight() + lineSpacing;
 
         for (String line : descLines) {
-            HybridRenderText descLine = HybridTextRenderer.getTextRenderer(line, FontStyle.REGULAR, 16, Color.LIGHT_GRAY,new Color(255, 255, 255, 1), true);
+            HybridRenderText descLine = HybridTextRenderer.getTextRenderer(
+                    line,
+                    FontStyle.REGULAR,
+                    16,
+                    alphaAnimation.withAlpha(Color.LIGHT_GRAY),
+                    alphaAnimation.withAlpha(new Color(255, 255, 255, 1)),
+                    false
+            );
 
             descLine.setPosition(x + paddingX, currentY);
             HybridTextRenderer.addText(descLine);
@@ -169,7 +185,6 @@ public class ModHybridComponent extends HybridComponent {
         headingHeight = boxHeight + 17;
     }
 
-
     private void drawIconGrid(HybridRenderer renderer,
                               int headingX,
                               int headingY,
@@ -179,7 +194,7 @@ public class ModHybridComponent extends HybridComponent {
 
         HybridRenderText[] icons = {
                 HybridTextRenderer.getIconRenderer("github", Color.WHITE),
-                HybridTextRenderer.getIconRenderer("modrinth", new Color(27, 217, 106)),
+                HybridTextRenderer.getIconRenderer("modrinth",new Color(27, 217, 106)),
                 HybridTextRenderer.getIconRenderer("star", Color.WHITE),
                 HybridTextRenderer.getIconRenderer("reset", Color.WHITE)
         };
@@ -202,7 +217,12 @@ public class ModHybridComponent extends HybridComponent {
                 gridHeight + bgMargin * 2
         );
 
-        renderer.drawOutlineQuad(iconsBackground, HybridThemeMap.get(ThemeColorKey.modsBackgroundColor), HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor), 10, 1
+        renderer.drawOutlineQuad(
+                iconsBackground,
+                alphaAnimation.withAlpha(HybridThemeMap.get(ThemeColorKey.modsBackgroundColor)),
+                alphaAnimation.withAlpha(HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor)),
+                10,
+                1
         );
 
         for (int i = 0; i < icons.length; i++) {
@@ -225,7 +245,6 @@ public class ModHybridComponent extends HybridComponent {
             HybridTextRenderer.addText(icon);
         }
     }
-
     @Override
     public void onMouseClicked(Click click) {
         modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseClicked(click));

@@ -10,6 +10,7 @@ import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
+import hybrid.api.ui.animation.AlphaAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.settings.BooleanComponent;
 import hybrid.api.ui.components.settings.ColorComponent;
@@ -127,8 +128,7 @@ public class ModCategoryComponent extends HybridComponent {
         super.setupBounds();
     }
 
-    @Override
-    public void render(HybridRenderer renderer) {
+    public void render(HybridRenderer renderer, AlphaAnimation animation) {
 
         long now = System.nanoTime();
         float dt = (now - lastNs) / 1_000_000_000f;
@@ -182,13 +182,13 @@ public class ModCategoryComponent extends HybridComponent {
                 modSettingCategory.name(),
                 FontStyle.BOLD,
                 25,
-                Color.WHITE,
+                animation.withAlpha(Color.WHITE),
                 true
         );
 
         HybridRenderText toggleIcon = HybridTextRenderer.getIconRenderer(
                 extended ? "up" : "down",
-                Color.WHITE,
+                animation.withAlpha(Color.WHITE),
                 componentBounds.getY()
         );
 

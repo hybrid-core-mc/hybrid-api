@@ -24,10 +24,10 @@ public class ModsSidebarComponenet extends HybridComponent {
     private int bottomLineY;
     private HybridRenderText titleText;
     private ScreenBounds titleBackground;
-    private ScreenBounds[] iconBounds = new ScreenBounds[3];
-    private String[] iconNames = {"collapse", "theme", "settings"};
+    private final ScreenBounds[] iconBounds = new ScreenBounds[3];
+    private final String[] iconNames = {"collapse", "theme", "settings"};
     ModHybridComponent hybridComponent;
-
+    private ModButtonComponent selectedButton;
     public ModsSidebarComponenet(ModHybridComponent hybridComponent) {
 
         this.hybridComponent = hybridComponent;
@@ -179,6 +179,22 @@ public class ModsSidebarComponenet extends HybridComponent {
         int mouseX = (int) click.x();
         int mouseY = (int) click.y();
 
+        for (ModButtonComponent button : buttons) {
+
+            if (button.getBounds().contains(mouseX, mouseY)) {
+
+                if (selectedButton != null && selectedButton != button) {
+                    selectedButton.setSelected(false);
+                }
+
+                button.setSelected(true);
+                selectedButton = button;
+
+                hybridComponent.setModComponent(button.mod);
+                break;
+            }
+        }
+
         for (int i = 0; i < iconBounds.length; i++) {
             if (iconBounds[i] != null && iconBounds[i].contains(mouseX, mouseY)) {
                 if(iconNames[i].equals("settings")){
@@ -188,13 +204,6 @@ public class ModsSidebarComponenet extends HybridComponent {
             }
         }
 
-        for (ModButtonComponent button : buttons) {
-            if (button.getBounds().contains(mouseX, mouseY)) {
-                buttons.forEach(b -> b.selected = (b == button));
-                hybridComponent.setModComponent(button.mod);
-                break;
-            }
-        }
 
         super.onMouseRelease(click);
     }
