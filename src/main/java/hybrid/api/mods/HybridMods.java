@@ -1,6 +1,6 @@
 package hybrid.api.mods;
 
-import hybrid.api.test.*;
+import hybrid.api.testmods.*;
 import hybrid.api.theme.SystemThemeMod;
 
 import java.util.ArrayList;

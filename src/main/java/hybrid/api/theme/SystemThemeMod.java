@@ -4,10 +4,8 @@ import hybrid.api.HybridApi;
 import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.category.ModCategorySettingBuilder;
 import hybrid.api.mods.category.ModSettingCategory;
-import hybrid.api.mods.settings.BooleanSetting;
 import hybrid.api.mods.settings.ColorSetting;
 import hybrid.api.mods.settings.ModeSetting;
-import hybrid.api.mods.settings.NumberSetting;
 
 import java.awt.*;
 import java.util.List;
@@ -18,7 +16,6 @@ public  class SystemThemeMod extends HybridMod {
 
     public ModeSetting<ThemeColorKey> colorTarget = new ModeSetting<>("Color Target", ThemeColorKey.backgroundColor);
     public ModeSetting<ColorMode> colorMode = new ModeSetting<>("Color Mode", ColorMode.Auto);
-    public float rotation = 0.76f;
     public SystemThemeMod() {
         super("Themes", "Customize the UI\nChange existing colours", HybridApi.VERSION);
         setSaveSettings(false);
@@ -32,21 +29,19 @@ public  class SystemThemeMod extends HybridMod {
                         .add(colorTarget.visible(() ->
                                 colorMode.get() == ColorMode.Manual
                         ))
-                        .add(new ColorSetting("Mono color", Color.PINK)
+                        .add(new ColorSetting("Color", Color.PINK)
                                 .onChange(this::applyColor))
-                        .build(),
-                new ModCategorySettingBuilder("Values")
-                        .add(new BooleanSetting("Enable Chaos Mode", false).onChange(v -> System.out.println("Chaos Mode = " + v)))
-                        .add(new NumberSetting("Chaos Level", 50, 0, 100).onChange(v -> System.out.println("Chaos Level = " + v)))
-                        .add(new NumberSetting("Scroll Stress Test", 25, 1, 500).onChange(v -> System.out.println("Scroll Stress = " + v)))
-                        .add(new BooleanSetting("Debug Overlay", true).onChange(v -> System.out.println("Debug Overlay = " + v)))
-                        .add(new NumberSetting("FPS Limit", 0.76f, 0.1f, 1).onChange(v -> rotation = v))
-                        .build()
-        );
+                        .build());
     }
 
     private void applyColor(Color color) {
         if (mc.world == null) return;
+
+        if (colorMode.get() == ColorMode.Auto) {
+            HybridThemeMap.set(ThemeColorKey.modBackgroundColor, color);
+            HybridThemeMap.set(ThemeColorKey.modsBackgroundColor, color.brighter());
+            HybridThemeMap.set(ThemeColorKey.backgroundColor, color.darker());
+        }
         HybridThemeMap.set(colorTarget.get(), color);
     }
 

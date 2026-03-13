@@ -1,4 +1,4 @@
-package hybrid.api.test;
+package hybrid.api.testmods;
 
 import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.category.ModCategorySettingBuilder;
