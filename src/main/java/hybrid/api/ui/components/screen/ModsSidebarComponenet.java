@@ -24,6 +24,8 @@ public class ModsSidebarComponenet extends HybridComponent {
     private int bottomLineY;
     private HybridRenderText titleText;
     private ScreenBounds titleBackground;
+    private ScreenBounds[] iconBounds = new ScreenBounds[3];
+    private String[] iconNames = {"collapse", "theme", "settings"};
     ModHybridComponent hybridComponent;
 
     public ModsSidebarComponenet(ModHybridComponent hybridComponent) {
@@ -129,6 +131,7 @@ public class ModsSidebarComponenet extends HybridComponent {
     }
 
     private void drawBottomIcons(HybridRenderer renderer) {
+
         HybridRenderText[] icons = {HybridTextRenderer.getIconRenderer("collapse", Color.WHITE), HybridTextRenderer.getIconRenderer("theme", Color.WHITE), HybridTextRenderer.getIconRenderer("settings", Color.WHITE)};
 
         int iconBox = 18;
@@ -149,7 +152,17 @@ public class ModsSidebarComponenet extends HybridComponent {
 
             float centerX = startCenterX + i * step;
 
-            icon.setPosition((int) (centerX - icon.getWidth() / 2f), iconsY + (iconBox - icon.getHeight()) / 2
+            int iconX = (int) (centerX - icon.getWidth() / 2f);
+            int iconY = iconsY + (iconBox - icon.getHeight()) / 2;
+
+            icon.setPosition(iconX, iconY);
+
+            // store bounds for click detection
+            iconBounds[i] = new ScreenBounds(
+                    iconX,
+                    iconY,
+                    icon.getWidth(),
+                    icon.getHeight()
             );
 
             HybridTextRenderer.addText(icon);
@@ -166,6 +179,15 @@ public class ModsSidebarComponenet extends HybridComponent {
         int mouseX = (int) click.x();
         int mouseY = (int) click.y();
 
+        for (int i = 0; i < iconBounds.length; i++) {
+            if (iconBounds[i] != null && iconBounds[i].contains(mouseX, mouseY)) {
+                if(iconNames[i].equals("settings")){
+                    hybridComponent.setModComponent(HybridMods.systemMods.getFirst());
+                }
+                return;
+            }
+        }
+
         for (ModButtonComponent button : buttons) {
             if (button.getBounds().contains(mouseX, mouseY)) {
                 buttons.forEach(b -> b.selected = (b == button));
@@ -176,5 +198,4 @@ public class ModsSidebarComponenet extends HybridComponent {
 
         super.onMouseRelease(click);
     }
-
 }

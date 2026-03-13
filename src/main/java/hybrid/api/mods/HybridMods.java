@@ -1,9 +1,6 @@
 package hybrid.api.mods;
 
-import hybrid.api.test.DeathPlus;
-import hybrid.api.test.KillcamMod;
-import hybrid.api.test.MCFMod;
-import hybrid.api.test.ThemeMod;
+import hybrid.api.test.*;
 import hybrid.api.theme.SystemThemeMod;
 
 import java.util.ArrayList;
@@ -15,7 +12,7 @@ public class HybridMods {
 
     static {
 
-        mods.add(new ThemeMod());
+        mods.add(new ChatPlusMod());
         mods.add(new DeathPlus());
         mods.add(new KillcamMod());
         mods.add(new MCFMod());

@@ -16,6 +16,7 @@ import hybrid.api.ui.components.settings.ColorComponent;
 import hybrid.api.ui.components.settings.ModeComponent;
 import hybrid.api.ui.components.settings.NumberComponent;
 import net.minecraft.client.gui.Click;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -41,16 +42,7 @@ public class ModCategoryComponent extends HybridComponent {
         this.extended = false;
 
         for (ModSetting<?> setting : modSettingCategory.settings()) {
-            HybridComponent comp = null;
-
-            if (setting instanceof BooleanSetting)
-                comp = new BooleanComponent((BooleanSetting) setting);
-            if (setting instanceof NumberSetting)
-                comp = new NumberComponent((NumberSetting) setting);
-            if (setting instanceof ModeSetting<?>)
-                comp = new ModeComponent((ModeSetting<?>) setting);
-            if (setting instanceof ColorSetting)
-                comp = new ColorComponent((ColorSetting) setting);
+            HybridComponent comp = getHybridComponent(setting);
 
             if (comp != null) {
                 modSettingComponents.add(comp);
@@ -62,6 +54,20 @@ public class ModCategoryComponent extends HybridComponent {
         animVel = 0f;
         borderAnim = 0f;
         lastNs = System.nanoTime();
+    }
+
+    private static @Nullable HybridComponent getHybridComponent(ModSetting<?> setting) {
+        HybridComponent comp = null;
+
+        if (setting instanceof BooleanSetting)
+            comp = new BooleanComponent((BooleanSetting) setting);
+        if (setting instanceof NumberSetting)
+            comp = new NumberComponent((NumberSetting) setting);
+        if (setting instanceof ModeSetting<?>)
+            comp = new ModeComponent((ModeSetting<?>) setting);
+        if (setting instanceof ColorSetting)
+            comp = new ColorComponent((ColorSetting) setting);
+        return comp;
     }
 
     private boolean isVisible(HybridComponent component) {

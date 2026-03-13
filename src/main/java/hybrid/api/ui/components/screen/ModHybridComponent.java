@@ -59,8 +59,6 @@ public class ModHybridComponent extends HybridComponent {
     }
 
 
-
-
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
@@ -73,8 +71,7 @@ public class ModHybridComponent extends HybridComponent {
 
         if (modCategoryComponents.isEmpty()) {
 
-            HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                    "No settings found!",
+            HybridRenderText text = HybridTextRenderer.getTextRenderer("No mod settings found!",
                     FontStyle.BOLD,
                     20,
                     Color.WHITE
