@@ -15,7 +15,7 @@ import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 
-public class ColorComponent extends HybridComponent {
+public class ColorComponent extends SettingComponent {
 
     static final int HEIGHT = 100;
 
@@ -41,7 +41,7 @@ public class ColorComponent extends HybridComponent {
 
     public ColorComponent(ColorSetting colorSetting) {
         this.colorSetting = colorSetting;
-
+        setHeight(100);
         Color c = colorSetting.get();
         float[] hsv = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
         hue = hsv[0];

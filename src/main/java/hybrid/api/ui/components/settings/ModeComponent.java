@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
-public class ModeComponent extends HybridComponent {
+public class ModeComponent extends SettingComponent {
 
     private final ModeSetting<?> modeSetting;
     private ScreenBounds modeBox;

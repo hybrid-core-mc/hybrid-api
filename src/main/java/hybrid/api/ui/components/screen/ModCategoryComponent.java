@@ -12,12 +12,10 @@ import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.AlphaAnimation;
 import hybrid.api.ui.components.HybridComponent;
-import hybrid.api.ui.components.settings.BooleanComponent;
-import hybrid.api.ui.components.settings.ColorComponent;
-import hybrid.api.ui.components.settings.ModeComponent;
-import hybrid.api.ui.components.settings.NumberComponent;
+import hybrid.api.ui.components.settings.*;
 import net.minecraft.client.gui.Click;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,7 +26,7 @@ import java.util.Map;
 public class ModCategoryComponent extends HybridComponent {
 
     private final ModSettingCategory modSettingCategory;
-    private final List<HybridComponent> modSettingComponents = new ArrayList<>();
+    private final List<SettingComponent> modSettingComponents = new ArrayList<>();
     private final Map<HybridComponent, ModSetting<?>> visibilityMap = new IdentityHashMap<>();
 
     private boolean extended;
@@ -43,7 +41,7 @@ public class ModCategoryComponent extends HybridComponent {
         this.extended = false;
 
         for (ModSetting<?> setting : modSettingCategory.settings()) {
-            HybridComponent comp = getHybridComponent(setting);
+            SettingComponent comp = getHybridComponent(setting);
 
             if (comp != null) {
                 modSettingComponents.add(comp);
@@ -57,8 +55,8 @@ public class ModCategoryComponent extends HybridComponent {
         lastNs = System.nanoTime();
     }
 
-    private static @Nullable HybridComponent getHybridComponent(ModSetting<?> setting) {
-        HybridComponent comp = null;
+    private static SettingComponent getHybridComponent(ModSetting<?> setting) {
+        SettingComponent comp = null;
 
         if (setting instanceof BooleanSetting)
             comp = new BooleanComponent((BooleanSetting) setting);
@@ -68,6 +66,10 @@ public class ModCategoryComponent extends HybridComponent {
             comp = new ModeComponent((ModeSetting<?>) setting);
         if (setting instanceof ColorSetting)
             comp = new ColorComponent((ColorSetting) setting);
+        if (setting instanceof TextListSetting)
+            comp = new TextListComponent((TextListSetting) setting);
+        assert comp instanceof SettingComponent;
+
         return comp;
     }
 
@@ -85,9 +87,9 @@ public class ModCategoryComponent extends HybridComponent {
         int total = 0;
         int visible = 0;
 
-        for (HybridComponent c : modSettingComponents) {
+        for (SettingComponent c : modSettingComponents) {
             if (!isVisible(c)) continue;
-            total += getDefaultHeight(c);
+            total += c.getHeight();
             visible++;
         }
 
@@ -242,11 +244,11 @@ public class ModCategoryComponent extends HybridComponent {
         int remaining = maxContentHeight;
         for (int i = 0; i < modSettingComponents.size(); i++) {
 
-            HybridComponent component = modSettingComponents.get(i);
+            SettingComponent component = modSettingComponents.get(i);
             if (!isVisible(component)) continue;
 
 
-            int h = getDefaultHeight(component);
+            int h = component.getHeight();
 
             if (component instanceof ColorComponent) {
                 if (remaining < 40) break;
@@ -320,6 +322,18 @@ public class ModCategoryComponent extends HybridComponent {
     }
 
     @Override
+    public void onCharTyped(CharInput input) {
+        modSettingComponents.forEach(settingComponent -> settingComponent.onCharTyped(input));
+        super.onCharTyped(input);
+    }
+
+    @Override
+    public void keyPressed(KeyInput input) {
+        modSettingComponents.forEach(settingComponent -> settingComponent.keyPressed(input));
+        super.keyPressed(input);
+    }
+
+    @Override
     public void onMouseDrag(Click click) {
         if (animHeight > getCollapsedHeight() + 1f) {
             modSettingComponents.forEach(c -> {
@@ -329,7 +343,5 @@ public class ModCategoryComponent extends HybridComponent {
         super.onMouseDrag(click);
     }
 
-    private int getDefaultHeight(HybridComponent component) {
-        return component instanceof ColorComponent ? 100 : 30;
-    }
+
 }

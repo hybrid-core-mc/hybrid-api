@@ -3,6 +3,8 @@ package hybrid.api.ui.components;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import net.minecraft.client.gui.Click;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 
 public abstract class HybridComponent {
     public ScreenBounds componentBounds;
@@ -32,6 +34,12 @@ public abstract class HybridComponent {
     public void renderPre(HybridRenderer hybridRenderer) {
 
     }
+    public void onCharTyped(CharInput input){
+
+    }
 
 
+    public void keyPressed(KeyInput input) {
+
+    }
 }

@@ -139,6 +139,7 @@ public class HybridTextRenderer {
         renderQueue.clear();
     }
 
+
     public static void addText(HybridRenderText text) {
         if (text == null) return;
         renderQueue.add(text);

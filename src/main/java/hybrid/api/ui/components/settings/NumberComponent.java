@@ -9,12 +9,11 @@ import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;
-import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 
-public class NumberComponent extends HybridComponent {
+public class NumberComponent extends SettingComponent {
 
     private final PositionAnimation fillAnimation = new PositionAnimation(0f, 0.7f);
     private final NumberSetting numberSetting;

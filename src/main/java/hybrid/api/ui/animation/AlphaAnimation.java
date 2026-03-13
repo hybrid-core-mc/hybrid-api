@@ -25,7 +25,7 @@ public class AlphaAnimation extends Animation {
 
         float t = 1.0f - (float) Math.exp(-smoothing * getDelta());
 
-        t = t * t * (3f - 2f * t); 
+        t = t * t * (3f - 2f * t);
 
         current = lerp(current, target, t);
 

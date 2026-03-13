@@ -345,8 +345,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
     @Override
     public void beginScissors(ScreenBounds bounds) {
-        nvgSave(CONTEXT);
-        nvgScissor(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height);
+        beginScissors(bounds, false);
     }
 
     @Override
@@ -441,33 +440,12 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void drawLine(ScreenBounds bounds, Color color, float thickness) {
-        drawLine(bounds, color, thickness, 0f);
-    }
-
-    public void drawLine(ScreenBounds bounds, Color color, float thickness, float yOffsetPx) {
-
-        float x1 = bounds.getX();
-        float y1 = bounds.getY() + yOffsetPx;
-
-        float x2 = bounds.getWidth();
-        float y2 = bounds.getHeight() + yOffsetPx;
-
-        nvgBeginPath(CONTEXT);
-        nvgMoveTo(CONTEXT, x1, y1);
-        nvgLineTo(CONTEXT, x2, y2);
-
-        NVG_COLOR
-                .r(color.getRed() / 255f)
-                .g(color.getGreen() / 255f)
-                .b(color.getBlue() / 255f)
-                .a(color.getAlpha() / 255f);
-
-        nvgStrokeColor(CONTEXT, NVG_COLOR);
-        nvgStrokeWidth(CONTEXT, thickness);
-
-        nvgLineCap(CONTEXT, NVG_BUTT);
-
-        nvgStroke(CONTEXT);
+    public void beginScissors(ScreenBounds bounds, boolean gui) {
+        nvgSave(CONTEXT);
+        if (gui)
+            nvgScissor(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height);
+        else {
+            nvgIntersectScissor(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height);
+        }
     }
 }

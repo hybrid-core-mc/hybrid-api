@@ -13,6 +13,8 @@ import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.AlphaAnimation;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -64,6 +66,7 @@ public class ModHybridComponent extends HybridComponent {
 
     @Override
     public void render(HybridRenderer hybridRenderer) {
+        if(alphaAnimation == null) return;
         alphaAnimation.update();
         hybridRenderer.drawQuad(componentBounds,
                 HybridThemeMap.get(ThemeColorKey.backgroundColor),
@@ -261,6 +264,18 @@ public class ModHybridComponent extends HybridComponent {
     public void onMouseDrag(Click click) {
         modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseDrag(click));
         super.onMouseDrag(click);
+    }
+
+    @Override
+    public void onCharTyped(CharInput input) {
+        modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onCharTyped(input));
+        super.onCharTyped(input);
+    }
+
+    @Override
+    public void keyPressed(KeyInput input) {
+        modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.keyPressed(input));
+        super.keyPressed(input);
     }
 
     @Override

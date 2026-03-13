@@ -15,7 +15,7 @@ import net.minecraft.client.gui.Click;
 
 import java.awt.*;
 
-public class BooleanComponent extends HybridComponent {
+public class BooleanComponent extends SettingComponent {
 
     private final BooleanSetting booleanSetting;
     PositionAnimation knobAnimation;
