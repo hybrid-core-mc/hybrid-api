@@ -3,6 +3,7 @@ package hybrid.api.ui.components.screen;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
+import hybrid.api.mods.HybridMod;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridThemeMap;
@@ -12,17 +13,15 @@ import java.awt.*;
 
 public class ModButtonComponent {
 
-    private final String name;
+     HybridMod mod;
     boolean selected;
 
-    public ModButtonComponent(String name) {
-        this.name = name;
+    public ModButtonComponent(HybridMod name) {
+        this.mod = name;
     }
     private ScreenBounds bounds;
 
-    public String getName() {
-        return name;
-    }
+
 
     public void render(HybridRenderer renderer, ScreenBounds bounds) {
 
@@ -55,7 +54,7 @@ public class ModButtonComponent {
         );
 
         HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                name,
+                mod.getFormattedName(),
                 FontStyle.BOLD,
                 20,
                 Color.WHITE
@@ -71,10 +70,6 @@ public class ModButtonComponent {
 
     public ScreenBounds getBounds() {
         return bounds;
-    }
-
-    public void onClick() {
-        System.out.println("Clicked mod: " + name);
     }
 
     public void setSelected(boolean b) {

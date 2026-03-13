@@ -11,12 +11,17 @@ import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.components.HybridComponent;
-import hybrid.api.ui.components.settings.*;
+import hybrid.api.ui.components.settings.BooleanComponent;
+import hybrid.api.ui.components.settings.ColorComponent;
+import hybrid.api.ui.components.settings.ModeComponent;
+import hybrid.api.ui.components.settings.NumberComponent;
 import net.minecraft.client.gui.Click;
 
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ModCategoryComponent extends HybridComponent {
 
@@ -275,6 +280,9 @@ public class ModCategoryComponent extends HybridComponent {
 
     @Override
     public void onMouseRelease(Click click) {
+
+        if (componentBounds == null) return;
+
         ScreenBounds header = componentBounds.copy();
         header.setHeight(getCollapsedHeight());
 

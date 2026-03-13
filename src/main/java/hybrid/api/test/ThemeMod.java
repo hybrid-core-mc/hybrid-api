@@ -1,5 +1,6 @@
 package hybrid.api.test;
 
+import hybrid.api.HybridApi;
 import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.category.ModCategorySettingBuilder;
 import hybrid.api.mods.category.ModSettingCategory;
@@ -19,7 +20,7 @@ public class ThemeMod extends HybridMod {
 
 
     public ThemeMod() {
-        super("theme-mod", "Change the colors and shit\n FOR MOANIGN BEAR XDDD LOL", 0.f);
+        super("Settings", "Customize them mod settings\n and colors", HybridApi.VERSION);
     }
 
     private static void updateColor(Color c) {

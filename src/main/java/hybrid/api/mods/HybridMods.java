@@ -14,6 +14,7 @@ public class HybridMods {
     public static List<HybridMod> systemMods = new ArrayList<>();
 
     static {
+
         mods.add(new ThemeMod());
         mods.add(new DeathPlus());
         mods.add(new KillcamMod());

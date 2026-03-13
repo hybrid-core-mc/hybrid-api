@@ -85,7 +85,7 @@ public abstract class HybridMod {
     }
 
     public String getDesc() {
-        return desc;
+        return desc == null ? "No description yet" : desc;
     }
 
     public File getFolder() {

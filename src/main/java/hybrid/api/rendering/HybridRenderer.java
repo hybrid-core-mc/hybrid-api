@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
+import hybrid.api.font.HybridTextRenderer;
 import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
@@ -147,6 +148,25 @@ public class HybridRenderer implements HybridRenderer2D {
                         context.scissorStack.peekLast()
                 )
         );
+
+        ScreenBounds bounds = ((HybridScreen) mc.currentScreen).getBounds();
+
+        context.enableScissor(
+                bounds.getX(),
+                bounds.getY(),
+                bounds.getX() + bounds.getWidth(),
+                bounds.getY() + bounds.getHeight()
+        );
+
+        HybridTextRenderer.render(context);
+
+        for (var consumer : HybridRenderer.CONTEXT_LIST) {
+            consumer.render(context, HybridRenderer.RENDERER_INSTANCE);
+        }
+
+        HybridRenderer.CONTEXT_LIST.clear();
+
+        context.disableScissor();
 
         restore();
     }

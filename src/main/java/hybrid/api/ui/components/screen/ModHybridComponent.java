@@ -19,21 +19,21 @@ import java.util.List;
 
 public class ModHybridComponent extends HybridComponent {
 
-    private final HybridMod hybridMod;
+    private HybridMod hybridMod;
     private final List<ModCategoryComponent> modCategoryComponents = new ArrayList<>();
 
     int scrollOffset = 0;
     int currentY;
     private int boxWidth, headingHeight;
 
-    public ModHybridComponent(HybridMod hybridMod) {
-        this.hybridMod = hybridMod;
+    public void setModComponent(HybridMod mod) {
+        this.hybridMod = mod;
+        modCategoryComponents.clear();
+        assert hybridMod != null;
         for (ModSettingCategory modSettingCategory : hybridMod.getModSettingCategories()) {
             modCategoryComponents.add(new ModCategoryComponent(modSettingCategory));
         }
-        System.out.println("init the componenet category");
     }
-
     @Override
     public void setupBounds() {
 
@@ -64,8 +64,33 @@ public class ModHybridComponent extends HybridComponent {
     @Override
     public void render(HybridRenderer hybridRenderer) {
 
-        hybridRenderer.drawQuad(componentBounds, HybridThemeMap.get(ThemeColorKey.backgroundColor),0, HybridTheme.cornerRadius, HybridTheme.cornerRadius,0);
+        hybridRenderer.drawQuad(componentBounds,
+                HybridThemeMap.get(ThemeColorKey.backgroundColor),
+                0,
+                HybridTheme.cornerRadius,
+                HybridTheme.cornerRadius,
+                0);
 
+        if (modCategoryComponents.isEmpty()) {
+
+            HybridRenderText text = HybridTextRenderer.getTextRenderer(
+                    "No settings found!",
+                    FontStyle.BOLD,
+                    20,
+                    Color.WHITE
+            );
+
+            float textWidth = text.getWidth();
+            float textHeight = text.getHeight();
+
+            int x = (int) (componentBounds.getX() + (componentBounds.getWidth() - textWidth) / 2f);
+            int y = (int) (componentBounds.getY() + (componentBounds.getHeight() - textHeight) / 2f);
+
+            text.setPosition(x,y);
+
+            HybridTextRenderer.addText(text);
+            return;
+        }
 
         drawHeading(hybridRenderer);
         drawSettings(hybridRenderer);

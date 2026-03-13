@@ -17,19 +17,25 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModsHybridComponent extends HybridComponent {
+public class ModsSidebarComponenet extends HybridComponent {
 
     public static List<ModButtonComponent> buttons = new ArrayList<>();
     private int topLineY;
     private int bottomLineY;
     private HybridRenderText titleText;
     private ScreenBounds titleBackground;
+    ModHybridComponent hybridComponent;
 
-    public ModsHybridComponent() {
+    public ModsSidebarComponenet(ModHybridComponent hybridComponent) {
+
+        this.hybridComponent = hybridComponent;
+
         if (!buttons.isEmpty()) return;
 
+        hybridComponent.setModComponent(HybridMods.mods.getFirst());
+
         for (HybridMod mod : HybridMods.mods) {
-            buttons.add(new ModButtonComponent(mod.getFormattedName()));
+            buttons.add(new ModButtonComponent(mod));
         }
     }
 
@@ -162,8 +168,8 @@ public class ModsHybridComponent extends HybridComponent {
 
         for (ModButtonComponent button : buttons) {
             if (button.getBounds().contains(mouseX, mouseY)) {
-
                 buttons.forEach(b -> b.selected = (b == button));
+                hybridComponent.setModComponent(button.mod);
                 break;
             }
         }

@@ -31,15 +31,15 @@ public class ColorPickerRenderer {
         float radius = (Math.min(bounds.width, bounds.height) / 2f) - padding;
         if (radius <= 0f) return;
 
-        drawHueRing(cx, cy, radius,color);
+        drawHueRing(cx, cy, color);
 
         float TRIANGLE_RATIO = 0.75f;
         drawColorTriangle(cx, cy, radius * TRIANGLE_RATIO, hue);
     }
 
 
-    private void drawHueRing(float cx, float cy, float radius,Color color) {
-        radius = 48;
+    private void drawHueRing(float cx, float cy, Color color) {
+        float radius = 48;
         int size = (int) (radius * 2);
 
         int x = (int) (cx - size * 0.5f);

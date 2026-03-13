@@ -24,24 +24,6 @@ public abstract class ScreenMixin {
 
         ci.cancel();
 
-        ScreenBounds bounds = screen.getBounds();
-        context.enableScissor(
-                bounds.getX(),
-                bounds.getY(),
-                bounds.getX() + bounds.getWidth(),
-                bounds.getY() + bounds.getHeight()
-        );
 
-        HybridTextRenderer.render(context);
-
-        for (var consumer : HybridRenderer.CONTEXT_LIST) {
-            consumer.render(context, HybridRenderer.RENDERER_INSTANCE);
-        }
-
-        HybridRenderer.CONTEXT_LIST.clear();
-
-        context.disableScissor();
-
-        context.drawText(mc.textRenderer, "size " + HybridRenderer.CONTEXT_LIST.size(), 5, 5, -1, true);
     }
 }

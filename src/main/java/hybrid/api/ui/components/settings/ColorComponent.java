@@ -89,6 +89,7 @@ public class ColorComponent extends HybridComponent {
         );
 
         float pickerPadding = 6f;
+
         renderer.drawColorTriangle(pickerBounds, hue, pickerPadding,colorSetting.get());
 
         float cx = pickerBounds.getX() + pickerBounds.getWidth() / 2f;
@@ -97,11 +98,9 @@ public class ColorComponent extends HybridComponent {
         float baseRadius = (Math.min(pickerBounds.getWidth(), pickerBounds.getHeight()) / 2f) - pickerPadding;
         if (baseRadius <= 0f) return;
 
-        float ringInner = baseRadius * 0.78f;
         float triRadius = baseRadius * 0.75f;
 
         updateTriangle(cx, cy, triRadius);
-        drawHueIndicator(renderer, cx, cy, ringInner, baseRadius);
 
         ScreenBounds svSel = getSVSelectorBoundsFromShared();
         renderer.drawCircle(svSel, Color.WHITE);
@@ -196,27 +195,7 @@ public class ColorComponent extends HybridComponent {
         );
     }
 
-    private void drawHueIndicator(HybridRenderer renderer, float cx, float cy, float inner, float outer) {
-        float a = hue * (float) (Math.PI * 2.0f);
 
-        float half = 3.0f * 0.5f;
-        float inset = 0.8f;
-        float extra = 0.75f;
-
-        float r1 = (inner - half - extra) + inset;
-        float r2 = (outer + half + extra) - inset;
-
-        float x1 = cx + (float) Math.cos(a) * r1;
-        float y1 = cy + (float) Math.sin(a) * r1;
-
-        float x2 = cx + (float) Math.cos(a) * r2;
-        float y2 = cy + (float) Math.sin(a) * r2;
-
-        ScreenBounds line = lineEndpoints(x1, y1, x2, y2);
-
-        renderer.drawLine(line, new Color(0, 0, 0, 160), 4.0f);
-        renderer.drawLine(line, Color.WHITE, 3.0f);
-    }
 
     private void drawAlphaIndicator(HybridRenderer renderer) {
         if (alphaBoundsShared == null) return;
