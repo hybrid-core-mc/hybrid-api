@@ -6,6 +6,7 @@ import hybrid.api.HybridApi;
 import net.minecraft.client.gui.DrawContext;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
@@ -16,10 +17,30 @@ public class HybridTextRenderer {
     private static final Map<String, SVGDocument> svgCache = new HashMap<>();
     private static final Map<String, HybridRenderText> textCache = new HashMap<>();
     private static final Map<String, HybridRenderText> iconCache = new HashMap<>();
-
+    private static final BufferedImage METRIC_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
+    private static final Graphics2D METRIC_GRAPHICS = METRIC_IMAGE.createGraphics();
     private static final List<HybridRenderText> renderQueue = new ArrayList<>();
 
+    public static int getCharWidth(char c, FontStyle style, int size) {
 
+        Font font = fromFont(style, size);
+
+        METRIC_GRAPHICS.setFont(font);
+
+        return METRIC_GRAPHICS.getFontMetrics().charWidth(c) / 2;
+    }
+    public static int getStringWidth(String text, FontStyle style, int size) {
+
+        if (text == null || text.isEmpty()) {
+            return 0;
+        }
+
+        Font font = fromFont(style, size);
+
+        METRIC_GRAPHICS.setFont(font);
+
+        return METRIC_GRAPHICS.getFontMetrics().stringWidth(text) / 2;
+    }
     public static void addText(String text, FontStyle style, int size, int x, int y, Color color) {
         renderQueue.add(getTextRenderer(text, style, size, x, y, color));
     }

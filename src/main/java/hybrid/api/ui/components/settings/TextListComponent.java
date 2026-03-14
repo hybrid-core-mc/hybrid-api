@@ -8,21 +8,21 @@ import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
+import hybrid.api.ui.components.settings.global.TextBoxComponent;
+import net.minecraft.client.gui.Click;
 import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
-import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
 
 public class TextListComponent extends SettingComponent {
 
     private final TextListSetting setting;
-    private String textBoxText = "";
-
-    private ScreenBounds textBoxBounds;
+    TextBoxComponent textBoxComponent;
 
     public TextListComponent(TextListSetting setting) {
         this.setting = setting;
+        textBoxComponent = new TextBoxComponent();
     }
 
     @Override
@@ -41,22 +41,37 @@ public class TextListComponent extends SettingComponent {
         int boxHeight = label.getHeight() + 12;
 
         int boxY = (int) (componentBounds.getY() + (componentBounds.getHeight() - boxHeight) * 0.25);
-        int boxX = componentBounds.getX() + componentBounds.getWidth() - boxWidth;
 
-        textBoxBounds = new ScreenBounds(
-                boxX,
+        int addWidth = 20;
+        int spacing = 2;
+
+        int textBoxX = componentBounds.getX() + componentBounds.getWidth() - boxWidth;
+
+        int addX = textBoxX - addWidth - spacing;
+
+        ScreenBounds addBounds = new ScreenBounds(
+                addX,
+                boxY,
+                addWidth,
+                boxHeight
+        );
+
+        textBoxComponent.componentBounds = new ScreenBounds(
+                textBoxX,
                 boxY,
                 boxWidth,
                 boxHeight
         );
 
         hybridRenderer.drawOutlineQuad(
-                textBoxBounds,
+                addBounds,
                 HybridThemeMap.get(ThemeColorKey.modBackgroundColor),
                 HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
                 4,
                 1
         );
+
+        textBoxComponent.render(hybridRenderer);
 
         int boxCenterY = boxY + boxHeight / 2;
         int labelY = boxCenterY - label.getHeight() / 2;
@@ -64,56 +79,38 @@ public class TextListComponent extends SettingComponent {
         label.setPosition(componentBounds.getX(), labelY);
         HybridTextRenderer.addText(label);
 
-      
-        HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                textBoxText,
-                FontStyle.BOLD,
-                20,
-                Color.WHITE,
-                Color.GRAY,
-                true
-        );
-        int textY = boxCenterY - text.getHeight() / 2;
-        int textX = boxX + 6;
-
-
-        text.setPosition(textX, textY);
-
-        HybridRenderer.CONTEXT_LIST.add((ctx, renderer) -> {
-
-            ctx.enableScissor(
-                    textBoxBounds.getX(),
-                    textBoxBounds.getY(),
-                    textBoxBounds.getX() + textBoxBounds.getWidth() - 1,
-                    textBoxBounds.getY() + textBoxBounds.getHeight()
-            );
-
-            text.draw(ctx);
-
-            ctx.disableScissor();
-        });
-
         setHeight(60);
 
         super.render(hybridRenderer);
     }
+    @Override
+    public void onMouseDrag(Click click) {
+        textBoxComponent.onMouseDrag(click);
+        super.onMouseDrag(click);
+    }
 
 
     @Override
+    public void onMouseRelease(Click click) {
+        textBoxComponent.onMouseRelease(click);
+        super.onMouseRelease(click);
+    }
+
+    @Override
+    public void onMouseClicked(Click click) {
+        textBoxComponent.onMouseClicked(click);
+        super.onMouseClicked(click);
+    }
+
+    @Override
     public void onCharTyped(CharInput input) {
-
-        if (input.isValidChar()) {
-            textBoxText += new String(Character.toChars(input.codepoint()));
-        }
-
+        textBoxComponent.onCharTyped(input);
         super.onCharTyped(input);
     }
 
     @Override
     public void keyPressed(KeyInput input) {
-        if (input.getKeycode() == GLFW.GLFW_KEY_BACKSPACE && !textBoxText.isEmpty()) {
-            textBoxText = textBoxText.substring(0, textBoxText.length() - 1);
-        }
+        textBoxComponent.keyPressed(input);
         super.keyPressed(input);
     }
 }

@@ -109,4 +109,7 @@ public class HybridRenderText {
         this.y = y;
     }
 
+    public int getCharWidth(char c) {
+        return 0;
+    }
 }
