@@ -45,7 +45,7 @@ public class ColorPickerRenderer {
         int x = (int) (cx - size * 0.5f);
         int y = (int) (cy - size * 0.5f);
 
-        HybridRenderer.CONTEXT_LIST.add((context,magic) ->
+        HybridRenderer.CONTEXT_LIST.add((context, magic) ->
                 HueShader.drawHueRing(
                         context,
                         new ScreenBounds(x, y, size, size), color

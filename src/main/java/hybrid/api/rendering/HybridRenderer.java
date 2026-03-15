@@ -151,22 +151,22 @@ public class HybridRenderer implements HybridRenderer2D {
 
         ScreenBounds bounds = ((HybridScreen) mc.currentScreen).getBounds();
 
-        context.enableScissor(
-                bounds.getX(),
-                bounds.getY(),
-                bounds.getX() + bounds.getWidth(),
-                bounds.getY() + bounds.getHeight()
-        );
 
         HybridTextRenderer.render(context);
 
         for (var consumer : HybridRenderer.CONTEXT_LIST) {
+            context.enableScissor(
+                    bounds.getX(),
+                    bounds.getY(),
+                    bounds.getX() + bounds.getWidth(),
+                    bounds.getY() + bounds.getHeight()
+            );
             consumer.render(context, HybridRenderer.RENDERER_INSTANCE);
+            context.disableScissor();
         }
 
         HybridRenderer.CONTEXT_LIST.clear();
 
-        context.disableScissor();
 
         restore();
     }
