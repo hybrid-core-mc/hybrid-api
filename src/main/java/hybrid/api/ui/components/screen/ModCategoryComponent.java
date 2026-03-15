@@ -245,6 +245,7 @@ public class ModCategoryComponent extends HybridComponent {
         for (int i = 0; i < modSettingComponents.size(); i++) {
 
             SettingComponent component = modSettingComponents.get(i);
+
             if (!isVisible(component)) continue;
 
 
@@ -252,7 +253,11 @@ public class ModCategoryComponent extends HybridComponent {
 
             if (component instanceof ColorComponent) {
                 if (remaining < 40) break;
-            } else {
+            }
+            if(component instanceof TextListComponent){
+                if(remaining < 30) break;
+            }
+            else {
                 if (remaining < h) break;
             }
             component.outerBounds = new ScreenBounds(contentX, currentY, contentWidth, h);
