@@ -23,7 +23,7 @@ public class HybridRenderText {
     SVGDocument svgDocument;
     boolean shadow;
 
-    private HybridFontTexture cachedTexture;
+    public HybridFontTexture cachedTexture;
 
     public HybridRenderText(String text, int x, int y, Font font, Color shadowColor, Color color, boolean shadow, int shadowRadius) {
         this.text = text;
@@ -95,6 +95,10 @@ public class HybridRenderText {
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public int getX() {

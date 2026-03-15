@@ -344,4 +344,14 @@ public class TextBoxComponent extends HybridComponent {
 
         return text.length();
     }
+
+    public void setText(String s) {
+        this.text = s == null ? "" : s;
+
+        caretIndex = this.text.length();
+        selectionStart = -1;
+        selectionEnd = -1;
+        scrollOffset = 0;
+    }
+
 }

@@ -99,8 +99,8 @@ public class ModCategoryComponent extends HybridComponent {
         return getCollapsedHeight() + spacing + total + 15;
     }
 
-    private static float clamp(float v, float a, float b) {
-        return v < a ? a : (Math.min(v, b));
+    private static float clamp(float v, float b) {
+        return v < (float) 0.0 ? (float) 0.0 : (Math.min(v, b));
     }
 
     private static float smoothDamp(float current, float target, float[] velRef, float smoothTime, float dt) {
@@ -135,7 +135,7 @@ public class ModCategoryComponent extends HybridComponent {
         long now = System.nanoTime();
         float dt = (now - lastNs) / 1_000_000_000f;
         lastNs = now;
-        dt = clamp(dt, 0f, 0.05f);
+        dt = clamp(dt, 0.05f);
 
         float targetH = extended ? getExpandedHeight() : getCollapsedHeight();
         float[] v = new float[]{animVel};
@@ -148,7 +148,7 @@ public class ModCategoryComponent extends HybridComponent {
         }
 
         float borderTarget = extended ? 1f : 0f;
-        borderAnim += (borderTarget - borderAnim) * clamp(dt * 12f, 0f, 1f);
+        borderAnim += (borderTarget - borderAnim) * clamp(dt * 12f, 1f);
 
         componentBounds.setHeight((int) animHeight);
 
@@ -331,6 +331,12 @@ public class ModCategoryComponent extends HybridComponent {
     public void keyPressed(KeyInput input) {
         modSettingComponents.forEach(settingComponent -> settingComponent.keyPressed(input));
         super.keyPressed(input);
+    }
+
+    @Override
+    public void onMouseScroll(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        modSettingComponents.forEach(settingComponent -> settingComponent.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount));
+        super.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     @Override

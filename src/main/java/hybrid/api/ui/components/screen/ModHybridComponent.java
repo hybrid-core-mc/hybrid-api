@@ -28,6 +28,9 @@ public class ModHybridComponent extends HybridComponent {
     int scrollOffset = 0;
     int currentY;
     private int boxWidth, headingHeight;
+    public boolean ignoreScroll;
+
+
 
     public void setModComponent(HybridMod mod) {
         this.hybridMod = mod;
@@ -279,8 +282,11 @@ public class ModHybridComponent extends HybridComponent {
     }
 
     @Override
-    public void onMouseScroll(double mouseX, double mouseY,
-                              double horizontalAmount, double verticalAmount) {
+    public void onMouseScroll(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+
+        modCategoryComponents.forEach(modCategoryComponent -> modCategoryComponent.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount));
+
+        if(ignoreScroll) return;
 
         float scrollSpeed = 20f;
 

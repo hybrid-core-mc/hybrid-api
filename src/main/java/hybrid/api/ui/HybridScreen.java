@@ -33,6 +33,10 @@ public class HybridScreen extends Screen {
         hybridModComponentList.add(hybridComponent);
     }
 
+    public List<HybridComponent> getHybridModComponentList() {
+        return hybridModComponentList;
+    }
+
     public ScreenBounds getBounds() {
         return bounds;
     }

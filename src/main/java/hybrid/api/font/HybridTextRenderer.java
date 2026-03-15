@@ -69,18 +69,29 @@ public class HybridTextRenderer {
 
         String key = text + "|" + style + "|" + size + "|" + color.getRGB() + "|" + shadow + "|" + shadowColor + "|" + shadowRadius;
 
-        HybridRenderText renderer = textCache.get(key);
+        HybridRenderText cached = textCache.get(key);
 
-        if (renderer == null) {
+        if (cached == null) {
             Font font = fromFont(style, size);
-            renderer = new HybridRenderText(text, 0, 0, font,shadowColor, color, shadow,shadowRadius);
-            textCache.put(key, renderer);
+            cached = new HybridRenderText(text, 0, 0, font, shadowColor, color, shadow, shadowRadius);
+            textCache.put(key, cached);
         }
 
-        renderer.setPosition(x, y);
+        HybridRenderText renderer = new HybridRenderText(
+                cached.text,
+                x,
+                y,
+                cached.font,
+                cached.shadowColor,
+                cached.color,
+                cached.shadow,
+                cached.shadowRadius
+        );
+
+        renderer.cachedTexture = cached.cachedTexture;
+
         return renderer;
     }
-
     public static HybridRenderText getIconRenderer(String name, Color color) {
         return getIconRenderer(name, color, 0);
     }
