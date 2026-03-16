@@ -13,6 +13,7 @@ import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fStack;
 
 import java.awt.*;
+import java.util.Objects;
 
 import static hybrid.api.HybridApi.mc;
 
@@ -59,7 +60,7 @@ public class HybridRenderText {
 
     public void draw(DrawContext context) {
 
-        boolean isVanilla = (HybridMods.getSystemMod(SystemSettingsMod.class)).vanillaFonts;
+        boolean isVanilla = (Objects.requireNonNull(HybridMods.getSystemMod(SystemSettingsMod.class))).vanillaFonts;
 
 
         if (isVanilla && svgDocument == null) {

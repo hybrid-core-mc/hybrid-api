@@ -46,6 +46,12 @@ public class HybridScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
         bounds.setCentered(context.getScaledWindowWidth(), context.getScaledWindowHeight());
 
+        for (var component : getHybridModComponentList()) {
+            if (component instanceof ModHybridComponent mod) {
+                mod.ignoreScroll = false;
+            }
+        }
+
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
         renderer.beginScissors(bounds);
@@ -101,7 +107,15 @@ public class HybridScreen extends Screen {
         hybridModComponentList.forEach(component -> component.keyPressed(input));
         return super.keyPressed(input);
     }
+    public  void clipWithScreen(DrawContext c, ScreenBounds inner, ScreenBounds outer) {
 
+        int x1 = Math.max(inner.getX(), outer.getX());
+        int y1 = Math.max(inner.getY(), outer.getY());
+        int x2 = Math.min(inner.getX() + inner.getWidth(), outer.getX() + outer.getWidth());
+        int y2 = Math.min(inner.getY() + inner.getHeight(), outer.getY() + outer.getHeight());
+
+        c.enableScissor(x1, y1, x2, y2);
+    }
     public void clip(DrawContext context) {
         context.enableScissor(
                 bounds.getX(),

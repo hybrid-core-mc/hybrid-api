@@ -24,7 +24,9 @@ public class TextBoxComponent extends HybridComponent {
     int selectionStart = -1, selectionEnd = -1, caretIndex = 0, scrollOffset = 0, dragStartIndex = -1;
     long lastClickTime = 0, lastBlink = 0;
     int clickCount = 0;
+
     boolean caretVisible = true, dragging = false;
+    boolean focused = false;
 
     public String getText() {
         return text;
@@ -36,10 +38,15 @@ public class TextBoxComponent extends HybridComponent {
         caretIndex = Math.max(0, Math.min(caretIndex, text.length()));
 
         if (selectionStart != -1) selectionStart = Math.max(0, Math.min(selectionStart, text.length()));
-
         if (selectionEnd != -1) selectionEnd = Math.max(0, Math.min(selectionEnd, text.length()));
 
-        hybridRenderer.drawOutlineQuad(componentBounds, HybridThemeMap.get(ThemeColorKey.modBackgroundColor), HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor), 4, 1);
+        hybridRenderer.drawOutlineQuad(
+                componentBounds,
+                HybridThemeMap.get(ThemeColorKey.modBackgroundColor),
+                HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor),
+                4,
+                1
+        );
 
         HybridRenderText text = HybridTextRenderer.getTextRenderer(this.text, FontStyle.BOLD, 20, Color.WHITE, Color.GRAY, true);
 
@@ -64,7 +71,12 @@ public class TextBoxComponent extends HybridComponent {
 
         HybridRenderer.CONTEXT_LIST.add((ctx, renderer) -> {
 
-            ctx.enableScissor(componentBounds.getX(), componentBounds.getY(), componentBounds.getX() + componentBounds.getWidth() - 1, componentBounds.getY() + componentBounds.getHeight());
+            ctx.enableScissor(
+                    componentBounds.getX(),
+                    componentBounds.getY(),
+                    componentBounds.getX() + componentBounds.getWidth() - 1,
+                    componentBounds.getY() + componentBounds.getHeight()
+            );
 
             if (selectionStart != -1 && selectionEnd != -1) {
 
@@ -72,7 +84,6 @@ public class TextBoxComponent extends HybridComponent {
                 int end = Math.max(selectionStart, selectionEnd);
 
                 int startX = text.getX() + HybridTextRenderer.getStringWidth(this.text.substring(0, start), FontStyle.BOLD, 20);
-
                 int endX = text.getX() + HybridTextRenderer.getStringWidth(this.text.substring(0, end), FontStyle.BOLD, 20);
 
                 ctx.fill(startX, text.getY(), endX, text.getY() + text.getHeight(), new Color(88, 57, 255, 100).getRGB());
@@ -87,7 +98,7 @@ public class TextBoxComponent extends HybridComponent {
                 lastBlink = now;
             }
 
-            if (caretVisible) {
+            if (focused && caretVisible) {
 
                 int caretX = text.getX() + HybridTextRenderer.getStringWidth(this.text.substring(0, caretIndex), FontStyle.BOLD, 20);
 
@@ -97,12 +108,21 @@ public class TextBoxComponent extends HybridComponent {
             ctx.disableScissor();
         });
 
-
         super.render(hybridRenderer);
     }
 
     @Override
     public void onMouseClicked(Click click) {
+
+        focused = componentBounds.contains((int) click.x(), (int) click.y());
+
+        if (!focused) {
+            dragging = false;
+            selectionStart = -1;
+            selectionEnd = -1;
+            super.onMouseClicked(click);
+            return;
+        }
 
         long now = System.currentTimeMillis();
 
@@ -123,10 +143,14 @@ public class TextBoxComponent extends HybridComponent {
 
             dragging = true;
             dragStartIndex = index;
+
         } else if (clickCount == 2) {
+
             selectWordAt((int) click.x());
             caretIndex = selectionEnd;
+
         } else if (clickCount >= 3) {
+
             selectionStart = 0;
             selectionEnd = text.length();
             caretIndex = selectionEnd;
@@ -139,7 +163,8 @@ public class TextBoxComponent extends HybridComponent {
 
     @Override
     public void onMouseDrag(Click click) {
-        if (!dragging) return;
+
+        if (!focused || !dragging) return;
 
         int index = getCharIndexFromMouse((int) click.x());
 
@@ -151,16 +176,18 @@ public class TextBoxComponent extends HybridComponent {
         super.onMouseDrag(click);
     }
 
-
     @Override
     public void onMouseRelease(Click click) {
+
         dragging = false;
+
         super.onMouseRelease(click);
     }
 
-
     @Override
     public void onCharTyped(CharInput input) {
+
+        if (!focused) return;
 
         if (input.isValidChar()) {
 
@@ -180,6 +207,8 @@ public class TextBoxComponent extends HybridComponent {
 
     @Override
     public void keyPressed(KeyInput input) {
+
+        if (!focused) return;
 
         boolean shift = (input.modifiers() & GLFW.GLFW_MOD_SHIFT) != 0;
 
@@ -346,6 +375,7 @@ public class TextBoxComponent extends HybridComponent {
     }
 
     public void setText(String s) {
+
         this.text = s == null ? "" : s;
 
         caretIndex = this.text.length();
@@ -353,5 +383,4 @@ public class TextBoxComponent extends HybridComponent {
         selectionEnd = -1;
         scrollOffset = 0;
     }
-
 }

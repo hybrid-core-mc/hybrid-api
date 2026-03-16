@@ -9,6 +9,7 @@ import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.HybridScreen;
+import hybrid.api.ui.animation.PositionAnimation;
 import hybrid.api.ui.components.screen.ModHybridComponent;
 import hybrid.api.ui.components.settings.global.TextBoxComponent;
 import net.minecraft.client.gui.Click;
@@ -34,12 +35,17 @@ public class TextListComponent extends SettingComponent {
     private ScreenBounds textListBounds;
 
     private boolean deleting;
-    private float scrollOffset = 0;
+
+    private final int PADDING = 5;
+    private float scrollOffset = 0f;
+    private float maxScroll = 0f;
+
+    private final PositionAnimation addButtonAnim = new PositionAnimation(0, 0.3f);
+    private final PositionAnimation textBoxAnim = new PositionAnimation(0, 0.7f);
 
     public TextListComponent(TextListSetting setting) {
         this.setting = setting;
         this.textBoxComponent = new TextBoxComponent();
-        deleting = false;
         setHeight(80);
     }
 
@@ -62,13 +68,30 @@ public class TextListComponent extends SettingComponent {
         int addWidth = 20;
         int spacing = 3;
 
-        int textBoxX = componentBounds.getX() + componentBounds.getWidth() - boxWidth;
-        int addX = textBoxX - addWidth - spacing;
+        int normalTextX = componentBounds.getX() + componentBounds.getWidth() - boxWidth;
+        int normalAddX = normalTextX - addWidth - spacing;
 
-        addBounds = new ScreenBounds(addX, boxY, addWidth, boxHeight);
+        int deleteAddX = componentBounds.getX() + componentBounds.getWidth() - addWidth;
+
+
+        if (deleting) {
+            addButtonAnim.setTarget(deleteAddX);
+            textBoxAnim.setTarget(componentBounds.getX() + componentBounds.getWidth() + 10);
+        } else {
+            addButtonAnim.setTarget(normalAddX);
+            textBoxAnim.setTarget(normalTextX);
+        }
+
+        addButtonAnim.update();
+        textBoxAnim.update();
+
+        int animatedAddX = (int) addButtonAnim.get();
+        int animatedTextX = (int) textBoxAnim.get();
+
+        addBounds = new ScreenBounds(animatedAddX, boxY, addWidth, boxHeight);
 
         textBoxComponent.componentBounds = new ScreenBounds(
-                textBoxX,
+                animatedTextX,
                 boxY,
                 boxWidth,
                 boxHeight
@@ -86,52 +109,47 @@ public class TextListComponent extends SettingComponent {
                 ? HybridTextRenderer.getTextRenderer("+", FontStyle.BOLD, 20, Color.WHITE)
                 : HybridTextRenderer.getIconRenderer("trash", Color.WHITE);
 
-        int plusX = addBounds.getX() + (addBounds.getWidth() - plus.getWidth()) / 2;
-        int plusY = addBounds.getY() + (addBounds.getHeight() - plus.getHeight()) / 2;
+        plus.setPosition(
+                addBounds.getX() + (addBounds.getWidth() - plus.getWidth()) / 2,
+                addBounds.getY() + (addBounds.getHeight() - plus.getHeight()) / 2
+        );
 
-        plus.setPosition(plusX, plusY);
         HybridTextRenderer.addText(plus);
 
-        textBoxComponent.render(hybridRenderer);
+        if (!deleting) {
+            textBoxComponent.render(hybridRenderer);
+        }
 
-        int labelY = boxY + (boxHeight - label.getHeight()) / 2;
-        label.setPosition(componentBounds.getX(), labelY);
+        label.setPosition(
+                componentBounds.getX(),
+                boxY + (boxHeight - label.getHeight()) / 2
+        );
+
         HybridTextRenderer.addText(label);
 
         int headingBottom = boxY + boxHeight;
 
-        int padding = 5;
-        int textX = componentBounds.getX() + padding;
+        if (setting.get().isEmpty()) {
+            setHeight(boxHeight + 10);
+            super.render(hybridRenderer);
+            return;
+        }
 
         int maxTextHeight = 0;
 
         for (String s : setting.get()) {
             HybridRenderText t = HybridTextRenderer.getTextRenderer(
-                    s,
-                    FontStyle.BOLD,
-                    15,
-                    Color.WHITE
+                    s, FontStyle.BOLD, 15, Color.WHITE
             );
             maxTextHeight = Math.max(maxTextHeight, t.getHeight());
         }
 
-        int rowHeight = Math.max(1, maxTextHeight + 3);
+        int rowHeight = maxTextHeight + 4;
 
-        if (setting.get().isEmpty()) {
-            int headerHeight = boxHeight + 10;
-            setHeight(headerHeight);
-            super.render(hybridRenderer);
-            return;
-        }
+        int contentHeight = setting.get().size() * rowHeight;
 
-        int contentHeight = setting.get().size() * rowHeight + padding * 2;
-
-        int maxHeight = 75;
-        int listHeight = Math.min(contentHeight, maxHeight);
-
-        int headerHeight = boxHeight + 10;
-
-        setHeight(headerHeight + listHeight + 10);
+        int maxListHeight = 75;
+        int listHeight = Math.min(contentHeight + PADDING * 2, maxListHeight);
 
         int listY = headingBottom + 6;
 
@@ -142,6 +160,10 @@ public class TextListComponent extends SettingComponent {
                 listHeight
         );
 
+        maxScroll = Math.max(0, contentHeight - listHeight + PADDING * 2);
+
+        scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+
         hybridRenderer.drawOutlineQuad(
                 textListBounds,
                 HybridThemeMap.get(ThemeColorKey.modsBackgroundColor),
@@ -150,99 +172,101 @@ public class TextListComponent extends SettingComponent {
                 1
         );
 
-        int totalContentHeight = setting.get().size() * rowHeight;
-
-        int maxScroll = Math.max(0, totalContentHeight - textListBounds.getHeight());
-
-        if (scrollOffset < 0) scrollOffset = 0;
-        if (scrollOffset > maxScroll) scrollOffset = maxScroll;
-
         itemBounds.clear();
         itemIndexes.clear();
 
-        int layoutY = (int) (textListBounds.getY() + padding - scrollOffset);
+        int drawY = (int) (textListBounds.getY() + PADDING - scrollOffset);
+        int textX = componentBounds.getX() + PADDING;
 
-        for (int index = 0; index < setting.get().size(); index++) {
+        for (int i = 0; i < setting.get().size(); i++) {
 
-            String s = setting.get().get(index);
+            String s = setting.get().get(i);
 
             HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                    s,
-                    FontStyle.BOLD,
-                    15,
-                    Color.WHITE
+                    s, FontStyle.BOLD, 15, Color.WHITE
             );
 
-            int centeredY = layoutY + (rowHeight - text.getHeight()) / 2;
+            int textY = drawY + (rowHeight - text.getHeight()) / 2;
 
             ScreenBounds bounds = new ScreenBounds(
                     textX - 4,
-                    centeredY - 2,
+                    textY - 2,
                     text.getWidth() + 8,
                     text.getHeight() + 4
             );
 
-            if (bounds.getY() + bounds.getHeight() >= textListBounds.getY()
-                    && bounds.getY() <= textListBounds.getY() + textListBounds.getHeight()) {
+            if (bounds.getY() + bounds.getHeight() >= textListBounds.getY() &&
+                    bounds.getY() <= textListBounds.getY() + textListBounds.getHeight()) {
 
                 itemBounds.add(bounds);
-                itemIndexes.add(index);
+                itemIndexes.add(i);
             }
 
-            layoutY += rowHeight;
+            drawY += rowHeight;
         }
 
-        final int finalTextX = textX;
-        final int finalPadding = padding;
         final int finalRowHeight = rowHeight;
+        final int finalTextX = textX;
 
         HybridRenderer.CONTEXT_LIST.add((c, j) -> {
 
-            c.enableScissor(
-                    textListBounds.getX(),
-                    textListBounds.getY(),
-                    textListBounds.getX() + textListBounds.getWidth(),
-                    textListBounds.getY() + textListBounds.getHeight()
-            );
+            HybridScreen screen = (HybridScreen) mc.currentScreen;
+            ScreenBounds screenBounds = screen.getBounds();
 
-            int drawY = (int) (textListBounds.getY() + finalPadding - scrollOffset);
+            int x1 = Math.max(textListBounds.getX(), screenBounds.getX());
+            int y1 = Math.max(textListBounds.getY(), screenBounds.getY());
+            int x2 = Math.min(textListBounds.getX() + textListBounds.getWidth(),
+                    screenBounds.getX() + screenBounds.getWidth());
+            int y2 = Math.min(textListBounds.getY() + textListBounds.getHeight(),
+                    screenBounds.getY() + screenBounds.getHeight());
 
-            for (int index = 0; index < setting.get().size(); index++) {
+            c.enableScissor(x1, y1, x2, y2);
 
-                String s = setting.get().get(index);
+            int y = (int) (textListBounds.getY() + PADDING - scrollOffset);
+
+            for (String s : setting.get()) {
 
                 HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                        s,
-                        FontStyle.BOLD,
-                        15,
-                        Color.WHITE
+                        s, FontStyle.BOLD, 15, Color.WHITE
                 );
 
-                ScreenBounds bounds = new ScreenBounds(
-                        finalTextX - 8,
-                        drawY - 2,
-                        text.getWidth() + 8,
-                        text.getHeight() + 4
-                );
+                int textY = y + (finalRowHeight - text.getHeight()) / 2;
 
-                if (bounds.getY() + bounds.getHeight() >= textListBounds.getY()
-                        && bounds.getY() <= textListBounds.getY() + textListBounds.getHeight()) {
+                text.setPosition(finalTextX, textY);
+                text.draw(c);
 
-                    int textY = drawY + (finalRowHeight - text.getHeight()) / 2;
-
-                    text.setPosition(finalTextX, textY);
-                    text.draw(c);
-                }
-
-                drawY += finalRowHeight;
+                y += finalRowHeight;
             }
 
             c.disableScissor();
         });
 
+        setHeight(boxHeight + 10 + listHeight + 10);
+
         super.render(hybridRenderer);
     }
 
+    @Override
+    public void onMouseScroll(double mouseX, double mouseY, double horizontal, double vertical) {
+
+        if (textListBounds != null && textListBounds.contains(mouseX, mouseY)) {
+
+            float scrollSpeed = 18f;
+            scrollOffset -= (float) (vertical * scrollSpeed);
+            scrollOffset = Math.max(0, Math.min(scrollOffset, maxScroll));
+
+            if (mc.currentScreen instanceof HybridScreen screen) {
+                for (var component : screen.getHybridModComponentList()) {
+                    if (component instanceof ModHybridComponent mod) {
+                        mod.ignoreScroll = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        super.onMouseScroll(mouseX, mouseY, horizontal, vertical);
+    }
 
     @Override
     public void onMouseClicked(Click click) {
@@ -261,75 +285,40 @@ public class TextListComponent extends SettingComponent {
 
         if (addBounds != null && addBounds.contains(click.x(), click.y())) {
 
-            if (click.button() == 0 && !deleting) {
+            if (click.button() == 0 && !deleting)
                 addText();
-            }
 
-            if (click.button() == 1) {
+            if (click.button() == 1)
                 deleting = !deleting;
-            }
         }
 
-        if (click.button() == 0) {
+        if (click.button() == 0 &&
+                textListBounds != null &&
+                textListBounds.contains(click.x(), click.y())) {
 
-            if (textListBounds != null && textListBounds.contains(click.x(), click.y())) {
+            for (int i = 0; i < itemBounds.size(); i++) {
 
-                for (int i = 0; i < itemBounds.size(); i++) {
+                if (itemBounds.get(i).contains(click.x(), click.y())) {
 
-                    ScreenBounds bounds = itemBounds.get(i);
+                    if (deleting) {
 
-                    if (bounds.contains(click.x(), click.y())) {
+                        int removeIndex = itemIndexes.get(i);
 
-                        if (deleting) {
+                        List<String> newList = new ArrayList<>(setting.get());
 
-                            int removeIndex = itemIndexes.get(i);
-
-                            List<String> newList = new ArrayList<>(setting.get());
-
-                            if (removeIndex >= 0 && removeIndex < newList.size()) {
-
-                                newList.remove(removeIndex);
-                                setting.set(newList);
-                            }
+                        if (removeIndex >= 0 && removeIndex < newList.size()) {
+                            newList.remove(removeIndex);
+                            setting.set(newList);
                         }
-
-                        break;
                     }
+
+                    break;
                 }
             }
         }
 
         textBoxComponent.onMouseRelease(click);
-
         super.onMouseRelease(click);
-    }
-
-    @Override
-    public void onMouseScroll(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-
-        if (textListBounds != null && textListBounds.contains(mouseX, mouseY)) {
-
-            float scrollSpeed = 20f;
-
-            scrollOffset -= (float) (verticalAmount * scrollSpeed);
-
-            if (scrollOffset < 0) scrollOffset = 0;
-        }
-
-        if (!(mc.currentScreen instanceof HybridScreen screen)) return;
-
-        for (var component : screen.getHybridModComponentList()) {
-
-            if (component instanceof ModHybridComponent modHybridComponent) {
-
-                System.out.println("can it ignore " + (textListBounds != null && textListBounds.contains(mouseX, mouseY)));
-                modHybridComponent.ignoreScroll = textListBounds != null && textListBounds.contains(mouseX, mouseY);
-
-                break;
-            }
-        }
-
-        super.onMouseScroll(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
 
     @Override
@@ -343,24 +332,22 @@ public class TextListComponent extends SettingComponent {
 
         textBoxComponent.keyPressed(input);
 
-        if (input.key() == GLFW.GLFW_KEY_ENTER && !deleting) {
+        if (input.key() == GLFW.GLFW_KEY_ENTER && !deleting)
             addText();
-        }
 
         super.keyPressed(input);
     }
 
-    public void addText() {
+    private void addText() {
 
-        if (!textBoxComponent.getText().isEmpty()) {
+        if (textBoxComponent.getText().isEmpty()) return;
 
-            List<String> newList = new ArrayList<>(setting.get());
+        List<String> newList = new ArrayList<>(setting.get());
 
-            newList.add(textBoxComponent.getText());
+        newList.add(textBoxComponent.getText());
 
-            setting.set(newList);
+        setting.set(newList);
 
-            textBoxComponent.setText("");
-        }
+        textBoxComponent.setText("");
     }
 }

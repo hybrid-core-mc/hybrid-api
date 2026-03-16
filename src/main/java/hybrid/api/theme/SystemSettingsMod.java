@@ -12,14 +12,14 @@ public class SystemSettingsMod extends HybridMod {
     public boolean vanillaFonts;
 
     public SystemSettingsMod() {
-        super("Settings", HybridApi.VERSION);
+        super("settings", HybridApi.VERSION);
     }
 
     @Override
     protected List<ModSettingCategory> createSettings() {
         return List.of(
-                new ModCategorySettingBuilder("Colors")
-                        .add(new BooleanSetting("Vanilla Font", false).onChange(
+                new ModCategorySettingBuilder("Font")
+                        .add(new BooleanSetting("Vanilla", false).onChange(
                                 aBoolean -> vanillaFonts = aBoolean
                         ))
                         .build()
