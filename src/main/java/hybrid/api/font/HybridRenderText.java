@@ -3,6 +3,8 @@ package hybrid.api.font;
 import com.github.weisj.jsvg.SVGDocument;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
+import hybrid.api.mods.HybridMods;
+import hybrid.api.theme.SystemSettingsMod;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
@@ -11,6 +13,8 @@ import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fStack;
 
 import java.awt.*;
+
+import static hybrid.api.HybridApi.mc;
 
 public class HybridRenderText {
 
@@ -55,32 +59,40 @@ public class HybridRenderText {
 
     public void draw(DrawContext context) {
 
-        if (cachedTexture == null || (text != null && !text.equals(cachedTexture.text()))) {
-            cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
+        boolean isVanilla = (HybridMods.getSystemMod(SystemSettingsMod.class)).vanillaFonts;
+
+
+        if (isVanilla && svgDocument == null) {
+            context.drawText(mc.textRenderer, text, x, y, color.getRGB(), shadow);
+        } else {
+
+            if (cachedTexture == null || text != null && !text.equals(cachedTexture.text())) {
+                cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
+            }
+
+
+            Matrix3x2fStack matrices = context.getMatrices();
+            matrices.pushMatrix();
+
+
+            matrices.translate(x, y);
+
+            matrices.scale(0.5f, 0.5f); // todo : why does this work??
+
+            context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(
+                    RenderPipelines.GUI_TEXTURED,
+                    TextureSetup.of(cachedTexture.texture().getGlTextureView(),
+                            RenderSystem.getSamplerCache().get(FilterMode.LINEAR)),
+                    new Matrix3x2f(matrices),
+                    0, 0,
+                    cachedTexture.rectangle().width, cachedTexture.rectangle().height,
+                    0f, 1f, 0f, 1f,
+                    color.getRGB(),
+                    context.scissorStack.peekLast()
+            ));
+
+            matrices.popMatrix();
         }
-
-
-        Matrix3x2fStack matrices = context.getMatrices();
-        matrices.pushMatrix();
-
-
-        matrices.translate(x, y);
-
-        matrices.scale(0.5f, 0.5f); // todo : why does this work??
-
-        context.state.addSimpleElement(new TexturedQuadGuiElementRenderState(
-                RenderPipelines.GUI_TEXTURED,
-                TextureSetup.of(cachedTexture.texture().getGlTextureView(),
-                        RenderSystem.getSamplerCache().get(FilterMode.LINEAR)),
-                new Matrix3x2f(matrices),
-                0, 0,
-                cachedTexture.rectangle().width, cachedTexture.rectangle().height,
-                0f, 1f, 0f, 1f,
-                color.getRGB(),
-                context.scissorStack.peekLast()
-        ));
-
-        matrices.popMatrix();
     }
 
 

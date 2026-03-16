@@ -57,10 +57,10 @@ public class TextListComponent extends SettingComponent {
 
         int boxWidth = (int) (componentBounds.getWidth() * 0.3);
         int boxHeight = label.getHeight() + 12;
-        int boxY = (int) (componentBounds.getY() + 4);
+        int boxY = componentBounds.getY() + 4;
 
         int addWidth = 20;
-        int spacing = 2;
+        int spacing = 3;
 
         int textBoxX = componentBounds.getX() + componentBounds.getWidth() - boxWidth;
         int addX = textBoxX - addWidth - spacing;
@@ -100,7 +100,7 @@ public class TextListComponent extends SettingComponent {
 
         int headingBottom = boxY + boxHeight;
 
-        int padding = 4;
+        int padding = 5;
         int textX = componentBounds.getX() + padding;
 
         int maxTextHeight = 0;
@@ -215,7 +215,7 @@ public class TextListComponent extends SettingComponent {
                         s,
                         FontStyle.BOLD,
                         15,
-                        Color.LIGHT_GRAY
+                        Color.WHITE
                 );
 
                 ScreenBounds bounds = new ScreenBounds(
@@ -322,8 +322,8 @@ public class TextListComponent extends SettingComponent {
 
             if (component instanceof ModHybridComponent modHybridComponent) {
 
-                modHybridComponent.ignoreScroll =
-                        textListBounds != null && textListBounds.contains(mouseX, mouseY);
+                System.out.println("can it ignore " + (textListBounds != null && textListBounds.contains(mouseX, mouseY)));
+                modHybridComponent.ignoreScroll = textListBounds != null && textListBounds.contains(mouseX, mouseY);
 
                 break;
             }

@@ -44,7 +44,6 @@ public class HybridScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
-
         bounds.setCentered(context.getScaledWindowWidth(), context.getScaledWindowHeight());
 
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
@@ -58,10 +57,6 @@ public class HybridScreen extends Screen {
         }
         renderer.endScissors();
 
-        clip(context);
-        HueShader.drawHueRing(context, new ScreenBounds(mouseX, mouseY, 100, 100), Color.RED);
-        context.fill(mouseX,mouseY,mouseX+100,mouseY+100,new Color(206, 206, 206,100).getRGB());
-        context.disableScissor();
 
         super.render(context, mouseX, mouseY, deltaTicks);
     }

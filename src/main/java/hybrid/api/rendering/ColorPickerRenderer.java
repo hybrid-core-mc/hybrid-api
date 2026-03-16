@@ -52,8 +52,7 @@ public class ColorPickerRenderer {
 
             HybridScreen s = (HybridScreen) mc.currentScreen;
             assert s != null;
-            s.clip(context);  // clip to picker bounds, , , );
-//            context.fill(x,y,x+50,s.getBounds().y+50,-1);
+            s.clip(context);
             HueShader.drawHueRing(
                     context,
                     new ScreenBounds(x, y, size, size),

@@ -1,6 +1,7 @@
 package hybrid.api.mods;
 
 import hybrid.api.testmods.*;
+import hybrid.api.theme.SystemSettingsMod;
 import hybrid.api.theme.SystemThemeMod;
 
 import java.util.ArrayList;
@@ -20,7 +21,16 @@ public class HybridMods {
         mods.forEach(HybridMod::init);
 
         systemMods.add(new SystemThemeMod());
+        systemMods.add(new SystemSettingsMod());
         systemMods.forEach(HybridMod::init);
-
     }
+    public static <T extends HybridMod> T getSystemMod(Class<T> clazz) {
+        for (HybridMod mod : systemMods) {
+            if (clazz.isInstance(mod)) {
+                return clazz.cast(mod);
+            }
+        }
+        return null;
+    }
+
 }

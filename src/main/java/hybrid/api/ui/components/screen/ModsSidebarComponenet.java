@@ -7,9 +7,7 @@ import hybrid.api.mods.HybridMod;
 import hybrid.api.mods.HybridMods;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.HybridTheme;
-import hybrid.api.theme.HybridThemeMap;
-import hybrid.api.theme.ThemeColorKey;
+import hybrid.api.theme.*;
 import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
@@ -197,8 +195,9 @@ public class ModsSidebarComponenet extends HybridComponent {
 
         for (int i = 0; i < iconBounds.length; i++) {
             if (iconBounds[i] != null && iconBounds[i].contains(mouseX, mouseY)) {
-                if(iconNames[i].equals("settings")){
-                    hybridComponent.setModComponent(HybridMods.systemMods.getFirst());
+                switch (iconNames[i]) {
+                    case "settings" -> hybridComponent.setModComponent(HybridMods.getSystemMod(SystemSettingsMod.class));
+                    case "theme" -> hybridComponent.setModComponent(HybridMods.getSystemMod(SystemThemeMod.class));
                 }
                 return;
             }
