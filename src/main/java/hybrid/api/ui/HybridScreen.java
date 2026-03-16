@@ -2,6 +2,7 @@ package hybrid.api.ui;
 
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
+import hybrid.api.shader.HueShader;
 import hybrid.api.ui.components.HybridComponent;
 import hybrid.api.ui.components.screen.ModHybridComponent;
 import hybrid.api.ui.components.screen.ModsSidebarComponenet;
@@ -12,6 +13,7 @@ import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.text.Text;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,6 @@ public class HybridScreen extends Screen {
 
     private final ScreenBounds bounds;
     private final List<HybridComponent> hybridModComponentList = new ArrayList<>();
-
     public HybridScreen(String name, int width, int height) {
         super(Text.of("hybrid.screen.".concat(name)));
 
@@ -48,7 +49,6 @@ public class HybridScreen extends Screen {
 
         HybridRenderer renderer = HybridRenderer.RENDERER_INSTANCE;
 
-
         renderer.beginScissors(bounds);
         for (HybridComponent component : hybridModComponentList) {
             component.outerBounds = bounds;
@@ -57,6 +57,11 @@ public class HybridScreen extends Screen {
             component.render(renderer);
         }
         renderer.endScissors();
+
+        clip(context);
+        HueShader.drawHueRing(context, new ScreenBounds(mouseX, mouseY, 100, 100), Color.RED);
+        context.fill(mouseX,mouseY,mouseX+100,mouseY+100,new Color(206, 206, 206,100).getRGB());
+        context.disableScissor();
 
         super.render(context, mouseX, mouseY, deltaTicks);
     }
@@ -100,5 +105,14 @@ public class HybridScreen extends Screen {
     public boolean keyPressed(KeyInput input) {
         hybridModComponentList.forEach(component -> component.keyPressed(input));
         return super.keyPressed(input);
+    }
+
+    public void clip(DrawContext context) {
+        context.enableScissor(
+                bounds.getX(),
+                bounds.getY(),
+                bounds.getX() + bounds.getWidth(),
+                bounds.getY() + bounds.getHeight()
+        );
     }
 }

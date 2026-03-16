@@ -1,11 +1,13 @@
 package hybrid.api.rendering;
 
 import hybrid.api.shader.HueShader;
+import hybrid.api.ui.HybridScreen;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 
 import java.awt.*;
 
+import static hybrid.api.HybridApi.mc;
 import static org.lwjgl.nanovg.NanoVG.*;
 
 public class ColorPickerRenderer {
@@ -45,12 +47,21 @@ public class ColorPickerRenderer {
         int x = (int) (cx - size * 0.5f);
         int y = (int) (cy - size * 0.5f);
 
-        HybridRenderer.CONTEXT_LIST.add((context, magic) ->
-                HueShader.drawHueRing(
-                        context,
-                        new ScreenBounds(x, y, size, size), color
-                )
-        );
+        HybridRenderer.CONTEXT_LIST.add((context, magic) -> {
+
+
+            HybridScreen s = (HybridScreen) mc.currentScreen;
+            assert s != null;
+            s.clip(context);  // clip to picker bounds, , , );
+//            context.fill(x,y,x+50,s.getBounds().y+50,-1);
+            HueShader.drawHueRing(
+                    context,
+                    new ScreenBounds(x, y, size, size),
+                    color
+            );
+
+            context.disableScissor();
+        });
     }
 
     private void drawColorTriangle(float cx, float cy, float radius, float hue) {

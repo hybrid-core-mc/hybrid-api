@@ -31,6 +31,7 @@ public  class SystemThemeMod extends HybridMod {
                         ))
                         .add(new ColorSetting("Color", Color.PINK)
                                 .onChange(this::applyColor))
+                        .add(new ColorSetting("xd",Color.WHITE))
                         .build());
     }
 

@@ -44,19 +44,17 @@ public class HueShader implements SimpleGuiElementRenderState {
                           .withVertexFormat(VertexFormats.POSITION, VertexFormat.DrawMode.QUADS)
                           .build()
             ;
-
-    private final DrawContext context;
     private final Color color;
     private final TextureSetup textureSetup;
     private final ScreenBounds bounds;
+    private final @Nullable ScreenRect scissorArea;
 
     public GpuBufferSlice uniformBuffer;
 
     public HueShader(DrawContext context, ScreenBounds bounds, Color color) {
-        this.context = context;
         this.bounds = bounds;
         this.color = color;
-
+        this.scissorArea = context.scissorStack.peekLast();
         this.textureSetup = TextureSetup.of(RenderSystem.outputColorTextureOverride, RenderSystem.getSamplerCache().get(FilterMode.NEAREST));
         RESTORE.put(System.identityHashCode(this.textureSetup), this);
     }
@@ -92,17 +90,17 @@ public class HueShader implements SimpleGuiElementRenderState {
         return textureSetup;
     }
 
+
     @Override
     public @Nullable ScreenRect scissorArea() {
-        return context.scissorStack.peekLast();
+        return scissorArea;
     }
 
 
-    @Override
     public @Nullable ScreenRect bounds() {
         ScreenRect scissor = scissorArea();
         ScreenRect rect = new ScreenRect(bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
-        return scissor == null ? rect : Objects.requireNonNull(scissor).intersection(rect);
+        return scissor == null ? rect : scissor.intersection(rect);
     }
 
     public static class Uniforms {

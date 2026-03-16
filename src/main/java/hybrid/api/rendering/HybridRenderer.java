@@ -57,7 +57,7 @@ public class HybridRenderer implements HybridRenderer2D {
 
     public static void render(DrawContext context) {
 
-        if (!(mc.currentScreen instanceof HybridScreen)) return;
+        if (!(mc.currentScreen instanceof HybridScreen bounds)) return;
 
         if (GUI_FBO == null) {
             GUI_FBO = new GuiFramebuffer();
@@ -149,20 +149,13 @@ public class HybridRenderer implements HybridRenderer2D {
                 )
         );
 
-        ScreenBounds bounds = ((HybridScreen) mc.currentScreen).getBounds();
-
-
+            bounds.clip(context);
         HybridTextRenderer.render(context);
+        context.disableScissor();
 
         for (var consumer : HybridRenderer.CONTEXT_LIST) {
-            context.enableScissor(
-                    bounds.getX(),
-                    bounds.getY(),
-                    bounds.getX() + bounds.getWidth(),
-                    bounds.getY() + bounds.getHeight()
-            );
+
             consumer.render(context, HybridRenderer.RENDERER_INSTANCE);
-            context.disableScissor();
         }
 
         HybridRenderer.CONTEXT_LIST.clear();
