@@ -1,4 +1,4 @@
-package hybrid.api.mods.settings;
+package hybrid.api.mod.settings;
 
 import com.google.gson.JsonObject;
 

@@ -3,8 +3,8 @@ package hybrid.api.ui.components.screen;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
-import hybrid.api.mods.HybridMod;
-import hybrid.api.mods.category.ModSettingCategory;
+import hybrid.api.mod.HybridMod;
+import hybrid.api.mod.category.ModSettingCategory;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridTheme;
@@ -36,7 +36,7 @@ public class ModHybridComponent extends HybridComponent {
         this.hybridMod = mod;
         modCategoryComponents.clear();
         assert hybridMod != null;
-        for (ModSettingCategory modSettingCategory : hybridMod.getModSettingCategories()) {
+        for (ModSettingCategory modSettingCategory : mod.getModSettingCategories()) {
             modCategoryComponents.add(new ModCategoryComponent(modSettingCategory));
         }
         alphaAnimation = new AlphaAnimation(0.35f, 0.35f);

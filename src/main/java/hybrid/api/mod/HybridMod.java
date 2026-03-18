@@ -1,8 +1,10 @@
-package hybrid.api.mods;
+package hybrid.api.mod;
 
 import com.google.gson.JsonObject;
-import hybrid.api.mods.category.ModSettingCategory;
-import hybrid.api.mods.settings.ModSetting;
+import hybrid.api.HybridApi;
+import hybrid.api.mod.category.ModCategory;
+import hybrid.api.mod.category.ModSettingCategory;
+import hybrid.api.mod.settings.ModSetting;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,6 +18,15 @@ public abstract class HybridMod {
     boolean saveSettings;
 
     protected final List<ModSettingCategory> modSettingCategories = new ArrayList<>();
+    protected final List<ModCategory> categories = new ArrayList<>();
+
+    protected ModSettingCategory category(ModCategory category) {
+        categories.add(category);
+        return category.toCategory();
+    }
+    public List<ModSettingCategory> getModSettingCategories() {
+        return modSettingCategories;
+    }
 
     public HybridMod(String name, float version) {
         this.name = name;
@@ -37,11 +48,16 @@ public abstract class HybridMod {
         }
     }
 
-    public List<ModSettingCategory> getModSettingCategories() {
-        return modSettingCategories;
-    }
 
     protected abstract List<ModSettingCategory> createSettings();
+
+    protected abstract ModLink getGithub();
+
+    protected abstract ModLink getModrinth();
+
+    public void onInitialize() {
+
+    }
 
     public JsonObject getJson() {
         JsonObject modJson = new JsonObject();
@@ -50,6 +66,7 @@ public abstract class HybridMod {
         }
         return modJson;
     }
+
 
     public void loadJson(JsonObject json) {
         if (json == null) return;
@@ -64,6 +81,7 @@ public abstract class HybridMod {
             }
         }
     }
+
 
     public String getName() {
         return name;
@@ -99,4 +117,6 @@ public abstract class HybridMod {
     public void setSaveSettings(boolean saveSettings) {
         this.saveSettings = saveSettings;
     }
+
+
 }

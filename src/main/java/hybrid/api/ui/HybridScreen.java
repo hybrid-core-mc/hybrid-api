@@ -27,7 +27,7 @@ public class HybridScreen extends Screen {
 
         this.bounds = new ScreenBounds(0, 0, width, height);
 
-        ModHybridComponent hybridComponent = new ModHybridComponent(); // mod content
+        ModHybridComponent hybridComponent = new ModHybridComponent();
         ModsSidebarComponenet sidebarComponent = new ModsSidebarComponenet(hybridComponent);
 
         hybridModComponentList.add(sidebarComponent);

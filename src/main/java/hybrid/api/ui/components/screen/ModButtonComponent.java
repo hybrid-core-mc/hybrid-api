@@ -3,7 +3,7 @@ package hybrid.api.ui.components.screen;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
-import hybrid.api.mods.HybridMod;
+import hybrid.api.mod.HybridMod;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridThemeMap;

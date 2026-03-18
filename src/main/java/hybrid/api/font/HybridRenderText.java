@@ -3,7 +3,7 @@ package hybrid.api.font;
 import com.github.weisj.jsvg.SVGDocument;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
-import hybrid.api.mods.HybridMods;
+import hybrid.api.mod.HybridMods;
 import hybrid.api.theme.SystemSettingsMod;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;

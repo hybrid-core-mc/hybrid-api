@@ -3,6 +3,7 @@ package hybrid.api.font;
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.SVGLoader;
 import hybrid.api.HybridApi;
+import net.fabricmc.fabric.api.resource.ResourceReloadListenerKeys;
 import net.minecraft.client.gui.DrawContext;
 
 import java.awt.*;
@@ -24,11 +25,10 @@ public class HybridTextRenderer {
     public static int getCharWidth(char c, FontStyle style, int size) {
 
         Font font = fromFont(style, size);
-
         METRIC_GRAPHICS.setFont(font);
-
         return METRIC_GRAPHICS.getFontMetrics().charWidth(c) / 2;
     }
+
     public static int getStringWidth(String text, FontStyle style, int size) {
 
         if (text == null || text.isEmpty()) {
@@ -38,9 +38,9 @@ public class HybridTextRenderer {
         Font font = fromFont(style, size);
 
         METRIC_GRAPHICS.setFont(font);
-
         return METRIC_GRAPHICS.getFontMetrics().stringWidth(text) / 2;
     }
+
     public static void addText(String text, FontStyle style, int size, int x, int y, Color color) {
         renderQueue.add(getTextRenderer(text, style, size, x, y, color));
     }
@@ -89,16 +89,12 @@ public class HybridTextRenderer {
         );
 
         renderer.cachedTexture = cached.cachedTexture;
-
         return renderer;
     }
-    public static HybridRenderText getIconRenderer(String name, Color color) {
-        return getIconRenderer(name, color, 0);
-    }
 
-    public static HybridRenderText getIconRenderer(String name, Color color, int y) { // to prevent caching issues
-
-        String key = name + "|" + color.getRGB() + "|" + y ;
+    // UPDATED: x and y included in cache key
+    public static HybridRenderText getIconRenderer(String name, Color color, int x, int y) {
+        String key = name + "|" + color.getRGB() + "|" + x + "|" + y;
 
         HybridRenderText icon = iconCache.get(key);
         if (icon != null) {
@@ -116,12 +112,15 @@ public class HybridTextRenderer {
             }
         });
 
-        icon = new HybridRenderText(0, 0, svgDocument, color);
+        icon = new HybridRenderText(x, y, svgDocument, color);
         iconCache.put(key, icon);
 
         return icon;
     }
 
+    public static HybridRenderText getIconRenderer(String name, Color color) {
+        return getIconRenderer(name, color, 0, 0);
+    }
 
     public static Font fromFont(FontStyle style, int size) {
         String key = style + "|" + size;
@@ -163,7 +162,6 @@ public class HybridTextRenderer {
         });
     }
 
-
     public static void render(DrawContext context) {
         for (HybridRenderText text : renderQueue) {
             text.draw(context);
@@ -171,11 +169,17 @@ public class HybridTextRenderer {
         renderQueue.clear();
     }
 
-
     public static void addText(HybridRenderText text) {
         if (text == null) return;
         renderQueue.add(text);
     }
 
 
+    public static void reload() {
+        textCache.clear();
+        iconCache.clear();
+        fontCache.clear();
+        svgCache.clear();
+        renderQueue.clear();
+    }
 }

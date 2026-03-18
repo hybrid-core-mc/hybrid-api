@@ -3,8 +3,8 @@ package hybrid.api.ui.components.screen;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
-import hybrid.api.mods.category.ModSettingCategory;
-import hybrid.api.mods.settings.*;
+import hybrid.api.mod.category.ModSettingCategory;
+import hybrid.api.mod.settings.*;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
 import hybrid.api.theme.HybridTheme;
@@ -191,7 +191,7 @@ public class ModCategoryComponent extends HybridComponent {
         HybridRenderText toggleIcon = HybridTextRenderer.getIconRenderer(
                 extended ? "up" : "down",
                 animation.withAlpha(Color.WHITE),
-                componentBounds.getY()
+                componentBounds.getY(),1
         );
 
         int headerCenterY = componentBounds.getY() + getCollapsedHeight() / 2;

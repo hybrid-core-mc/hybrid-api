@@ -1,11 +1,12 @@
 package hybrid.api.theme;
 
 import hybrid.api.HybridApi;
-import hybrid.api.mods.HybridMod;
-import hybrid.api.mods.category.ModCategorySettingBuilder;
-import hybrid.api.mods.category.ModSettingCategory;
-import hybrid.api.mods.settings.ColorSetting;
-import hybrid.api.mods.settings.ModeSetting;
+import hybrid.api.mod.HybridMod;
+import hybrid.api.mod.ModLink;
+import hybrid.api.mod.category.ModCategorySettingBuilder;
+import hybrid.api.mod.category.ModSettingCategory;
+import hybrid.api.mod.settings.ColorSetting;
+import hybrid.api.mod.settings.ModeSetting;
 
 import java.awt.*;
 import java.util.List;
@@ -33,6 +34,16 @@ public  class SystemThemeMod extends HybridMod {
                                 .onChange(this::applyColor))
                         .add(new ColorSetting("xd",Color.WHITE))
                         .build());
+    }
+
+    @Override
+    protected ModLink getGithub() {
+        return null;
+    }
+
+    @Override
+    protected ModLink getModrinth() {
+        return null;
     }
 
     private void applyColor(Color color) {

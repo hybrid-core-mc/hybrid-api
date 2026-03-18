@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import hybrid.api.HybridApi;
-import hybrid.api.mods.HybridMod;
-import hybrid.api.mods.HybridMods;
+import hybrid.api.mod.HybridMod;
+import hybrid.api.mod.HybridMods;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.File;

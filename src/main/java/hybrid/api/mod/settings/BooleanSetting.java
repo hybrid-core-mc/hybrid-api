@@ -1,6 +1,5 @@
-package hybrid.api.mods.settings;
+package hybrid.api.mod.settings;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class BooleanSetting extends ModSetting<Boolean> {

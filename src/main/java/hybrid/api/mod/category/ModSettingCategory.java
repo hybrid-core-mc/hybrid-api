@@ -1,7 +1,7 @@
-package hybrid.api.mods.category;
+package hybrid.api.mod.category;
 
 import com.google.gson.JsonObject;
-import hybrid.api.mods.settings.ModSetting;
+import hybrid.api.mod.settings.ModSetting;
 
 import java.util.List;
 

@@ -3,14 +3,12 @@ package hybrid.api.ui.components.settings;
 import hybrid.api.font.FontStyle;
 import hybrid.api.font.HybridRenderText;
 import hybrid.api.font.HybridTextRenderer;
-import hybrid.api.mods.settings.ColorSetting;
+import hybrid.api.mod.settings.ColorSetting;
 import hybrid.api.rendering.HybridRenderer;
 import hybrid.api.rendering.ScreenBounds;
-import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
 import hybrid.api.ui.animation.PositionAnimation;
-import hybrid.api.ui.components.HybridComponent;
 import net.minecraft.client.gui.Click;
 
 import java.awt.*;

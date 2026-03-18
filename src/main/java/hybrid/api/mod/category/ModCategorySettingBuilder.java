@@ -1,6 +1,6 @@
-package hybrid.api.mods.category;
+package hybrid.api.mod.category;
 
-import hybrid.api.mods.settings.ModSetting;
+import hybrid.api.mod.settings.ModSetting;
 
 import java.util.ArrayList;
 import java.util.List;
