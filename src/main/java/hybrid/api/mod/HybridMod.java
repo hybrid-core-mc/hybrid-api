@@ -1,7 +1,6 @@
 package hybrid.api.mod;
 
 import com.google.gson.JsonObject;
-import hybrid.api.HybridApi;
 import hybrid.api.mod.category.ModCategory;
 import hybrid.api.mod.category.ModSettingCategory;
 import hybrid.api.mod.settings.ModSetting;
@@ -20,7 +19,7 @@ public abstract class HybridMod {
     protected final List<ModSettingCategory> modSettingCategories = new ArrayList<>();
     protected final List<ModCategory> categories = new ArrayList<>();
 
-    protected ModSettingCategory category(ModCategory category) {
+    protected ModSettingCategory registerCategory(ModCategory category) {
         categories.add(category);
         return category.toCategory();
     }

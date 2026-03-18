@@ -3,8 +3,8 @@ package hybrid.api.testmods.chatplus;
 import com.google.common.eventbus.Subscribe;
 import hybrid.api.event.TickEvent;
 import hybrid.api.mod.HybridMod;
-import hybrid.api.mod.category.ModSettingCategory;
 import hybrid.api.mod.ModLink;
+import hybrid.api.mod.category.ModSettingCategory;
 
 import java.util.List;
 
@@ -21,7 +21,8 @@ public class ChatPlusMod extends HybridMod {
     @Override
     protected List<ModSettingCategory> createSettings() {
         return List.of(
-                category(new FilterCategory())
+                registerCategory(new FilterCategory()),
+                registerCategory(new InputCategory())
         );
     }
 
@@ -36,7 +37,6 @@ public class ChatPlusMod extends HybridMod {
     }
     @Subscribe
     public void test(TickEvent event){
-        System.out.println("ticking from caht plus mod");
     }
 
 
