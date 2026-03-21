@@ -1,7 +1,6 @@
 package hybrid.api.testmods.chatplus;
 
 import com.google.common.eventbus.Subscribe;
-import hybrid.api.event.TickEvent;
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.ModLink;
 import hybrid.api.mod.category.ModSettingCategory;
@@ -34,9 +33,6 @@ public class ChatPlusMod extends HybridMod {
     @Override
     protected ModLink getModrinth() {
         return new ModLink("SplashPOOP", "chat-plus");
-    }
-    @Subscribe
-    public void test(TickEvent event){
     }
 
 

@@ -17,19 +17,14 @@ public class HybridMods {
 
         mods.add(new ChatPlusMod());
 
-
-        mods.forEach(HybridMod::init);
-
         systemMods.add(new SystemThemeMod());
         systemMods.add(new SystemSettingsMod());
-        systemMods.forEach(HybridMod::init);
     }
 
     public static void init() {
         for (HybridMod mod : mods) {
 
             mod.init();
-
             mod.onInitialize();
 
             HybridApi.EVENT_BUS.register(mod);
@@ -37,6 +32,13 @@ public class HybridMods {
             for (ModCategory category : mod.categories) {
                 HybridApi.EVENT_BUS.register(category);
             }
+        }
+
+        for (HybridMod mod : systemMods) {
+            mod.init();
+            mod.onInitialize();
+
+            HybridApi.EVENT_BUS.register(mod);
         }
     }
     public static <T extends HybridMod> T getSystemMod(Class<T> clazz) {

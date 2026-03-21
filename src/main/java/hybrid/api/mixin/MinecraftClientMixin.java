@@ -3,7 +3,6 @@ package hybrid.api.mixin;
 import hybrid.api.HybridApi;
 import hybrid.api.config.HybridConfig;
 import hybrid.api.event.TickEvent;
-import hybrid.api.ui.HybridScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import org.spongepowered.asm.mixin.Mixin;

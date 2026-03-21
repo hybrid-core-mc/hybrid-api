@@ -1,7 +1,6 @@
 package hybrid.api.mixin;
 
 import hybrid.api.HybridApi;
-import hybrid.api.event.ScreenRenderEvent;
 import hybrid.api.ui.HybridScreen;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,13 +20,8 @@ public abstract class ScreenMixin {
 
         ci.cancel();
 
-
     }
 
-    @Inject(method = "render", at = @At(value = "HEAD"))
-    public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks, CallbackInfo ci) {
-        if (((Object) this instanceof Screen screen)) {
-            HybridApi.EVENT_BUS.post(new ScreenRenderEvent(screen,context));
-        }
-    }
+
+
 }

@@ -55,6 +55,36 @@ public class HybridRenderer implements HybridRenderer2D {
         colorPicker = new ColorPickerRenderer(CONTEXT);
     }
 
+    public static void renderMainFBO(){
+        Framebuffer frameBuffer = mc.getFramebuffer();
+
+        int frameBufferWidth = mc.getWindow().getFramebufferWidth();
+        int frameBufferHeight = mc.getWindow().getFramebufferHeight();
+
+        setup();
+
+        GpuTexture color = frameBuffer.getColorAttachment();
+        GpuTexture depth = frameBuffer.getDepthAttachment();
+
+        assert color != null;
+
+
+        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, ((GlTexture) color).getOrCreateFramebuffer(((GlBackend) RenderSystem.getDevice()).getBufferManager(), depth));
+
+        GlStateManager._viewport(0, 0, frameBufferWidth, frameBufferHeight);
+
+        nvgBeginFrame(CONTEXT,
+                mc.getWindow().getScaledWidth(),
+                mc.getWindow().getScaledHeight(),
+                1.0f
+        );
+
+        float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
+        nvgScale(CONTEXT, scale, scale);
+
+        nvgEndFrame(CONTEXT);
+        restore();
+    }
     public static void render(DrawContext context) {
 
         if (!(mc.currentScreen instanceof HybridScreen bounds)) return;
@@ -149,7 +179,7 @@ public class HybridRenderer implements HybridRenderer2D {
                 )
         );
 
-            bounds.clip(context);
+        bounds.clip(context);
         HybridTextRenderer.render(context);
         context.disableScissor();
 

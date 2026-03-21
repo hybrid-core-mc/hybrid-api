@@ -16,4 +16,8 @@ public abstract class ModCategory {
         return builder.build();
     }
 
+    public void onInitialize() {
+
+    }
+
 }

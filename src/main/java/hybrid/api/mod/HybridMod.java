@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import hybrid.api.mod.category.ModCategory;
 import hybrid.api.mod.category.ModSettingCategory;
 import hybrid.api.mod.settings.ModSetting;
+import hybrid.api.ui.components.settings.SettingComponent;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ public abstract class HybridMod {
         if (settings != null) {
             modSettingCategories.addAll(settings);
         }
+        categories.forEach(ModCategory::onInitialize);
     }
 
 
