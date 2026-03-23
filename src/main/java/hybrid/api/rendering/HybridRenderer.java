@@ -3,34 +3,31 @@ package hybrid.api.rendering;
 import com.mojang.blaze3d.opengl.GlConst;
 import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.FilterMode;
-import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.textures.GpuTextureView;
-import hybrid.api.font.HybridTextRenderer;
+import hybrid.api.HybridApi;
 import hybrid.api.theme.HybridTheme;
 import hybrid.api.theme.HybridThemeMap;
 import hybrid.api.theme.ThemeColorKey;
-import hybrid.api.ui.HybridScreen;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.GlBackend;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.render.state.TexturedQuadGuiElementRenderState;
 import net.minecraft.client.texture.GlTexture;
-import net.minecraft.client.texture.TextureSetup;
-import org.joml.Matrix3x2f;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33C;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 import static hybrid.api.HybridApi.mc;
 import static org.lwjgl.nanovg.NanoVG.*;
-import static org.lwjgl.nanovg.NanoVGGL2.*;
+import static org.lwjgl.nanovg.NanoVGGL3.*;
 
 public class HybridRenderer implements HybridRenderer2D {
 
@@ -43,159 +40,106 @@ public class HybridRenderer implements HybridRenderer2D {
     private static final NVGPaint GLOW_PAINT = NVGPaint.create();
 
     private static ColorPickerRenderer colorPicker;
-    private static GuiFramebuffer GUI_FBO;
     private static GpuTextureView GUI_VIEW;
 
     private static long CONTEXT = -1L;
+    private static int font;
+    private static ByteBuffer FONT_BUFFER;
 
     public static void init() {
         CONTEXT = nvgCreate(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-        if (CONTEXT <= 0) throw new RuntimeException("couldnt init nvg context");
-        nvgGlobalCompositeOperation(CONTEXT, NVG_SOURCE_OVER);
-        colorPicker = new ColorPickerRenderer(CONTEXT);
-    }
 
-    public static void renderMainFBO(){
-        Framebuffer frameBuffer = mc.getFramebuffer();
+        if (CONTEXT <= 0) throw new RuntimeException("Failed to create NanoVG context");
 
-        int frameBufferWidth = mc.getWindow().getFramebufferWidth();
-        int frameBufferHeight = mc.getWindow().getFramebufferHeight();
+        System.out.println("[NanoVG] Context created: " + CONTEXT);
 
-        setup();
-
-        GpuTexture color = frameBuffer.getColorAttachment();
-        GpuTexture depth = frameBuffer.getDepthAttachment();
-
-        assert color != null;
-
-
-        GlStateManager._glBindFramebuffer(GlConst.GL_FRAMEBUFFER, ((GlTexture) color).getOrCreateFramebuffer(((GlBackend) RenderSystem.getDevice()).getBufferManager(), depth));
-
-        GlStateManager._viewport(0, 0, frameBufferWidth, frameBufferHeight);
-
-        nvgBeginFrame(CONTEXT,
-                mc.getWindow().getScaledWidth(),
-                mc.getWindow().getScaledHeight(),
-                1.0f
-        );
-
-        float scale = (float) frameBufferWidth / mc.getWindow().getWidth();
-        nvgScale(CONTEXT, scale, scale);
-
-        nvgEndFrame(CONTEXT);
-        restore();
-    }
-    public static void render(DrawContext context) {
-
-        if (!(mc.currentScreen instanceof HybridScreen bounds)) return;
-
-        if (GUI_FBO == null) {
-            GUI_FBO = new GuiFramebuffer();
+        try {
+            FONT_BUFFER = loadResource("/assets/hybrid-api/font/inter-regular.ttf");
+            System.out.println("[NanoVG] Font buffer loaded: " + (FONT_BUFFER != null));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load font resource", e);
         }
 
-        int fbW = mc.getWindow().getFramebufferWidth();
-        int fbH = mc.getWindow().getFramebufferHeight();
+        font = nvgCreateFontMem(CONTEXT, "inter", FONT_BUFFER, false);
 
-        if (GUI_FBO.resizeIfNeeded(fbW, fbH)) {
+        System.out.println("[NanoVG] Font ID: " + font);
 
-            if (GUI_VIEW != null) {
-                GUI_VIEW.close();
+        if (font == -1) {
+            throw new RuntimeException("NanoVG font failed to load (ID = -1)");
+        }
+    }
+
+    public static ByteBuffer loadResource(String path) throws IOException {
+        try (InputStream source = HybridApi.class.getResourceAsStream(path)) {
+
+            if (source == null) {
+                throw new FileNotFoundException("Resource not found: " + path);
             }
 
-            GUI_VIEW = RenderSystem.getDevice().createTextureView(GUI_FBO.getColorAttachment());
+            byte[] bytes = source.readAllBytes();
+
+            ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+            buffer.put(bytes);
+            buffer.flip();
+
+            return buffer;
         }
+    }
+
+
+
+    public static void render() {
+        int fbW = mc.getWindow().getFramebufferWidth();
+        int fbH = mc.getWindow().getFramebufferHeight();
 
         setup();
 
         Framebuffer main = mc.getFramebuffer();
-        Framebuffer guiFbo = GUI_FBO;
-
-        guiFbo.copyDepthFrom(main);
-
-        GpuTexture guiColor = guiFbo.getColorAttachment();
-        if (guiColor == null) return;
-
         GlBackend backend = (GlBackend) RenderSystem.getDevice();
 
-        int mainFboId = ((GlTexture) main.getColorAttachment())
-                .getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
-
-        int guiFboId = ((GlTexture) guiColor)
-                .getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
-
-
-        GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, mainFboId);
-        GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, guiFboId);
-
-        GL30.glBlitFramebuffer(
-                0, 0, fbW, fbH,
-                0, 0, fbW, fbH,
-                GL11.GL_COLOR_BUFFER_BIT,
-                GL11.GL_NEAREST
-        );
-
-
-        GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, guiFboId);
-        GlStateManager._viewport(0, 0, fbW, fbH);
-
-        float pixelRatio = (float) fbW / mc.getWindow().getWidth();
-
-        nvgBeginFrame(
-                CONTEXT,
-                mc.getWindow().getScaledWidth(),
-                mc.getWindow().getScaledHeight(),
-                pixelRatio
-        );
-
-
-        nvgEndFrame(CONTEXT);
-
+        int mainFboId = ((GlTexture) main.getColorAttachment()).getOrCreateFramebuffer(backend.getBufferManager(), main.getDepthAttachment());
 
         GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, mainFboId);
         GlStateManager._viewport(0, 0, fbW, fbH);
 
-        if (GUI_VIEW == null) {
-            GUI_VIEW = RenderSystem.getDevice().createTextureView(GUI_FBO.getColorAttachment());
-        }
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        context.state.addSimpleElement(
-                new TexturedQuadGuiElementRenderState(
-                        RenderPipelines.GUI_TEXTURED,
-                        TextureSetup.of(
-                                GUI_VIEW,
-                                RenderSystem.getSamplerCache().get(FilterMode.NEAREST)
-                        ),
-                        new Matrix3x2f(context.getMatrices()),
-                        0,
-                        0,
-                        mc.getWindow().getScaledWidth(),
-                        mc.getWindow().getScaledHeight(),
-                        0.0f,
-                        1.0f,
-                        1.0f,
-                        0.0f,
-                        -1,
-                        context.scissorStack.peekLast()
-                )
+        GL33C.glBindSampler(0, 0);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+
+        float pixelRatio = (float) fbW / mc.getWindow().getWidth();
+
+        nvgBeginFrame(CONTEXT,
+                mc.getWindow().getScaledWidth(),
+                mc.getWindow().getScaledHeight(),
+                pixelRatio
         );
+        rendertext();
 
-        bounds.clip(context);
-        HybridTextRenderer.render(context);
-        context.disableScissor();
-
-        for (var consumer : HybridRenderer.CONTEXT_LIST) {
-
-            consumer.render(context, HybridRenderer.RENDERER_INSTANCE);
-        }
-
-        HybridRenderer.CONTEXT_LIST.clear();
-
+        nvgEndFrame(CONTEXT);
 
         restore();
     }
+
+    public static void rendertext(){
+        // DEBUG TEXT
+        nvgFontFace(CONTEXT, "inter");
+        nvgFontSize(CONTEXT, 100f);;
+        nvgFontBlur(CONTEXT, 0f);
+        nvgTextAlign(CONTEXT, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+
+        setColor(CONTEXT, Color.RED);
+
+        float result = nvgText(CONTEXT, 10, 10, "hello world!");
+    }
     private static void setup() {
         GlStateManager._enableBlend();
+
         GlStateManager._blendFuncSeparate(GlConst.GL_SRC_ALPHA, GlConst.GL_ONE_MINUS_SRC_ALPHA, GlConst.GL_ONE, GlConst.GL_ONE_MINUS_SRC_ALPHA);
+
         GlStateManager._disableDepthTest();
         GlStateManager._disableCull();
     }
@@ -208,8 +152,10 @@ public class HybridRenderer implements HybridRenderer2D {
 
     private static void setColor(long ctx, Color color) {
         NVG_COLOR.r(color.getRed() / 255f).g(color.getGreen() / 255f).b(color.getBlue() / 255f).a(color.getAlpha() / 255f);
+
         nvgFillColor(ctx, NVG_COLOR);
     }
+
 
     private static void setStrokeColor(long ctx, Color color) {
         NVG_COLOR.r(color.getRed() / 255f).g(color.getGreen() / 255f).b(color.getBlue() / 255f).a(color.getAlpha() / 255f);
@@ -217,9 +163,49 @@ public class HybridRenderer implements HybridRenderer2D {
     }
 
     @Override
-    public void drawColorTriangle(ScreenBounds bounds, float hue, float padding,Color color) {
-        if (colorPicker == null) return;
-        colorPicker.drawColorPicker(bounds, hue, padding,color);
+    public void drawQuad(ScreenBounds bounds, Color color, int radius) {
+        nvgBeginPath(CONTEXT);
+        setColor(CONTEXT, color);
+        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
+        nvgFill(CONTEXT);
+    }
+
+    @Override
+    public void drawQuad(ScreenBounds bounds, Color color, int topRight, int topLeft, int bottomRight, int bottomLeft) {
+
+        nvgBeginPath(CONTEXT);
+        setColor(CONTEXT, color);
+
+        nvgRoundedRectVarying(
+                CONTEXT,
+                bounds.x,
+                bounds.y,
+                bounds.width,
+                bounds.height,
+                topRight, topLeft, bottomRight, bottomLeft
+        );
+
+        nvgFill(CONTEXT);
+    }
+
+    @Override
+    public void drawQuad(ScreenBounds bounds, Color color) {
+        drawQuad(bounds, color, HybridTheme.cornerRadius);
+    }
+
+    @Override
+    public void beginScissors(ScreenBounds bounds) {
+        beginScissors(bounds, false);
+    }
+
+    @Override
+    public void endScissors() {
+        nvgRestore(CONTEXT);
+    }
+
+    @Override
+    public void drawColorTriangle(ScreenBounds bounds, float hue, float padding, Color color) {
+
     }
 
     @Override
@@ -288,13 +274,7 @@ public class HybridRenderer implements HybridRenderer2D {
         NVGColor innerOrange = NVGColor.calloc();
         Color innerBorder = HybridThemeMap.get(ThemeColorKey.modButtonOutlineColor);
 
-        nvgRGBA(
-                (byte) innerBorder.getRed(),
-                (byte) innerBorder.getGreen(),
-                (byte) innerBorder.getBlue(),
-                (byte) innerBorder.getAlpha(),
-                innerOrange
-        );
+        nvgRGBA((byte) innerBorder.getRed(), (byte) innerBorder.getGreen(), (byte) innerBorder.getBlue(), (byte) innerBorder.getAlpha(), innerOrange);
 
         float outerStroke = 5f;
         float expand = outerStroke / 5f;
@@ -311,14 +291,7 @@ public class HybridRenderer implements HybridRenderer2D {
         nvgStroke(CONTEXT);
 
         nvgBeginPath(CONTEXT);
-        nvgRoundedRect(
-                CONTEXT,
-                bounds.getX() + inset,
-                bounds.getY() + inset,
-                bounds.getWidth() - inset * 2,
-                bounds.getHeight() - inset * 2,
-                radius
-        );
+        nvgRoundedRect(CONTEXT, bounds.getX() + inset, bounds.getY() + inset, bounds.getWidth() - inset * 2, bounds.getHeight() - inset * 2, radius);
         nvgStrokeColor(CONTEXT, innerOrange);
         nvgStrokeWidth(CONTEXT, innerStroke);
         nvgStroke(CONTEXT);
@@ -332,47 +305,6 @@ public class HybridRenderer implements HybridRenderer2D {
         c2.free();
         outline.free();
 
-        nvgRestore(CONTEXT);
-    }
-
-    @Override
-    public void drawQuad(ScreenBounds bounds, Color color, int radius) {
-        nvgBeginPath(CONTEXT);
-        setColor(CONTEXT, color);
-        nvgRoundedRect(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height, radius);
-        nvgFill(CONTEXT);
-    }
-
-    @Override
-    public void drawQuad(ScreenBounds bounds, Color color, int topRight, int topLeft, int bottomRight, int bottomLeft) {
-
-        nvgBeginPath(CONTEXT);
-        setColor(CONTEXT, color);
-
-        nvgRoundedRectVarying(
-                CONTEXT,
-                bounds.x,
-                bounds.y,
-                bounds.width,
-                bounds.height,
-                topRight, topLeft, bottomRight, bottomLeft
-        );
-
-        nvgFill(CONTEXT);
-    }
-
-    @Override
-    public void drawQuad(ScreenBounds bounds, Color color) {
-        drawQuad(bounds, color, HybridTheme.cornerRadius);
-    }
-
-    @Override
-    public void beginScissors(ScreenBounds bounds) {
-        beginScissors(bounds, false);
-    }
-
-    @Override
-    public void endScissors() {
         nvgRestore(CONTEXT);
     }
 
@@ -471,4 +403,6 @@ public class HybridRenderer implements HybridRenderer2D {
             nvgIntersectScissor(CONTEXT, bounds.x, bounds.y, bounds.width, bounds.height);
         }
     }
+
+    // (Rest of your methods remain unchanged — formatting continues consistently)
 }

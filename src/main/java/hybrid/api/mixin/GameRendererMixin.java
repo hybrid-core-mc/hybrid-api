@@ -1,7 +1,6 @@
 package hybrid.api.mixin;
 
 import hybrid.api.rendering.HybridRenderer;
-import hybrid.api.ui.HybridScreen;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilderStorage;
@@ -13,19 +12,13 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static hybrid.api.HybridApi.mc;
-
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     public void init(MinecraftClient client, HeldItemRenderer firstPersonHeldItemRenderer, BufferBuilderStorage buffers, BlockRenderManager blockRenderManager, CallbackInfo ci) {
         HybridRenderer.init();
         HudRenderCallback.EVENT.register((context, tickDelta) -> {
-            if (mc.currentScreen instanceof HybridScreen) {
-                HybridRenderer.render(context);
-            } else {
-                HybridRenderer.renderMainFBO();
-            }
+            HybridRenderer.render();
         });
     }
 
