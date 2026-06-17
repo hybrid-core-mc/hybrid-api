@@ -9,6 +9,9 @@ public class Quad {
         this.width = width;
         this.height = height;
     }
+    public Quad copy(){
+        return new Quad(this.x,this.y,this.width,this.height);
+    }
 
 
     public Quad setX(int x) {

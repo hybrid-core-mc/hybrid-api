@@ -11,4 +11,7 @@ public class MojangRenderer2D {
         RenderContext.get().fill(quad.x, quad.y, quad.x + quad.width, quad.y + quad.height, color.getRGB());
     }
 
+    public static void renderOutline(Quad quad, Color color) {
+        RenderContext.get().renderOutline(quad.x, quad.y, quad.width, quad.height, color.getRGB());
+    }
 }
