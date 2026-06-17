@@ -9,42 +9,66 @@ public class Quad {
         this.width = width;
         this.height = height;
     }
-    public Quad copy(Quad quad) {
-        return new Quad(quad.x, quad.y, quad.width, quad.height);
+
+
+    public Quad setX(int x) {
+        this.x = x;
+        return this;
     }
 
-    public void expand(int amountX, int amountY) {
-        this.x -= amountX;
-        this.y -= amountY;
-        this.width += amountX * 2;
-        this.height += amountY * 2;
+    public Quad setY(int y) {
+        this.y = y;
+        return this;
     }
 
-    public void shrink(int amountX, int amountY) {
-        this.x += amountX;
-        this.y += amountY;
-        this.width -= amountX * 2;
-        this.height -= amountY * 2;
+    public Quad setWidth(int width) {
+        this.width = width;
+        return this;
     }
 
-    public void expandX(int amount) {
-        this.x -= amount;
-        this.width += amount * 2;
+    public Quad setHeight(int height) {
+        this.height = height;
+        return this;
     }
 
-    public void shrinkX(int amount) {
-        this.x += amount;
-        this.width -= amount * 2;
+    public Quad addX(int value) {
+        this.x += value;
+        return this;
     }
 
-    public void expandY(int amount) {
-        this.y -= amount;
-        this.height += amount * 2;
+    public Quad addY(int value) {
+        this.y += value;
+        return this;
     }
 
-    public void shrinkY(int amount) {
-        this.y += amount;
-        this.height -= amount * 2;
+    public Quad addWidth(int value) {
+        this.width += value;
+        return this;
+    }
+
+    public Quad addHeight(int value) {
+        this.height += value;
+        return this;
+    }
+
+    public Quad subtractX(int value) {
+        this.x -= value;
+        return this;
+    }
+
+    public Quad subtractY(int value) {
+        this.y -= value;
+        return this;
+    }
+
+    public Quad subtractWidth(int value) {
+        this.width -= value;
+        return this;
+    }
+
+    public Quad subtractHeight(int value) {
+        this.height -= value;
+        return this;
     }
 
     public int getX() {
