@@ -1,7 +1,7 @@
 package hybrid.api.util.render;
 
 public class Quad {
-    int x, y, width, height;
+    public int x, y, width, height;
 
     public Quad(int x, int y, int width, int height) {
         this.x = x;
@@ -9,12 +9,8 @@ public class Quad {
         this.width = width;
         this.height = height;
     }
-
-    public void copy(Quad quad) {
-        this.x = quad.x;
-        this.y = quad.y;
-        this.width = quad.width;
-        this.height = quad.height;
+    public Quad copy(Quad quad) {
+        return new Quad(quad.x, quad.y, quad.width, quad.height);
     }
 
     public void expand(int amountX, int amountY) {
