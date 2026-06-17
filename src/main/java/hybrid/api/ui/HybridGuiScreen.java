@@ -1,6 +1,5 @@
 package hybrid.api.ui;
 
-import dev.bsprout.brapi.client.BRender;
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.SprintMod;
 import hybrid.api.ui.gui.DefaultGui;
@@ -17,7 +16,6 @@ public class HybridGuiScreen extends Screen {
 
     private final GuiDesign theme;
     private final HybridMod currentMod;
-    private final BRender bRender = new BRender();
 
     public HybridGuiScreen() {
         super(Component.translatable("hybrid.gui"));

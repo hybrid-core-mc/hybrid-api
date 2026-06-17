@@ -1,18 +1,19 @@
 {
-	"required": true,
-	"package": "hybrid.api.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	},
-	"overwrites": {
-		"requireAnnotations": true
-	},
-	"client": [
-		"GuiMixin",
-		"ScreenMixin"
-	]
+  "required": true,
+  "package": "hybrid.api.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ExampleMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  },
+  "client": [
+    "GuiMixin",
+    "MixinRenderSystem",
+    "ScreenMixin"
+  ]
 }

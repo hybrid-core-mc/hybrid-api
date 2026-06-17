@@ -1,7 +1,4 @@
-package hybrid.api.util.render.renderers;
-
-import hybrid.api.util.render.Quad;
-import hybrid.api.util.render.RenderContext;
+package hybrid.api.util.render;
 
 import java.awt.*;
 
@@ -14,4 +11,11 @@ public class MojangRenderer2D {
     public static void renderOutline(Quad quad, Color color) {
         RenderContext.get().renderOutline(quad.x, quad.y, quad.width, quad.height, color.getRGB());
     }
+
+    public static void drawRoundRect(Quad quad, float radius, Color color) {
+        RenderContext.get().guiRenderState.submitPicturesInPictureState(new QuadShader.State( RenderContext.get(),
+                quad.x, quad.y, quad.width, quad.height, radius, 5,color.getRGB(),color.getRGB()
+        ));
+    }
+
 }
