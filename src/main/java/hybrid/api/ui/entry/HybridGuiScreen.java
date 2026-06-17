@@ -1,5 +1,7 @@
 package hybrid.api.ui.entry;
 
+import hybrid.api.util.render.HybridRenderer2D;
+import hybrid.api.util.render.Quad;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -13,8 +15,8 @@ public class HybridGuiScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics guiGraphics, int i, int j, float f) {
-        super.render(guiGraphics, i, j, f);
-        guiGraphics.fill(5,5,100,100, Color.RED.getRGB());
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
+        super.render(guiGraphics, mouseX, mouseY, tickDelta);
+        HybridRenderer2D.fillQuad(new Quad(mouseX, mouseY, mouseX + 67, mouseY + 67), Color.BLUE);
     }
 }
