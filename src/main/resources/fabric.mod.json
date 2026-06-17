@@ -16,7 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"hybrid.api.HybridApi"
+			"hybrid.api.Main"
 		]
 	},
 	"mixins": [
