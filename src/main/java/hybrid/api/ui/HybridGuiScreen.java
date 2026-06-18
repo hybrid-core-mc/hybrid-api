@@ -3,12 +3,12 @@ package hybrid.api.ui;
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.SprintMod;
 import hybrid.api.ui.gui.DefaultGui;
+import hybrid.api.util.font.HybridTextRenderer;
+import hybrid.api.util.render.RenderContext;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
-
-import java.awt.*;
 
 import static hybrid.api.Main.mc;
 
@@ -32,5 +32,7 @@ public class HybridGuiScreen extends Screen {
 
         assert mc.screen != null;
         theme.render(mouseX, mouseY, tickDelta, currentMod, mc.screen.width, mc.screen.height);
+        HybridTextRenderer.render(RenderContext.get());
+
     }
 }
