@@ -2,7 +2,7 @@ package hybrid.api;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import hybrid.api.ui.HybridGuiScreen;
-import hybrid.api.util.render.QuadShader;
+import hybrid.api.util.shader.HybridShaders;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -26,7 +26,7 @@ public class Main implements ModInitializer {
 
         LOGGER.info("Hello HELL!!");
 
-		QuadShader.init();
+		HybridShaders.init();
 
 		KeyMapping.Category CATEGORY = KeyMapping.Category.register(
 				Identifier.fromNamespaceAndPath(MOD_ID, "hybrid-api")

@@ -39,10 +39,11 @@ void main() {
 
     float borderMask = clamp(outerAlpha - innerAlpha, 0.0, 1.0);
 
-    vec3 borderColor = vec3(uBorderColor.x,uBorderColor.y,uBorderColor.z); // blue
+    vec3 borderColor = uBorderColor.rgb;
 
     vec4 fill = vec4(uColor.rgb, uColor.a * innerAlpha);
-    vec4 border = vec4(borderColor, borderMask);
+    vec4 border = vec4(borderColor, uBorderColor.a * borderMask);
 
-    fragColor = mix(border, fill, innerAlpha);
+    fragColor.rgb = border.rgb * border.a + fill.rgb * (1.0 - border.a);
+    fragColor.a   = border.a + fill.a * (1.0 - border.a);
 }

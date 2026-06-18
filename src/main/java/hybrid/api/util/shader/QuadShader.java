@@ -1,4 +1,4 @@
-package hybrid.api.util.render;
+package hybrid.api.util.shader;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -162,7 +162,7 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
         float xOffset, yOffset;
         ScreenRectangle scissorArea, bounds;
 
-        public State(GuiGraphics context, float x, float y, float width, float height, float radius, float borderRadius,int borderColor, int color) {
+        public State(GuiGraphics context, float x, float y, float width, float height, float radius, float borderRadius, int borderColor, int color, float[] corners) {
 
             this.x = x;
             this.y = y;
@@ -190,7 +190,12 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
             );
 
             radius = Math.min(radius, Math.min(width, height) * 0.5F);
-            this.bottomRightRadius = this.topRightRadius = this.bottomLeftRadius = this.topLeftRadius = radius;
+
+            this.bottomRightRadius = corners[0];
+            this.topRightRadius = corners[1];
+            this.bottomLeftRadius = corners[2];
+            this.topLeftRadius = corners[3];
+
 
             float maxRadius = radius;
 

@@ -1,5 +1,7 @@
 package hybrid.api.util.render;
 
+import hybrid.api.util.shader.QuadShader;
+
 import java.awt.*;
 
 public class MojangRenderer2D {
@@ -12,10 +14,13 @@ public class MojangRenderer2D {
         RenderContext.get().renderOutline(quad.x, quad.y, quad.width, quad.height, color.getRGB());
     }
 
-    public static void drawRoundRect(Quad quad, float radius, Color color) {
+    public static void drawRoundRect(Quad quad, int radius, float outlineRadius, Color outlineColor, Color color, float[] corners) {
         RenderContext.get().guiRenderState.submitPicturesInPictureState(new QuadShader.State( RenderContext.get(),
-                quad.x, quad.y, quad.width, quad.height, radius,6, Color.RED.getRGB(),color.getRGB()
+                quad.x, quad.y, quad.width, quad.height, radius, outlineRadius, outlineColor.getRGB(), color.getRGB(), corners
         ));
     }
 
+    public static void drawRoundRect(Quad quad, int radius, float outlineRadius, Color outlineColor, Color color) {
+        drawRoundRect(quad, radius, outlineRadius, outlineColor, color, new float[]{radius, radius, radius, radius});
+    }
 }

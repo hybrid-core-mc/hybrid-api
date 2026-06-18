@@ -3,7 +3,7 @@ package hybrid.api.mixin;
 import com.mojang.blaze3d.TracyFrameCapture;
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
-import hybrid.api.util.render.QuadShader;
+import hybrid.api.util.shader.QuadShader;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
