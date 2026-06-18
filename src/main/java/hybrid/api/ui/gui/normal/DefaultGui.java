@@ -1,11 +1,14 @@
 package hybrid.api.ui.gui.normal;
 
 import hybrid.api.mod.HybridMod;
+import hybrid.api.mod.HybridMods;
 import hybrid.api.mod.SprintMod;
 import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.ui.gui.parts.SidebarPart;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
+import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
 
@@ -14,8 +17,9 @@ public class DefaultGui implements GuiPart {
     private final SidebarPart sidebarPart = new DefaultSidebar();
 
     DefaultSettingsPage modSettingsPage;
+
     public DefaultGui() {
-        modSettingsPage = new DefaultSettingsPage(new SprintMod());
+        modSettingsPage = new DefaultSettingsPage(HybridMods.getMod(SprintMod.class));
     }
 
     @Override
@@ -40,6 +44,19 @@ public class DefaultGui implements GuiPart {
         sidebarPart.renderSidebar(sidebarBounds, alignmentX);
 
         modSettingsPage.render(background.copy().setWidth(settingsPageWidth).setX(sidebarBounds.x + sidebarBounds.width));
+    }
+
+    @Override
+    public void mouseClicked(MouseButtonEvent mouseButtonEvent) {
+        modSettingsPage.mouseClick(mouseButtonEvent);
 
     }
+
+    @Override
+    public void mouser(MouseButtonEvent mouseButtonEvent) {
+        modSettingsPage.mouseRelease(mouseButtonEvent);
+
+    }
+
+
 }

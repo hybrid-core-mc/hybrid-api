@@ -20,5 +20,6 @@ public class SprintMod extends HybridMod {
                     .addBool("Enabled", true)
                     .addNumber("Speed", 1.2f, 1.0f, 2.0f)
         );
+        ;
     }
 }

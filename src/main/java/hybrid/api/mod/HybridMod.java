@@ -18,6 +18,7 @@ public abstract class HybridMod {
         this.version = version;
     }
 
+
     public abstract void onInitialize();
 
     public abstract void onSetupSettings();

@@ -8,6 +8,7 @@ import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.RenderContext;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,6 +35,17 @@ public class HybridGuiScreen extends Screen {
         assert mc.screen != null;
         theme.render(mouseX, mouseY, tickDelta, currentMod, mc.screen.width, mc.screen.height);
         HybridTextRenderer.render(RenderContext.get());
+    }
 
+    @Override
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        theme.mouseClicked(mouseButtonEvent);
+        return super.mouseClicked(mouseButtonEvent, bl);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        theme.mouseClicked(mouseButtonEvent);
+        return super.mouseReleased(mouseButtonEvent);
     }
 }

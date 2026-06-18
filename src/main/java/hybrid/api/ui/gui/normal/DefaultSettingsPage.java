@@ -1,12 +1,14 @@
 package hybrid.api.ui.gui.normal;
 
 import hybrid.api.mod.HybridMod;
+import hybrid.api.mod.settings.BuiltCategory;
 import hybrid.api.ui.gui.parts.ContentPart;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
+import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -20,6 +22,33 @@ public class DefaultSettingsPage implements ContentPart {
     private static final Color DESC_SHADOW_COLOR = new Color(255, 255, 255, 180);
     private final HybridMod mod;
     private final List<HybridRenderText> cachedLineTexts = new ArrayList<>();
+
+    // NEW: Persistent list caching the category blocks and their bounds
+    private final List<DefaultCategoryBlock> categoryBlocks = new ArrayList<>();
+    public void mouseClick(MouseButtonEvent event) {
+        int mouseX = (int) event.x();
+        int mouseY = (int) event.y();
+
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            if (block.isHovered(mouseX, mouseY)) {
+                // Forward the event execution straight into the category block instance
+                block.mouseClick(event);
+                break; // Stop checking other categories once the target is found
+            }
+        }
+    }
+
+    public void mouseRelease(MouseButtonEvent event) {
+        int mouseX = (int) event.x();
+        int mouseY = (int) event.y();
+
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            if (block.isHovered(mouseX, mouseY)) {
+                block.mouseRelease(event);
+                break;
+            }
+        }
+    }
     private String cachedDescription;
     private int cachedBoxWidth = -1;
     private int cachedBoxX = -1;
@@ -50,24 +79,33 @@ public class DefaultSettingsPage implements ContentPart {
             HybridTextRenderer.addText(cachedLineText);
         }
 
-
         Quad links = centerBox.copy().setHeight(25).setWidth(100).setY(cachedTitleText.getY()).setX(centerBox.x + centerBox.getWidth() - 120);
-
         HybridRenderer2D.drawRoundRect(links, 8, 1.5f, new Color(0x1F2126), new Color(0x0D0F14));
 
         HybridRenderText linkText = HybridTextRenderer.getTextRenderer(
-                "GitHub",
-                FontStyle.REGULAR,
-                14,
-                new Color(150, 160, 175),
-                new Color(255, 255, 255, 180),
-                false
+                "GitHub", FontStyle.REGULAR, 14, new Color(150, 160, 175), new Color(255, 255, 255, 180), false
         );
 
         int linkTextY = links.getY() + (links.getHeight() / 2) - (linkText.getHeight() / 2);
-
-        linkText.setPosition(links.getX()+12, linkTextY);
+        linkText.setPosition(links.getX() + 12, linkTextY);
         HybridTextRenderer.addText(linkText);
+
+        // --- CHANGED: Categories are now rendered via the cached blocks ---
+        int currentY = centerBox.getHeight() + 150;
+
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            Quad categoryQuad = new Quad(
+                    boxX,
+                    currentY,
+                    boxWidth,
+                    block.getHeight()
+            );
+
+            // Update or assign the dimensions to the block so it knows where it is rendered
+            block.render(categoryQuad);
+
+            currentY += block.getHeight() + 150;
+        }
     }
 
     private void rebuildLayoutCache(String description, int boxX, int boxY, int boxWidth) {
@@ -89,7 +127,7 @@ public class DefaultSettingsPage implements ContentPart {
         );
         this.cachedTitleText.setPosition(textX, boxY + currentTrackedHeight);
 
-        currentTrackedHeight += this.cachedTitleText.getHeight() + titleDescGap ;
+        currentTrackedHeight += this.cachedTitleText.getHeight() + titleDescGap;
 
         List<String> lines = wrapByWordCount(description);
 
@@ -110,8 +148,13 @@ public class DefaultSettingsPage implements ContentPart {
 
         currentTrackedHeight += 10;
         this.finalCalculatedHeight = currentTrackedHeight;
-    }
 
+        // NEW: Rebuild the category blocks cache when the layout invalidates
+        this.categoryBlocks.clear();
+        for (BuiltCategory category : mod.getCategories()) {
+            this.categoryBlocks.add(new DefaultCategoryBlock(category));
+        }
+    }
 
     private List<String> wrapByWordCount(String text) {
         List<String> lines = new ArrayList<>();
@@ -143,5 +186,12 @@ public class DefaultSettingsPage implements ContentPart {
         }
 
         return lines;
+    }
+
+    /**
+     * NEW: Getter to access the instantiated blocks for event processing.
+     */
+    public List<DefaultCategoryBlock> getCategoryBlocks() {
+        return this.categoryBlocks;
     }
 }

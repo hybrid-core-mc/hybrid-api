@@ -1,6 +1,7 @@
 package hybrid.api;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import hybrid.api.mod.HybridMods;
 import hybrid.api.ui.HybridGuiScreen;
 import hybrid.api.util.shader.HybridShaders;
 import net.fabricmc.api.ModInitializer;
@@ -27,6 +28,7 @@ public class Main implements ModInitializer {
         LOGGER.info("Hello HELL!!");
 
 		HybridShaders.init();
+		HybridMods.init();
 
 		KeyMapping.Category CATEGORY = KeyMapping.Category.register(
 				Identifier.fromNamespaceAndPath(MOD_ID, "hybrid-api")
