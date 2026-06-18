@@ -162,7 +162,8 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
         float xOffset, yOffset;
         ScreenRectangle scissorArea, bounds;
 
-        public State(GuiGraphics context, float x, float y, float width, float height, float radius, float borderRadius, int borderColor, int color, float[] corners) {
+        public State(GuiGraphics context, float x, float y, float width, float height, float radius, float borderRadius, int borderColor, int color,
+                     float topLeftRadius, float topRightRadius, float bottomLeftRadius, float bottomRightRadius) {
 
             this.x = x;
             this.y = y;
@@ -191,10 +192,10 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
 
             radius = Math.min(radius, Math.min(width, height) * 0.5F);
 
-            this.bottomRightRadius = corners[0];
-            this.topRightRadius = corners[1];
-            this.bottomLeftRadius = corners[2];
-            this.topLeftRadius = corners[3];
+            this.bottomRightRadius = bottomRightRadius;
+            this.topRightRadius = topRightRadius;
+            this.bottomLeftRadius = bottomLeftRadius;
+            this.topLeftRadius = topLeftRadius;
 
 
             float maxRadius = radius;

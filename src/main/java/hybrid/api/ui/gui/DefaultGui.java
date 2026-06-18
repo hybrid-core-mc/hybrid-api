@@ -26,8 +26,7 @@ public class DefaultGui implements GuiDesign {
         MojangRenderer2D.drawRoundRect(background, 10, 1.5f, new Color(29, 30, 37), new Color(18, 20, 28));
 
         MojangRenderer2D.drawRoundRect(background.copy().subtractWidth((int) (background.getWidth() * 0.75)),
-                10, 1.5f, new Color(29, 30, 37), new Color(22, 25, 35),
-                new float[]{10, 0, 10, 0});
+                10, 1.5f, new Color(29, 30, 37), new Color(22, 25, 35), 10, 0, 10, 0);
 
         RenderContext.get().drawString(mc.font, "poes", 20, 20, new Color(255, 255, 255).getRGB());
 
