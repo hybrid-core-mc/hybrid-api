@@ -2,8 +2,8 @@ package hybrid.api.ui.gui;
 
 import hybrid.api.mod.HybridMod;
 import hybrid.api.ui.GuiDesign;
-import hybrid.api.util.render.Quad;
 import hybrid.api.util.render.MojangRenderer2D;
+import hybrid.api.util.render.Quad;
 
 import java.awt.*;
 
@@ -20,7 +20,7 @@ public class DefaultGui implements GuiDesign {
 
         Quad background = new Quad((screenWidth - w) / 2, (screenHeight - h) / 2, w, h);
 
-        MojangRenderer2D.drawRoundRect(background, 8,new Color(22,25,35, 225));
+        MojangRenderer2D.drawRoundRect(background, 8, new Color(22, 25, 35));
 
 
 

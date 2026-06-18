@@ -1,9 +1,6 @@
 package hybrid.api.util.render;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.buffers.Std140Builder;
-import com.mojang.blaze3d.buffers.Std140SizeCalculator;
+import com.mojang.blaze3d.buffers.*;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -33,8 +30,19 @@ import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-public class QuadShader extends PictureInPictureRenderer<QuadShader.@org.jetbrains.annotations.NotNull State> {
-    RenderPipeline PIPELINE_quad = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET).withLocation(Identifier.fromNamespaceAndPath("hybrid-api", "pipeline/quad")).withFragmentShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/quad")).withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/quad")).withBlend(BlendFunction.TRANSLUCENT).withUniform("QuadUniforms", UniformType.UNIFORM_BUFFER).withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS).build());
+public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
+
+    RenderPipeline PIPELINE_quad = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+                          .withLocation(Identifier.fromNamespaceAndPath("hybrid-api", "pipeline/quad"))
+                          .withFragmentShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/quad"))
+                          .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/quad"))
+                          .withBlend(BlendFunction.TRANSLUCENT)
+                          .withUniform("QuadUniforms", UniformType.UNIFORM_BUFFER)
+                          .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
+                          .build()
+    );
+
     private State lastState;
 
     protected QuadShader(MultiBufferSource.BufferSource bufferSource) {
@@ -57,6 +65,7 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@org.jetbrai
 
     @Override
     protected void renderToTexture(State state, @NonNull PoseStack poseStack) {
+
         float width = (state.extentX + 2 * State.OUTSET) * state.scale;
         float height = (state.extentY + 2 * State.OUTSET) * state.scale;
 
@@ -64,27 +73,60 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@org.jetbrai
 
         float textureWidth = width + state.subpixelX * state.scale;
         float textureHeight = height + state.subpixelY * state.scale;
+
         builder.addVertex(0F, 0F, 0F);
         builder.addVertex(0F, textureHeight, 0F);
         builder.addVertex(textureWidth, textureHeight, 0F);
         builder.addVertex(textureWidth, 0F, 0F);
 
-
         MeshData mesh = builder.buildOrThrow();
 
-        GpuBufferSlice dynamicTransformsBuffer = RenderSystem.getDynamicUniforms().writeTransform(RenderSystem.getModelViewMatrix(), new Vector4f(), new Vector3f(), new Matrix4f());
+        GpuBufferSlice dynamicTransformsBuffer =
+                RenderSystem.getDynamicUniforms().writeTransform(
+                        RenderSystem.getModelViewMatrix(),
+                        new Vector4f(),
+                        new Vector3f(),
+                        new Matrix4f()
+                );
+
         GpuBufferSlice myUniformBuffer = Uniform.STORAGE.writeUniform(buffer -> {
-            Std140Builder.intoBuffer(buffer).putVec4(state.subpixelX * state.scale + width * 0.5F, state.subpixelY * state.scale + height * 0.5F, state.extentX * state.scale, state.extentY * state.scale) // u_Rect
-                         .putVec4(state.radiusRB * state.scale, state.radiusRT * state.scale, state.radiusLB * state.scale, state.radiusLT * state.scale) // u_Radii
-                         .putVec4(state.color).putVec4(state.color2 == null ? state.color : state.color2).putVec4(state.shadowColor).putVec2(state.gradiantDirectionX, state.gradiantDirectionY).putFloat(state.edgeSoftness * state.scale).putFloat(state.shadow * state.scale)
-            ;
+            Std140Builder.intoBuffer(buffer)
+                         .putVec4(
+                                 state.subpixelX * state.scale + width * 0.5F,
+                                 state.subpixelY * state.scale + height * 0.5F,
+                                 state.extentX * state.scale,
+                                 state.extentY * state.scale
+                         )
+                         .putVec4(
+                                 state.radiusRB * state.scale,
+                                 state.radiusRT * state.scale,
+                                 state.radiusLB * state.scale,
+                                 state.radiusLT * state.scale
+                         )
+                         .putVec4(state.color)
+                         .putFloat(state.edgeSoftness * state.scale);
         });
-        GpuBuffer vertexBuffer = PIPELINE_quad.getVertexFormat().uploadImmediateVertexBuffer(mesh.vertexBuffer());
-        RenderSystem.AutoStorageIndexBuffer indexStorage = RenderSystem.getSequentialBuffer(mesh.drawState().mode());
-        GpuBuffer indexBuffer = indexStorage.getBuffer(mesh.drawState().indexCount());
+
+        GpuBuffer vertexBuffer =
+                PIPELINE_quad.getVertexFormat().uploadImmediateVertexBuffer(mesh.vertexBuffer());
+
+        RenderSystem.AutoStorageIndexBuffer indexStorage =
+                RenderSystem.getSequentialBuffer(mesh.drawState().mode());
+
+        GpuBuffer indexBuffer =
+                indexStorage.getBuffer(mesh.drawState().indexCount());
+
         RenderTarget renderTarget = Minecraft.getInstance().getMainRenderTarget();
 
-        try (mesh; RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "hybrid-api Rounded Rectangle Render Pass", Objects.requireNonNullElse(RenderSystem.outputColorTextureOverride, renderTarget.getColorTextureView()), OptionalInt.empty(), renderTarget.useDepth ? Objects.requireNonNullElse(RenderSystem.outputDepthTextureOverride, renderTarget.getDepthTextureView()) : null, OptionalDouble.empty())) {
+        try (mesh;
+             RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                     () -> "hybrid-api Rounded Rectangle Render Pass",
+                     Objects.requireNonNullElse(RenderSystem.outputColorTextureOverride, renderTarget.getColorTextureView()),
+                     OptionalInt.empty(),
+                     renderTarget.useDepth ? Objects.requireNonNullElse(RenderSystem.outputDepthTextureOverride, renderTarget.getDepthTextureView()) : null,
+                     OptionalDouble.empty()
+             )) {
+
             pass.setPipeline(PIPELINE_quad);
             RenderSystem.bindDefaultUniforms(pass);
             pass.setUniform("DynamicTransforms", dynamicTransformsBuffer);
@@ -97,104 +139,94 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@org.jetbrai
         lastState = state;
     }
 
-
     @Override
     protected @NonNull String getTextureLabel() {
         return "hybrid-api Rounded Rectangle PIP";
     }
 
     public static class State implements PictureInPictureRenderState {
+
         public final static float OUTSET = 14F;
 
-        public transient final float left, top, right, bottom;
+        public final float left, top, right, bottom;
         public final float scale;
-        public final float shadow;
-        public final Vector4f color, shadowColor;
+        public final Vector4f color;
+
         private final float subpixelX, subpixelY;
         private final float extentX, extentY;
-        private transient final ScreenRectangle scissorArea;
-        private transient final ScreenRectangle bounds;
-        public @Nullable Vector4f color2;
+
+        private final ScreenRectangle scissorArea;
+        private final ScreenRectangle bounds;
+
         public float radiusRB, radiusRT, radiusLB, radiusLT;
-        public float gradiantDirectionX = 0F, gradiantDirectionY = 0F;
         public float edgeSoftness = 1F;
 
-        public State(GuiGraphics context, float left, float top, float right, float bottom, float radius, float shadow, int color, int shadowColor) {
-            if (!Float.isFinite(radius) || radius < 0.0f) { // NaN, Inf, negative
-                radius = 0;
-            }
+        public State(GuiGraphics context, float x, float y, float width, float height, float radius, int color) {
 
-            this.left = left;
-            this.top = top;
-            this.right = right;
-            this.bottom = bottom;
+            this.left = x;
+            this.top = y;
+            this.right = x + width;
+            this.bottom = y + height;
+
             this.subpixelX = left - Mth.floor(left);
             this.subpixelY = top - Mth.floor(top);
+
             this.scale = Minecraft.getInstance().getWindow().getGuiScale();
-            this.shadow = shadow;
-            this.color = new Vector4f(ARGB.red(color) / 255F, ARGB.green(color) / 255F, ARGB.blue(color) / 255F, ARGB.alpha(color) / 255F);
-            this.shadowColor = new Vector4f(ARGB.red(shadowColor) / 255F, ARGB.green(shadowColor) / 255F, ARGB.blue(shadowColor) / 255F, ARGB.alpha(shadowColor) / 255F);
+
+            this.color = new Vector4f(
+                    ARGB.red(color) / 255F,
+                    ARGB.green(color) / 255F,
+                    ARGB.blue(color) / 255F,
+                    ARGB.alpha(color) / 255F
+            );
 
             this.extentX = right - left;
             this.extentY = bottom - top;
-            this.radiusLT = this.radiusRT = this.radiusLB = this.radiusRB = Math.min(radius, Math.min(extentX, extentY) * 0.5F);
+
+            this.radiusLT = this.radiusRT = this.radiusLB = this.radiusRB =
+                    Math.min(radius, Math.min(extentX, extentY) * 0.5F);
+
             this.scissorArea = context.scissorStack.peek();
-            ScreenRectangle bounds = new ScreenRectangle(this.x0(), this.y0(), this.x1() - this.x0(), this.y1() - this.y0());
+
+            ScreenRectangle bounds = new ScreenRectangle(
+                    this.x0(),
+                    this.y0(),
+                    this.x1() - this.x0(),
+                    this.y1() - this.y0()
+            );
+
             this.bounds = scissorArea == null ? bounds : scissorArea.intersection(bounds);
         }
-
-        public State setGradiantColor(int color) {
-            this.color2 = new Vector4f(ARGB.red(color) / 255F, ARGB.green(color) / 255F, ARGB.blue(color) / 255F, ARGB.alpha(color) / 255F);
-            return this;
-        }
-
-        public State setGradiantDirection(float x, float y) {
-            this.gradiantDirectionX = x;
-            this.gradiantDirectionY = y;
-            return this;
-        }
-
-        public State setEdgeSoftness(float edgeSoftness) {
-            this.edgeSoftness = edgeSoftness;
-            return this;
-        }
-
 
         @Override
         public int x0() {
             return Mth.floor(left) - (int) OUTSET;
         }
 
-
         @Override
         public int x1() {
             return Mth.ceil(right + OUTSET);
         }
-
 
         @Override
         public int y0() {
             return Mth.floor(top) - (int) OUTSET;
         }
 
-
         @Override
         public int y1() {
             return Mth.ceil(bottom + OUTSET);
         }
-
 
         @Override
         public float scale() {
             return 1F;
         }
 
-
         @Override
         public @Nullable ScreenRectangle scissorArea() {
             return scissorArea;
         }
-
 
         @Override
         public @Nullable ScreenRectangle bounds() {
@@ -203,17 +235,16 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@org.jetbrai
     }
 
     public static class Uniform {
-        private static final int SIZE = new Std140SizeCalculator().putVec4() // u_Rect
-                                                                  .putVec4() // u_Radii
-                                                                  .putVec4() // u_colorRect
-                                                                  .putVec4() // u_colorRect2
-                                                                  .putVec4() // u_colorShadow
-                                                                  .putVec2() // u_gradientDirectionVector
-                                                                  .putFloat() // u_edgeSoftness
-                                                                  .putFloat() // u_shadowSoftness
-                                                                  .get()
-                ;
-        private static final DynamicUniformStorage<DynamicUniformStorage.DynamicUniform> STORAGE = new DynamicUniformStorage<>("hybrid-api Rounded Rectangle UBO", SIZE, 4);
+
+        private static final int SIZE = new Std140SizeCalculator()
+                .putVec4()
+                .putVec4()
+                .putVec4()
+                .putFloat()
+                .get();
+
+        private static final DynamicUniformStorage<DynamicUniformStorage.DynamicUniform> STORAGE =
+                new DynamicUniformStorage<>("hybrid-api Rounded Rectangle UBO", SIZE, 4);
 
         public static void clear() {
             STORAGE.endFrame();
