@@ -14,7 +14,7 @@ public class MojangRenderer2D {
 
     public static void drawRoundRect(Quad quad, float radius, Color color) {
         RenderContext.get().guiRenderState.submitPicturesInPictureState(new QuadShader.State( RenderContext.get(),
-                quad.x, quad.y, quad.width, quad.height, radius, color.getRGB()
+                quad.x, quad.y, quad.width, quad.height, radius,6, Color.RED.getRGB(),color.getRGB()
         ));
     }
 

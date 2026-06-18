@@ -75,8 +75,8 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
 
         BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
-        float quadWidth = width + state.subPixelOffsetX * state.scale;
-        float quadHeight = height + state.subPixelOffsetY * state.scale;
+        float quadWidth = width + state.xOffset * state.scale;
+        float quadHeight = height + state.yOffset * state.scale;
 
         builder.addVertex(0F, 0F, 0F);
         builder.addVertex(0F, quadHeight, 0F);
@@ -96,19 +96,22 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
         GpuBufferSlice uniformBuffer = Uniform.STORAGE.writeUniform(buffer -> {
             Std140Builder.intoBuffer(buffer)
                          .putVec4(
-                                 state.subPixelOffsetX * state.scale + width * 0.5F,
-                                 state.subPixelOffsetY * state.scale + height * 0.5F,
+                                 state.xOffset * state.scale + width * 0.5F,
+                                 state.yOffset * state.scale + height * 0.5F,
                                  state.width * state.scale,
                                  state.height * state.scale
                          )
                          .putVec4(
-                                 state.radiusRB * state.scale,
-                                 state.radiusRT * state.scale,
-                                 state.radiusLB * state.scale,
-                                 state.radiusLT * state.scale
+                                 state.topLeftRadius * state.scale,
+                                 state.topRightRadius * state.scale,
+                                 state.bottomLeftRadius * state.scale,
+                                 state.bottomRightRadius * state.scale
                          )
                          .putVec4(state.color)
-                         .putFloat(state.edgeSoftness * state.scale);
+                         .putFloat(state.borderRadius)
+                         .putVec4(state.borderColor)
+                         .putFloat(state.cornerBlur * state.scale)
+            ;
         });
 
         GpuBuffer vertexBuffer =
@@ -150,30 +153,25 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
 
     public static class State implements PictureInPictureRenderState {
 
-        public final float x, y;
-        public final float width, height;
-        public final float scale;
-        public final Vector4f color;
+        final float outset;
+        float cornerBlur = 1f;
+        float x, y, width, height, scale, borderRadius;
+        Vector4f color,borderColor;
 
-        public final float subPixelOffsetX, subPixelOffsetY;
+        float topLeftRadius, topRightRadius, bottomLeftRadius, bottomRightRadius;
+        float xOffset, yOffset;
+        ScreenRectangle scissorArea, bounds;
 
-        public final ScreenRectangle scissorArea;
-        public final ScreenRectangle bounds;
-
-        public float radiusRB, radiusRT, radiusLB, radiusLT;
-        public float edgeSoftness = 1F;
-
-        public final float outset;
-
-        public State(GuiGraphics context, float x, float y, float width, float height, float radius, int color) {
+        public State(GuiGraphics context, float x, float y, float width, float height, float radius, float borderRadius,int borderColor, int color) {
 
             this.x = x;
             this.y = y;
             this.width = width;
             this.height = height;
+            this.borderRadius = borderRadius;
 
-            this.subPixelOffsetX = x - Mth.floor(x);
-            this.subPixelOffsetY = y - Mth.floor(y);
+            this.xOffset = x - Mth.floor(x);
+            this.yOffset = y - Mth.floor(y);
 
             this.scale = Minecraft.getInstance().getWindow().getGuiScale();
 
@@ -184,13 +182,19 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
                     ARGB.alpha(color) / 255F
             );
 
-            radius = Math.min(radius, Math.min(width, height) * 0.5F);
+            this.borderColor = new Vector4f(
+                    ARGB.red(borderColor) / 255F,
+                    ARGB.green(borderColor) / 255F,
+                    ARGB.blue(borderColor) / 255F,
+                    ARGB.alpha(borderColor) / 255F
+            );
 
-            this.radiusLT = this.radiusRT = this.radiusLB = this.radiusRB = radius;
+            radius = Math.min(radius, Math.min(width, height) * 0.5F);
+            this.bottomRightRadius = this.topRightRadius = this.bottomLeftRadius = this.topLeftRadius = radius;
 
             float maxRadius = radius;
 
-            this.outset = Math.max(maxRadius, edgeSoftness * 2.5F);
+            this.outset = Math.max(maxRadius, cornerBlur * 2.5F);
 
             this.scissorArea = context.scissorStack.peek();
 
@@ -243,10 +247,12 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
     public static class Uniform {
 
         private static final int SIZE = new Std140SizeCalculator()
-                .putVec4()
-                .putVec4()
-                .putVec4()
-                .putFloat()
+                .putVec4()  // uCoords
+                .putVec4()  // uCorners
+                .putVec4()  // uColor
+                .putFloat() // uBorderSize
+                .putVec4()  // uBorderColor
+                .putFloat() // uEdgeSoftness
                 .get();
 
         private static final DynamicUniformStorage<DynamicUniformStorage.@NotNull DynamicUniform> STORAGE =

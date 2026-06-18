@@ -4,6 +4,8 @@ layout(std140) uniform QuadUniforms {
     vec4 uCoords;
     vec4 uCorners;
     vec4 uColor;
+    float uBorderSize;
+    vec4 uBorderColor;
     float uEdgeSoftness;
 };
 
@@ -20,7 +22,6 @@ float roundedBoxSDF(vec2 p, vec2 halfSize, vec4 cornerRadius) {
 
 void main() {
 
-    float uBorderSize = 5.0f;
 
     vec2 centerOffset = f_Position.xy - uCoords.xy;
     vec2 halfSize = uCoords.zw * 0.5;
@@ -38,7 +39,7 @@ void main() {
 
     float borderMask = clamp(outerAlpha - innerAlpha, 0.0, 1.0);
 
-    vec3 borderColor = vec3(0.0, 0.45, 1.0); // blue
+    vec3 borderColor = vec3(uBorderColor.x,uBorderColor.y,uBorderColor.z); // blue
 
     vec4 fill = vec4(uColor.rgb, uColor.a * innerAlpha);
     vec4 border = vec4(borderColor, borderMask);
