@@ -2,7 +2,8 @@ package hybrid.api.ui;
 
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.SprintMod;
-import hybrid.api.ui.gui.DefaultGui;
+import hybrid.api.ui.gui.normal.DefaultGui;
+import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.RenderContext;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,7 +15,7 @@ import static hybrid.api.Main.mc;
 
 public class HybridGuiScreen extends Screen {
 
-    private final GuiDesign theme;
+    private final GuiPart theme;
     private final HybridMod currentMod;
 
     public HybridGuiScreen() {

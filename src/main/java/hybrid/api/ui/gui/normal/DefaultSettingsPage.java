@@ -1,6 +1,7 @@
-package hybrid.api.ui.gui;
+package hybrid.api.ui.gui.normal;
 
 import hybrid.api.mod.HybridMod;
+import hybrid.api.ui.gui.parts.ContentPart;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
@@ -11,7 +12,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModSettingsPage {
+public class DefaultSettingsPage implements ContentPart {
     private static final Color BORDER_COLOR = new Color(35, 36, 45);
     private static final Color BG_COLOR = new Color(19, 21, 29, 255);
     private static final Color TITLE_COLOR = Color.WHITE;
@@ -25,9 +26,10 @@ public class ModSettingsPage {
     private HybridRenderText cachedTitleText;
     private int finalCalculatedHeight = 0;
 
-    public ModSettingsPage(HybridMod mod) {
+    public DefaultSettingsPage(HybridMod mod) {
         this.mod = mod;
     }
+
 
     public void render(Quad quad) {
         int boxWidth = (int) (quad.getWidth() * 0.93);
@@ -89,7 +91,7 @@ public class ModSettingsPage {
 
         currentTrackedHeight += this.cachedTitleText.getHeight() + titleDescGap ;
 
-        List<String> lines = wrapByWordCount(description, 10);
+        List<String> lines = wrapByWordCount(description);
 
         for (String line : lines) {
             HybridRenderText lineText = HybridTextRenderer.getTextRenderer(
@@ -111,7 +113,7 @@ public class ModSettingsPage {
     }
 
 
-    private List<String> wrapByWordCount(String text, int maxWordsPerLine) {
+    private List<String> wrapByWordCount(String text) {
         List<String> lines = new ArrayList<>();
         if (text == null || text.isEmpty()) return lines;
 
@@ -122,7 +124,7 @@ public class ModSettingsPage {
         for (String word : words) {
             if (word.isEmpty()) continue;
 
-            if (wordCount >= maxWordsPerLine) {
+            if (wordCount >= 10) {
                 lines.add(currentLine.toString());
                 currentLine.setLength(0);
                 currentLine.append(word);

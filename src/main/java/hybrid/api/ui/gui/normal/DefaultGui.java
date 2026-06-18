@@ -1,19 +1,21 @@
-package hybrid.api.ui.gui;
+package hybrid.api.ui.gui.normal;
 
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.SprintMod;
-import hybrid.api.ui.GuiDesign;
+import hybrid.api.ui.gui.parts.GuiPart;
+import hybrid.api.ui.gui.parts.SidebarPart;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
 
 import java.awt.*;
 
-public class DefaultGui implements GuiDesign {
+public class DefaultGui implements GuiPart {
 
-    private final GuiComponents sidebarComponent = new DefaultSidebar();
-    ModSettingsPage modSettingsPage;
+    private final SidebarPart sidebarPart = new DefaultSidebar();
+
+    DefaultSettingsPage modSettingsPage;
     public DefaultGui() {
-        modSettingsPage = new ModSettingsPage(new SprintMod());
+        modSettingsPage = new DefaultSettingsPage(new SprintMod());
     }
 
     @Override
@@ -35,7 +37,7 @@ public class DefaultGui implements GuiDesign {
         int logoX = sidebarBounds.x + leftPadding;
         int alignmentX = logoX + dotSize + 10;
 
-        sidebarComponent.renderSidebar(sidebarBounds, alignmentX);
+        sidebarPart.renderSidebar(sidebarBounds, alignmentX);
 
         modSettingsPage.render(background.copy().setWidth(settingsPageWidth).setX(sidebarBounds.x + sidebarBounds.width));
 

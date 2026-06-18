@@ -1,5 +1,6 @@
-package hybrid.api.ui.gui;
+package hybrid.api.ui.gui.normal;
 
+import hybrid.api.ui.gui.parts.SidebarPart;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
@@ -8,21 +9,23 @@ import hybrid.api.util.render.Quad;
 
 import java.awt.*;
 
-public class DefaultSidebar implements GuiComponents {
+public class DefaultSidebar implements SidebarPart {
 
     private final Color border = new Color(44, 45, 56);
 
+
+
     @Override
-    public void renderSidebar(Quad sidebar, int alignmentX) {
-        
-        HybridRenderer2D.drawRoundRect(sidebar, 10, 1.5f, border, new Color(22, 25, 35), 0, 0, 10, 10);
+    public void renderSidebar(Quad bounds, int alignmentX) {
+
+        HybridRenderer2D.drawRoundRect(bounds, 10, 1.5f, border, new Color(22, 25, 35), 0, 0, 10, 10);
 
         int leftPadding = 24;
         int topPadding = 24;
 
         int dotSize = 6;
-        int logoX = sidebar.x + leftPadding;
-        int logoY = sidebar.y + topPadding + 6;
+        int logoX = bounds.x + leftPadding;
+        int logoY = bounds.y + topPadding + 6;
         HybridRenderer2D.drawCircle(new Quad(logoX, logoY - 5, dotSize, dotSize), 3.0f, new Color(99, 102, 241, 255), true);
 
         HybridRenderText text = HybridTextRenderer.getTextRenderer(
@@ -34,19 +37,17 @@ public class DefaultSidebar implements GuiComponents {
                 false
         );
 
-        int textY = sidebar.y + topPadding;
+        int textY = bounds.y + topPadding;
         text.setPosition(alignmentX, textY);
         HybridTextRenderer.addText(text);
 
-        
+
         int startY = textY + text.getHeight() + 28;
-        renderMods(sidebar, startY, alignmentX);
+        renderMods(bounds, startY, alignmentX);
 
-        
-        renderSettingsMenu(sidebar);
+
+        renderSettingsMenu(bounds);
     }
-
-
     private void renderMods(Quad sidebar, int startY, int alignmentX) {
         int boxWidth = (int) (sidebar.getWidth() * 0.78);
         int boxX = sidebar.x + (sidebar.getWidth() - boxWidth) / 2;
@@ -102,4 +103,5 @@ public class DefaultSidebar implements GuiComponents {
 
         HybridRenderer2D.drawRoundRect(settingsBox, 8, 1.0f, new Color(0x1F2126), new Color(0x0D0F14));
     }
+
 }

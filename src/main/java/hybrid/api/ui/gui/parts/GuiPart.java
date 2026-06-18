@@ -1,10 +1,8 @@
-package hybrid.api.ui;
+package hybrid.api.ui.gui.parts;
 
 import hybrid.api.mod.HybridMod;
 
-import javax.swing.*;
-
-public interface GuiDesign  {
+public interface GuiPart {
 
     void render(int mouseX, int mouseY, float tickDelta, HybridMod mod, int screenWidth, int screenHeight);
 

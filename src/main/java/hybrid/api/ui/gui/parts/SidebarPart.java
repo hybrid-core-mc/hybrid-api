@@ -1,8 +1,7 @@
-package hybrid.api.ui.gui;
+package hybrid.api.ui.gui.parts;
 
 import hybrid.api.util.render.Quad;
 
-public interface GuiComponents {
+public interface SidebarPart {
     void renderSidebar(Quad sidebarBounds, int alignmentX);
-
 }
