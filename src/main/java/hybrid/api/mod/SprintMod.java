@@ -5,7 +5,7 @@ import hybrid.api.mod.settings.BuiltCategory;
 public class SprintMod extends HybridMod {
 
     public SprintMod() {
-        super("Sprint", 1.0f);
+        super("Chat Emoji", "POES POESP MA SE BIG POES LOL thisi s the real mods lol monao bao  ",1.0f);
     }
 
     @Override

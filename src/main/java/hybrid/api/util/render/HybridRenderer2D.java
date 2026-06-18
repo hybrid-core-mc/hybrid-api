@@ -5,7 +5,7 @@ import hybrid.api.util.shader.QuadShader;
 
 import java.awt.*;
 
-public class HbyridRenderer2D {
+public class HybridRenderer2D {
 
     public static void fillQuad(Quad quad, Color color) {
         RenderContext.get().fill(quad.x, quad.y, quad.x + quad.width, quad.y + quad.height, color.getRGB());
