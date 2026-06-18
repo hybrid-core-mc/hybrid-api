@@ -1,6 +1,9 @@
 package hybrid.api.util.render;
 
-import com.mojang.blaze3d.buffers.*;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -20,6 +23,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -30,7 +34,7 @@ import java.util.Objects;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
-public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
+public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull State> {
 
     RenderPipeline PIPELINE_quad = RenderPipelines.register(
             RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
@@ -43,7 +47,7 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
                           .build()
     );
 
-    private State lastState;
+    private State prevState;
 
     protected QuadShader(MultiBufferSource.BufferSource bufferSource) {
         super(bufferSource);
@@ -60,24 +64,24 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
 
     @Override
     protected boolean textureIsReadyToBlit(State state) {
-        return Objects.equals(lastState, state);
+        return Objects.equals(prevState, state);
     }
 
     @Override
     protected void renderToTexture(State state, @NonNull PoseStack poseStack) {
 
-        float width = (state.extentX + 2 * State.OUTSET) * state.scale;
-        float height = (state.extentY + 2 * State.OUTSET) * state.scale;
+        float width = (state.width + 2 * state.outset) * state.scale;
+        float height = (state.height + 2 * state.outset) * state.scale;
 
         BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
-        float textureWidth = width + state.subpixelX * state.scale;
-        float textureHeight = height + state.subpixelY * state.scale;
+        float quadWidth = width + state.subPixelOffsetX * state.scale;
+        float quadHeight = height + state.subPixelOffsetY * state.scale;
 
         builder.addVertex(0F, 0F, 0F);
-        builder.addVertex(0F, textureHeight, 0F);
-        builder.addVertex(textureWidth, textureHeight, 0F);
-        builder.addVertex(textureWidth, 0F, 0F);
+        builder.addVertex(0F, quadHeight, 0F);
+        builder.addVertex(quadWidth, quadHeight, 0F);
+        builder.addVertex(quadWidth, 0F, 0F);
 
         MeshData mesh = builder.buildOrThrow();
 
@@ -89,13 +93,13 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
                         new Matrix4f()
                 );
 
-        GpuBufferSlice myUniformBuffer = Uniform.STORAGE.writeUniform(buffer -> {
+        GpuBufferSlice uniformBuffer = Uniform.STORAGE.writeUniform(buffer -> {
             Std140Builder.intoBuffer(buffer)
                          .putVec4(
-                                 state.subpixelX * state.scale + width * 0.5F,
-                                 state.subpixelY * state.scale + height * 0.5F,
-                                 state.extentX * state.scale,
-                                 state.extentY * state.scale
+                                 state.subPixelOffsetX * state.scale + width * 0.5F,
+                                 state.subPixelOffsetY * state.scale + height * 0.5F,
+                                 state.width * state.scale,
+                                 state.height * state.scale
                          )
                          .putVec4(
                                  state.radiusRB * state.scale,
@@ -120,7 +124,7 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
 
         try (mesh;
              RenderPass pass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
-                     () -> "hybrid-api Rounded Rectangle Render Pass",
+                     () -> "Quad Render Pass",
                      Objects.requireNonNullElse(RenderSystem.outputColorTextureOverride, renderTarget.getColorTextureView()),
                      OptionalInt.empty(),
                      renderTarget.useDepth ? Objects.requireNonNullElse(RenderSystem.outputDepthTextureOverride, renderTarget.getDepthTextureView()) : null,
@@ -130,46 +134,46 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
             pass.setPipeline(PIPELINE_quad);
             RenderSystem.bindDefaultUniforms(pass);
             pass.setUniform("DynamicTransforms", dynamicTransformsBuffer);
-            pass.setUniform("QuadUniforms", myUniformBuffer);
+            pass.setUniform("QuadUniforms", uniformBuffer);
             pass.setVertexBuffer(0, vertexBuffer);
             pass.setIndexBuffer(indexBuffer, indexStorage.type());
             pass.drawIndexed(0, 0, mesh.drawState().indexCount(), 1);
         }
 
-        lastState = state;
+        prevState = state;
     }
 
     @Override
     protected @NonNull String getTextureLabel() {
-        return "hybrid-api Rounded Rectangle PIP";
+        return "Quad Render Pass";
     }
 
     public static class State implements PictureInPictureRenderState {
 
-        public final static float OUTSET = 14F;
-
-        public final float left, top, right, bottom;
+        public final float x, y;
+        public final float width, height;
         public final float scale;
         public final Vector4f color;
 
-        private final float subpixelX, subpixelY;
-        private final float extentX, extentY;
+        public final float subPixelOffsetX, subPixelOffsetY;
 
-        private final ScreenRectangle scissorArea;
-        private final ScreenRectangle bounds;
+        public final ScreenRectangle scissorArea;
+        public final ScreenRectangle bounds;
 
         public float radiusRB, radiusRT, radiusLB, radiusLT;
         public float edgeSoftness = 1F;
 
+        public final float outset;
+
         public State(GuiGraphics context, float x, float y, float width, float height, float radius, int color) {
 
-            this.left = x;
-            this.top = y;
-            this.right = x + width;
-            this.bottom = y + height;
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
 
-            this.subpixelX = left - Mth.floor(left);
-            this.subpixelY = top - Mth.floor(top);
+            this.subPixelOffsetX = x - Mth.floor(x);
+            this.subPixelOffsetY = y - Mth.floor(y);
 
             this.scale = Minecraft.getInstance().getWindow().getGuiScale();
 
@@ -180,42 +184,44 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
                     ARGB.alpha(color) / 255F
             );
 
-            this.extentX = right - left;
-            this.extentY = bottom - top;
+            radius = Math.min(radius, Math.min(width, height) * 0.5F);
 
-            this.radiusLT = this.radiusRT = this.radiusLB = this.radiusRB =
-                    Math.min(radius, Math.min(extentX, extentY) * 0.5F);
+            this.radiusLT = this.radiusRT = this.radiusLB = this.radiusRB = radius;
+
+            float maxRadius = radius;
+
+            this.outset = Math.max(maxRadius, edgeSoftness * 2.5F);
 
             this.scissorArea = context.scissorStack.peek();
 
-            ScreenRectangle bounds = new ScreenRectangle(
+            ScreenRectangle baseBounds = new ScreenRectangle(
                     this.x0(),
                     this.y0(),
                     this.x1() - this.x0(),
                     this.y1() - this.y0()
             );
 
-            this.bounds = scissorArea == null ? bounds : scissorArea.intersection(bounds);
+            this.bounds = scissorArea == null ? baseBounds : scissorArea.intersection(baseBounds);
         }
 
         @Override
         public int x0() {
-            return Mth.floor(left) - (int) OUTSET;
+            return Mth.floor(x) - (int) outset;
         }
 
         @Override
         public int x1() {
-            return Mth.ceil(right + OUTSET);
+            return Mth.ceil(x + width + outset);
         }
 
         @Override
         public int y0() {
-            return Mth.floor(top) - (int) OUTSET;
+            return Mth.floor(y) - (int) outset;
         }
 
         @Override
         public int y1() {
-            return Mth.ceil(bottom + OUTSET);
+            return Mth.ceil(y + height + outset);
         }
 
         @Override
@@ -243,8 +249,8 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.State> {
                 .putFloat()
                 .get();
 
-        private static final DynamicUniformStorage<DynamicUniformStorage.DynamicUniform> STORAGE =
-                new DynamicUniformStorage<>("hybrid-api Rounded Rectangle UBO", SIZE, 4);
+        private static final DynamicUniformStorage<DynamicUniformStorage.@NotNull DynamicUniform> STORAGE =
+                new DynamicUniformStorage<>("Quad UBO", SIZE, 4);
 
         public static void clear() {
             STORAGE.endFrame();
