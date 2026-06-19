@@ -71,7 +71,8 @@ public class DefaultSettingsPage extends ContentPart {
         HybridTextRenderer.addText(iconTheme);
         HybridTextRenderer.addText(iconExpand);
 
-        int spacing = 130;
+        int spacing = 132;
+        int categoryPadding  = 15;
         int currentY = centerBox.getHeight() + spacing;
 
         for (DefaultCategoryBlock block : categoryBlocks) {
@@ -83,7 +84,7 @@ public class DefaultSettingsPage extends ContentPart {
             );
 
             block.render(categoryQuad);
-            currentY += block.getHeight() + spacing;
+            currentY += block.getHeight() + categoryPadding;
         }
     }
 

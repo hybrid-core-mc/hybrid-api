@@ -5,8 +5,10 @@ import hybrid.api.mod.HybridMods;
 import hybrid.api.mod.SprintMod;
 import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.ui.gui.parts.SidebarPart;
+import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
+import hybrid.api.util.render.RenderContext;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
@@ -40,8 +42,11 @@ public class DefaultGui extends GuiPart {
         int logoX = sidebarBounds.x + leftPadding;
         int alignmentX = logoX + dotSize + 10;
 
+        RenderContext.get().enableScissor(background.x, background.y, background.x + background.width,background.y+ background.height);
         sidebarPart.renderSidebar(sidebarBounds, alignmentX);
         modSettingsPage.render(background.copy().setWidth(settingsPageWidth).setX(sidebarBounds.x + sidebarBounds.width));
+        HybridTextRenderer.render(RenderContext.get());
+        RenderContext.get().disableScissor();
     }
 
     @Override

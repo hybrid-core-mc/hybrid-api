@@ -34,7 +34,6 @@ public class HybridGuiScreen extends Screen {
 
         assert mc.screen != null;
         gui.render(mouseX, mouseY, tickDelta, currentMod, mc.screen.width, mc.screen.height);
-        HybridTextRenderer.render(RenderContext.get());
     }
 
 

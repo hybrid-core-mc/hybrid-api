@@ -20,6 +20,11 @@ public class SprintMod extends HybridMod {
                     .addBool("Enabled", "weather toe anble the emoji function",true)
                     .addNumber("Speed", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
         );
-        ;
+        registerCategory(
+                BuiltCategory.add("Gay boys")
+                             .addBool("sigma", "weather toe anble the emoji function",true)
+                             .addNumber("boy", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
+        );
+
     }
 }

@@ -34,7 +34,7 @@ public class CategoryComponent extends GuiEvents {
         text.setPosition(quad.getX()+5 , quad.getY() + 6);
 
         HybridRenderText desc = HybridTextRenderer.getTextRenderer(
-                "this is for testing and isnt a real desc",
+                setting.getDesc(),
                 FontStyle.REGULAR,
                 14,
                 DESC_IDLE_COLOR,
