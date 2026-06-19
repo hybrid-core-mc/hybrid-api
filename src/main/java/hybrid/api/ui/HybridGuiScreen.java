@@ -16,13 +16,13 @@ import static hybrid.api.Main.mc;
 
 public class HybridGuiScreen extends Screen {
 
-    private final GuiPart theme;
+    private final GuiPart gui;
     private final HybridMod currentMod;
 
     public HybridGuiScreen() {
         super(Component.translatable("hybrid.gui"));
 
-        this.theme = new DefaultGui();
+        this.gui = new DefaultGui();
         this.currentMod = new SprintMod();
     }
 
@@ -33,19 +33,32 @@ public class HybridGuiScreen extends Screen {
 
 
         assert mc.screen != null;
-        theme.render(mouseX, mouseY, tickDelta, currentMod, mc.screen.width, mc.screen.height);
+        gui.render(mouseX, mouseY, tickDelta, currentMod, mc.screen.width, mc.screen.height);
         HybridTextRenderer.render(RenderContext.get());
     }
 
+
     @Override
-    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
-        theme.mouseClicked(mouseButtonEvent);
-        return super.mouseClicked(mouseButtonEvent, bl);
+    public boolean mouseScrolled(double d, double e, double f, double g) {
+        gui.mouseScrolled(d, e, f, g);
+        return super.mouseScrolled(d, e, f, g);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double d, double e) {
+        gui.mouseDragged(mouseButtonEvent);
+        return super.mouseDragged(mouseButtonEvent, d, e);
     }
 
     @Override
     public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
-        theme.mouseClicked(mouseButtonEvent);
+        gui.mouseReleased(mouseButtonEvent);
         return super.mouseReleased(mouseButtonEvent);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+        gui.mouseClicked(mouseButtonEvent);
+        return super.mouseClicked(mouseButtonEvent, bl);
     }
 }

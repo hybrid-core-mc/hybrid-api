@@ -9,7 +9,7 @@ import hybrid.api.util.render.Quad;
 
 import java.awt.*;
 
-public class DefaultSidebar implements SidebarPart {
+public class DefaultSidebar extends SidebarPart {
 
     private final Color border = new Color(44, 45, 56);
 
@@ -93,15 +93,27 @@ public class DefaultSidebar implements SidebarPart {
 
     private void renderSettingsMenu(Quad sidebar) {
         int margin = 14;
-        int boxHeight = 33;
-        int boxWidth = (int) (sidebar.getWidth() * 0.86);
+        int boxHeight = 27;
+        int boxWidth = (int) (sidebar.getWidth() * 0.80);
 
         int boxX = sidebar.x + (sidebar.getWidth() - boxWidth) / 2;
         int boxY = (sidebar.y + sidebar.getHeight()) - boxHeight - margin;
 
         Quad settingsBox = new Quad(boxX, boxY, boxWidth, boxHeight);
-
         HybridRenderer2D.drawRoundRect(settingsBox, 8, 1.0f, new Color(0x1F2126), new Color(0x0D0F14));
-    }
 
+        HybridRenderText iconSettings = HybridTextRenderer.getIconRenderer("expand", Color.WHITE);
+        HybridRenderText iconTheme = HybridTextRenderer.getIconRenderer("theme", Color.WHITE);
+        HybridRenderText iconExpand = HybridTextRenderer.getIconRenderer("setting", Color.WHITE);
+
+        int padding = 10;
+
+        iconSettings.setPosition(boxX + padding, boxY + (boxHeight - iconSettings.getHeight()) / 2);
+        iconTheme.setPosition(boxX + (boxWidth / 2) - (iconTheme.getWidth() / 2), boxY + (boxHeight - iconTheme.getHeight()) / 2);
+        iconExpand.setPosition(boxX + boxWidth - padding - iconExpand.getWidth(), boxY + (boxHeight - iconExpand.getHeight()) / 2);
+
+        HybridTextRenderer.addText(iconSettings);
+        HybridTextRenderer.addText(iconTheme);
+        HybridTextRenderer.addText(iconExpand);
+    }
 }

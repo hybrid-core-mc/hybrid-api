@@ -37,12 +37,12 @@ public class BuiltCategory {
         return this;
     }
 
-    public BuiltCategory addBool(String name, boolean value) {
-        return add(new BooleanSetting(name, value));
+    public BuiltCategory addBool(String name,String desc, boolean value) {
+        return add(new BooleanSetting(name, desc,value));
     }
 
-    public BuiltCategory addNumber(String name, float value, float min, float max) {
-        return add(new NumberSetting(name, value, min, max));
+    public BuiltCategory addNumber(String name, String desc, float value, float min, float max) {
+        return add(new NumberSetting(name, desc,value, min, max));
     }
 
 

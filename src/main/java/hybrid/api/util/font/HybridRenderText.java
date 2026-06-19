@@ -48,25 +48,39 @@ public class HybridRenderText {
         return font;
     }
 
-    public void draw(GuiGraphics context) {
 
+    public void draw(GuiGraphics context) {
         boolean isVanilla = false;
 
         if (isVanilla && svgDocument == null) {
 
         } else {
 
-            if (cachedTexture == null || text != null && !text.equals(cachedTexture.text())) {
-                cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
+            if (svgDocument == null && text != null) {
+
+                String key = text + "|" + font.getName() + "|" + font.getSize() + "|" + color.getRGB() + "|" + shadow + "|" + shadowColor + "|" + shadowRadius;
+
+
+                HybridRenderText globallyCached = HybridTextRenderer.textCache.get(key);
+
+                if (globallyCached != null && globallyCached.cachedTexture != null) {
+
+                    this.cachedTexture = globallyCached.cachedTexture;
+                } else {
+
+                    this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
+
+                    HybridTextRenderer.textCache.put(key, this);
+                }
+            } else if (cachedTexture == null) {
+                this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, false, 0);
             }
 
 
             Matrix3x2fStack matrices = context.pose();
             matrices.pushMatrix();
 
-
             matrices.translate(x, y);
-
             matrices.scale(0.5f, 0.5f);
 
             context.guiRenderState.submitGuiElement(new BlitRenderState(

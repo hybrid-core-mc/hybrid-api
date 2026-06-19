@@ -7,12 +7,11 @@ import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.ui.gui.parts.SidebarPart;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
-import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
 
-public class DefaultGui implements GuiPart {
+public class DefaultGui extends GuiPart {
 
     private final SidebarPart sidebarPart = new DefaultSidebar();
 
@@ -25,7 +24,7 @@ public class DefaultGui implements GuiPart {
     @Override
     public void render(int mouseX, int mouseY, float tickDelta, HybridMod mod, int screenWidth, int screenHeight) {
 
-        int w = (int) (960 * 0.58);
+        int w = (int) (930 * 0.58);
         int h = (int) (490 * 0.65);
 
         Quad background = new Quad((screenWidth - w) / 2, (screenHeight - h) / 2, w, h);
@@ -42,21 +41,34 @@ public class DefaultGui implements GuiPart {
         int alignmentX = logoX + dotSize + 10;
 
         sidebarPart.renderSidebar(sidebarBounds, alignmentX);
-
         modSettingsPage.render(background.copy().setWidth(settingsPageWidth).setX(sidebarBounds.x + sidebarBounds.width));
     }
 
     @Override
-    public void mouseClicked(MouseButtonEvent mouseButtonEvent) {
-        modSettingsPage.mouseClick(mouseButtonEvent);
-
+    public void mouseScrolled(double d, double e, double f, double g) {
+        sidebarPart.mouseScrolled(d, e, f, g);
+        modSettingsPage.mouseScrolled(d, e, f, g);
+        super.mouseScrolled(d, e, f, g);
     }
 
     @Override
-    public void mouser(MouseButtonEvent mouseButtonEvent) {
-        modSettingsPage.mouseRelease(mouseButtonEvent);
-
+    public void mouseClicked(MouseButtonEvent mouseButtonEvent) {
+        sidebarPart.mouseClicked(mouseButtonEvent);
+        modSettingsPage.mouseClicked(mouseButtonEvent);
+        super.mouseClicked(mouseButtonEvent);
     }
 
+    @Override
+    public void mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        sidebarPart.mouseReleased(mouseButtonEvent);
+        modSettingsPage.mouseReleased(mouseButtonEvent);
+        super.mouseReleased(mouseButtonEvent);
+    }
 
+    @Override
+    public void mouseDragged(MouseButtonEvent mouseButtonEvent) {
+        sidebarPart.mouseDragged(mouseButtonEvent);
+        modSettingsPage.mouseDragged(mouseButtonEvent);
+        super.mouseDragged(mouseButtonEvent);
+    }
 }

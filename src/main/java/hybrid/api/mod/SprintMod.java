@@ -17,8 +17,8 @@ public class SprintMod extends HybridMod {
     public void onSetupSettings() {
         registerCategory(
                 BuiltCategory.add("General")
-                    .addBool("Enabled", true)
-                    .addNumber("Speed", 1.2f, 1.0f, 2.0f)
+                    .addBool("Enabled", "weather toe anble the emoji function",true)
+                    .addNumber("Speed", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
         );
         ;
     }

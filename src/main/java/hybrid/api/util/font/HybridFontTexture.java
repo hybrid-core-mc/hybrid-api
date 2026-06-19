@@ -10,10 +10,25 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 
-public record HybridFontTexture(DynamicTexture texture, Rectangle rectangle, String text) {
-    public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, Color shadowColor, boolean shadow, int shadowRadius) {
+public record HybridFontTexture(DynamicTexture texture, Rectangle rectangle, String text) implements AutoCloseable {
 
+    private static long createdGlyphTextures = 0;
+
+    @Override
+    public void close() {
+        if (texture != null) {
+            
+            texture.close();
+        }
+    }
+
+    public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, Color shadowColor, boolean shadow, int shadowRadius) {
         Font font = hybridRenderText.getFont();
+        createdGlyphTextures++;
+
+        if (createdGlyphTextures % 50 == 0) {
+            System.out.println("[HybridFontTexture] Total glyph textures generated: " + createdGlyphTextures);
+        }
 
         boolean fontMode = text != null;
         boolean svgMode = text == null;
@@ -45,48 +60,53 @@ public record HybridFontTexture(DynamicTexture texture, Rectangle rectangle, Str
         BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics = bufferedImage.createGraphics();
 
-        graphics.setComposite(AlphaComposite.Clear);
-        graphics.fillRect(0, 0, width, height);
-        graphics.setComposite(AlphaComposite.SrcOver);
+        try {
+            graphics.setComposite(AlphaComposite.Clear);
+            graphics.fillRect(0, 0, width, height);
+            graphics.setComposite(AlphaComposite.SrcOver);
 
-        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-        graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+            graphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        int drawX = fontMode ? -rectangle.x : 0;
-        int drawY = fontMode ? -rectangle.y : 0;
+            int drawX = fontMode ? -rectangle.x : 0;
+            int drawY = fontMode ? -rectangle.y : 0;
 
-        if (shadow && fontMode) {
-            graphics.setFont(font);
-            graphics.setPaint(shadowColor);
-            graphics.drawString(text, drawX + 1, drawY + 1);
-            if (shadowRadius > 1) graphics.drawString(text, drawX + 2, drawY + 2);
+            if (shadow && fontMode) {
+                graphics.setFont(font);
+                graphics.setPaint(shadowColor);
+                graphics.drawString(text, drawX + 1, drawY + 1);
+                if (shadowRadius > 1) graphics.drawString(text, drawX + 2, drawY + 2);
+            }
+
+            if (fontMode) {
+                graphics.setFont(font);
+                graphics.setPaint(Color.WHITE);
+                graphics.drawString(text, drawX, drawY);
+            } else {
+                hybridRenderText.getSvgDocument().render(null, graphics);
+            }
+        } finally {
+            
+            graphics.dispose();
         }
 
-        if (fontMode) {
-            graphics.setFont(font);
-            graphics.setPaint(Color.WHITE);
-            graphics.drawString(text, drawX, drawY);
-        } else {
-            hybridRenderText.getSvgDocument().render(null, graphics);
+        
+        
+        
+        try (NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false)) {
+            int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+
+            for (int i = 0; i < pixels.length; i++) {
+                int x = i % width;
+                int y = i / width;
+                nativeImage.setPixel(x, y, pixels[i]);
+            }
+
+            DynamicTexture texture = new DynamicTexture(() -> String.format("%s Custom Font", text), nativeImage);
+            texture.upload();
+
+            return new HybridFontTexture(texture, rectangle, text);
         }
-
-        graphics.dispose();
-
-        NativeImage nativeImage = new NativeImage(NativeImage.Format.RGBA, width, height, false);
-        int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
-
-        for (int i = 0; i < pixels.length; i++) {
-            int x = i % width;
-            int y = i / width;
-            nativeImage.setPixel(x, y, pixels[i]);
-        }
-
-        DynamicTexture texture = new DynamicTexture(() -> String.format("%s Custom Font", text), nativeImage);
-        texture.upload();
-
-        return new HybridFontTexture(texture, rectangle, text);
     }
-
-
 }

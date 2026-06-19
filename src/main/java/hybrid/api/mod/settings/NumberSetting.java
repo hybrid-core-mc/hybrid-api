@@ -5,8 +5,8 @@ public class NumberSetting extends Setting<Float> {
     private final float min;
     private final float max;
 
-    public NumberSetting(String name, float value, float min, float max) {
-        super(name, value);
+    public NumberSetting(String name,String desc, float value, float min, float max) {
+        super(name,desc, value);
         this.min = min;
         this.max = max;
     }

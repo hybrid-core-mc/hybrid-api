@@ -2,53 +2,36 @@ package hybrid.api.ui.gui.normal;
 
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.settings.BuiltCategory;
+import hybrid.api.ui.gui.category.DefaultCategoryBlock;
 import hybrid.api.ui.gui.parts.ContentPart;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefaultSettingsPage implements ContentPart {
+public class DefaultSettingsPage extends ContentPart {
     private static final Color BORDER_COLOR = new Color(35, 36, 45);
     private static final Color BG_COLOR = new Color(19, 21, 29, 255);
     private static final Color TITLE_COLOR = Color.WHITE;
-    private static final Color DESC_IDLE_COLOR = new Color(150, 160, 175);
-    private static final Color DESC_SHADOW_COLOR = new Color(255, 255, 255, 180);
+    public static final Color DESC_IDLE_COLOR = new Color(150, 160, 175);
+    public static final Color DESC_SHADOW_COLOR = new Color(255, 255, 255, 180);
+
     private final HybridMod mod;
     private final List<HybridRenderText> cachedLineTexts = new ArrayList<>();
-
-    // NEW: Persistent list caching the category blocks and their bounds
     private final List<DefaultCategoryBlock> categoryBlocks = new ArrayList<>();
-    public void mouseClick(MouseButtonEvent event) {
-        int mouseX = (int) event.x();
-        int mouseY = (int) event.y();
 
-        for (DefaultCategoryBlock block : categoryBlocks) {
-            if (block.isHovered(mouseX, mouseY)) {
-                // Forward the event execution straight into the category block instance
-                block.mouseClick(event);
-                break; // Stop checking other categories once the target is found
-            }
-        }
-    }
+    
+    private HybridRenderText iconSettings;
+    private HybridRenderText iconTheme;
+    private HybridRenderText iconExpand;
 
-    public void mouseRelease(MouseButtonEvent event) {
-        int mouseX = (int) event.x();
-        int mouseY = (int) event.y();
-
-        for (DefaultCategoryBlock block : categoryBlocks) {
-            if (block.isHovered(mouseX, mouseY)) {
-                block.mouseRelease(event);
-                break;
-            }
-        }
-    }
     private String cachedDescription;
     private int cachedBoxWidth = -1;
     private int cachedBoxX = -1;
@@ -58,7 +41,6 @@ public class DefaultSettingsPage implements ContentPart {
     public DefaultSettingsPage(HybridMod mod) {
         this.mod = mod;
     }
-
 
     public void render(Quad quad) {
         int boxWidth = (int) (quad.getWidth() * 0.93);
@@ -79,19 +61,18 @@ public class DefaultSettingsPage implements ContentPart {
             HybridTextRenderer.addText(cachedLineText);
         }
 
-        Quad links = centerBox.copy().setHeight(25).setWidth(100).setY(cachedTitleText.getY()).setX(centerBox.x + centerBox.getWidth() - 120);
-        HybridRenderer2D.drawRoundRect(links, 8, 1.5f, new Color(0x1F2126), new Color(0x0D0F14));
+        Quad links = centerBox.copy().setY(cachedTitleText.getY()).setX(centerBox.x + centerBox.getWidth() - 100);
 
-        HybridRenderText linkText = HybridTextRenderer.getTextRenderer(
-                "GitHub", FontStyle.REGULAR, 14, new Color(150, 160, 175), new Color(255, 255, 255, 180), false
-        );
+        
+        positionSettingsMenu(links);
 
-        int linkTextY = links.getY() + (links.getHeight() / 2) - (linkText.getHeight() / 2);
-        linkText.setPosition(links.getX() + 12, linkTextY);
-        HybridTextRenderer.addText(linkText);
+        
+        HybridTextRenderer.addText(iconSettings);
+        HybridTextRenderer.addText(iconTheme);
+        HybridTextRenderer.addText(iconExpand);
 
-        // --- CHANGED: Categories are now rendered via the cached blocks ---
-        int currentY = centerBox.getHeight() + 150;
+        int spacing = 130;
+        int currentY = centerBox.getHeight() + spacing;
 
         for (DefaultCategoryBlock block : categoryBlocks) {
             Quad categoryQuad = new Quad(
@@ -101,10 +82,27 @@ public class DefaultSettingsPage implements ContentPart {
                     block.getHeight()
             );
 
-            // Update or assign the dimensions to the block so it knows where it is rendered
             block.render(categoryQuad);
+            currentY += block.getHeight() + spacing;
+        }
+    }
 
-            currentY += block.getHeight() + 150;
+    private void positionSettingsMenu(Quad sidebar) {
+        int boxHeight = 25;
+        int boxWidth = 85;
+
+        int boxX = sidebar.x;
+        int boxY = sidebar.y + 2;
+
+        Quad settingsBox = new Quad(boxX, boxY, boxWidth, boxHeight);
+        HybridRenderer2D.drawRoundRect(settingsBox, 8, 1.0f, new Color(0x1F2126), new Color(0x0D0F14));
+
+        int padding = 10;
+
+        if (iconSettings != null && iconTheme != null && iconExpand != null) {
+            iconSettings.setPosition(boxX + padding, boxY + (boxHeight - iconSettings.getHeight()) / 2);
+            iconTheme.setPosition(boxX + (boxWidth / 2) - (iconTheme.getWidth() / 2), boxY + (boxHeight - iconTheme.getHeight()) / 2);
+            iconExpand.setPosition(boxX + boxWidth - padding - iconExpand.getWidth(), boxY + (boxHeight - iconExpand.getHeight()) / 2);
         }
     }
 
@@ -149,7 +147,11 @@ public class DefaultSettingsPage implements ContentPart {
         currentTrackedHeight += 10;
         this.finalCalculatedHeight = currentTrackedHeight;
 
-        // NEW: Rebuild the category blocks cache when the layout invalidates
+        
+        this.iconSettings = HybridTextRenderer.getIconRenderer("github", Color.WHITE);
+        this.iconTheme = HybridTextRenderer.getIconRenderer("modrinth", new Color(25, 194, 97));
+        this.iconExpand = HybridTextRenderer.getIconRenderer("star", Color.WHITE);
+
         this.categoryBlocks.clear();
         for (BuiltCategory category : mod.getCategories()) {
             this.categoryBlocks.add(new DefaultCategoryBlock(category));
@@ -188,10 +190,35 @@ public class DefaultSettingsPage implements ContentPart {
         return lines;
     }
 
-    /**
-     * NEW: Getter to access the instantiated blocks for event processing.
-     */
-    public List<DefaultCategoryBlock> getCategoryBlocks() {
-        return this.categoryBlocks;
+    @Override
+    public void mouseReleased(MouseButtonEvent mouseButtonEvent) {
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            block.mouseReleased(mouseButtonEvent);
+        }
+        super.mouseReleased(mouseButtonEvent);
+    }
+
+    @Override
+    public void mouseClicked(MouseButtonEvent mouseButtonEvent) {
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            block.mouseClicked(mouseButtonEvent);
+        }
+        super.mouseClicked(mouseButtonEvent);
+    }
+
+    @Override
+    public void mouseDragged(MouseButtonEvent mouseButtonEvent) {
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            block.mouseDragged(mouseButtonEvent);
+        }
+        super.mouseDragged(mouseButtonEvent);
+    }
+
+    @Override
+    public void mouseScrolled(double d, double e, double f, double g) {
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            block.mouseScrolled(d, e, f, g);
+        }
+        super.mouseScrolled(d, e, f, g);
     }
 }

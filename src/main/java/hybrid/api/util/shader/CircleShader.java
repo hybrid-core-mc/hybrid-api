@@ -36,16 +36,7 @@ import java.util.OptionalInt;
 
 public class CircleShader extends PictureInPictureRenderer<CircleShader.@NotNull State> {
 
-    RenderPipeline PIPELINE_circle = RenderPipelines.register(
-            RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
-                          .withLocation(Identifier.fromNamespaceAndPath("hybrid-api", "pipeline/circle"))
-                          .withFragmentShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/circle"))
-                          .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/position"))
-                          .withBlend(BlendFunction.TRANSLUCENT)
-                          .withUniform("CircleUniforms", UniformType.UNIFORM_BUFFER)
-                          .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
-                          .build()
-    );
+    private static RenderPipeline PIPELINE_circle;
 
     private State prevState;
 
@@ -55,6 +46,15 @@ public class CircleShader extends PictureInPictureRenderer<CircleShader.@NotNull
 
     public static void init() {
         SpecialGuiElementRegistry.register(context -> new CircleShader(context.vertexConsumers()));
+        PIPELINE_circle = RenderPipelines.register(
+                RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+                              .withLocation(Identifier.fromNamespaceAndPath("hybrid-api", "pipeline/circle"))
+                              .withFragmentShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/circle"))
+                              .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/position"))
+                              .withBlend(BlendFunction.TRANSLUCENT)
+                              .withUniform("CircleUniforms", UniformType.UNIFORM_BUFFER)
+                              .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
+                              .build());
     }
 
     @Override

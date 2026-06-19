@@ -7,6 +7,9 @@ import java.awt.*;
 
 public class HybridRenderer2D {
 
+
+
+
     public static void fillQuad(Quad quad, Color color) {
         RenderContext.get().fill(quad.x, quad.y, quad.x + quad.width, quad.y + quad.height, color.getRGB());
     }

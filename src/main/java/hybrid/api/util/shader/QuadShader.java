@@ -36,16 +36,8 @@ import java.util.OptionalInt;
 
 public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull State> {
 
-    RenderPipeline PIPELINE_quad = RenderPipelines.register(
-            RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
-                          .withLocation(Identifier.fromNamespaceAndPath("hybrid-api", "pipeline/quad"))
-                          .withFragmentShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/quad"))
-                          .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/position"))
-                          .withBlend(BlendFunction.TRANSLUCENT)
-                          .withUniform("QuadUniforms", UniformType.UNIFORM_BUFFER)
-                          .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
-                          .build()
-    );
+    private static RenderPipeline PIPELINE_quad;
+
 
     private State prevState;
 
@@ -55,6 +47,15 @@ public class QuadShader extends PictureInPictureRenderer<QuadShader.@NotNull Sta
 
     public static void init() {
         SpecialGuiElementRegistry.register(context -> new QuadShader(context.vertexConsumers()));
+        PIPELINE_quad = RenderPipelines.register(
+                RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+                              .withLocation(Identifier.fromNamespaceAndPath("hybrid-api", "pipeline/quad"))
+                              .withFragmentShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/quad"))
+                              .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/position"))
+                              .withBlend(BlendFunction.TRANSLUCENT)
+                              .withUniform("QuadUniforms", UniformType.UNIFORM_BUFFER)
+                              .withVertexFormat(DefaultVertexFormat.POSITION, VertexFormat.Mode.QUADS)
+                              .build());
     }
 
     @Override

@@ -13,10 +13,26 @@ import java.util.List;
 
 public class HybridTextRenderer {
 
+    private static final int MAX_CACHE_SIZE = 400;
+
     private static final Map<String, Font> fontCache = new HashMap<>();
     private static final Map<String, SVGDocument> svgCache = new HashMap<>();
-    private static final Map<String, HybridRenderText> textCache = new HashMap<>();
     private static final Map<String, HybridRenderText> iconCache = new HashMap<>();
+
+    
+    public static final Map<String, HybridRenderText> textCache = new LinkedHashMap<>(16, 0.75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, HybridRenderText> eldest) {
+            if (size() > MAX_CACHE_SIZE) {
+                if (eldest.getValue() != null && eldest.getValue().cachedTexture != null) {
+                    eldest.getValue().cachedTexture.close();
+                }
+                return true;
+            }
+            return false;
+        }
+    };
+
     private static final BufferedImage METRIC_IMAGE = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
     private static final Graphics2D METRIC_GRAPHICS = METRIC_IMAGE.createGraphics();
     private static final List<HybridRenderText> renderQueue = new ArrayList<>();
@@ -93,28 +109,33 @@ public class HybridTextRenderer {
 
 
     public static HybridRenderText getIconRenderer(String name, Color color, int x, int y) {
-        String key = name + "|" + color.getRGB() + "|" + x + "|" + y;
+        
+        String key = name + "|" + color.getRGB();
 
-        HybridRenderText icon = iconCache.get(key);
-        if (icon != null) {
-            return icon;
+        HybridRenderText cachedIcon = iconCache.get(key);
+        if (cachedIcon == null) {
+            SVGDocument svgDocument = svgCache.computeIfAbsent(name, n -> {
+                try {
+                    URL svgUrl = Objects.requireNonNull(Main.class.getResource("/assets/hybrid-api/icon/" + n + ".svg"),
+                            "Cannot find svg icon: " + n
+                    );
+                    return new SVGLoader().load(svgUrl);
+                } catch (Exception e) {
+                    throw new RuntimeException("unable to load svg: " + n, e);
+                }
+            });
+
+            
+            cachedIcon = new HybridRenderText(0, 0, svgDocument, color);
+            iconCache.put(key, cachedIcon);
         }
 
-        SVGDocument svgDocument = svgCache.computeIfAbsent(name, n -> {
-            try {
-                URL svgUrl = Objects.requireNonNull(Main.class.getResource("/assets/hybrid-api/icon/" + n + ".svg"),
-                        "Cannot find svg icon: " + n
-                );
-                return new SVGLoader().load(svgUrl);
-            } catch (Exception e) {
-                throw new RuntimeException("unable to load svg: " + n, e);
-            }
-        });
+        System.out.println(iconCache.size());
+        
+        HybridRenderText instance = new HybridRenderText(x, y, cachedIcon.getSvgDocument(), cachedIcon.color);
+        instance.cachedTexture = cachedIcon.cachedTexture; 
 
-        icon = new HybridRenderText(x, y, svgDocument, color);
-        iconCache.put(key, icon);
-
-        return icon;
+        return instance;
     }
 
     public static HybridRenderText getIconRenderer(String name, Color color) {
@@ -175,8 +196,21 @@ public class HybridTextRenderer {
 
 
     public static void reload() {
+        
+        for (HybridRenderText text : textCache.values()) {
+            if (text != null && text.cachedTexture != null) {
+                text.cachedTexture.close();
+            }
+        }
         textCache.clear();
+
+        for (HybridRenderText icon : iconCache.values()) {
+            if (icon != null && icon.cachedTexture != null) {
+                icon.cachedTexture.close();
+            }
+        }
         iconCache.clear();
+
         fontCache.clear();
         svgCache.clear();
         renderQueue.clear();

@@ -6,18 +6,23 @@ import java.util.function.Consumer;
 
 public abstract class Setting<T> {
 
-    protected String name;
+    protected String name,desc;
     protected T value;
 
     private final List<Consumer<T>> listeners = new ArrayList<>();
 
-    public Setting(String name, T value) {
+    public Setting(String name, String desc, T value) {
         this.name = name;
+        this.desc = desc;
         this.value = value;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 
     public T get() {
