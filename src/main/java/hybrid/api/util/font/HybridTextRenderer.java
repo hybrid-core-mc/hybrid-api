@@ -130,8 +130,7 @@ public class HybridTextRenderer {
             iconCache.put(key, cachedIcon);
         }
 
-        System.out.println(iconCache.size());
-        
+
         HybridRenderText instance = new HybridRenderText(x, y, cachedIcon.getSvgDocument(), cachedIcon.color);
         instance.cachedTexture = cachedIcon.cachedTexture; 
 

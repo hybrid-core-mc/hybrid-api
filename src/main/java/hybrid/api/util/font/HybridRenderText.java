@@ -25,10 +25,11 @@ public class HybridRenderText {
         this.x = x;
         this.y = y;
         this.font = font;
+        this.shadowColor = shadowColor;
         this.color = color;
         this.shadow = shadow;
         this.shadowRadius = shadowRadius;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
+
     }
 
     public HybridRenderText(int x, int y, SVGDocument svgDocument, Color color) {
@@ -36,9 +37,8 @@ public class HybridRenderText {
         this.y = y;
         this.svgDocument = svgDocument;
         this.color = color;
-        this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, false, 0);
-    }
 
+    }
 
     public SVGDocument getSvgDocument() {
         return svgDocument;
@@ -49,33 +49,52 @@ public class HybridRenderText {
     }
 
 
+    private void ensureTextureInitialized() {
+        if (this.cachedTexture != null) return;
+
+        if (svgDocument == null && text != null) {
+
+            String fontName = (font != null) ? font.getName() : "default";
+            int fontSize = (font != null) ? font.getSize() : 0;
+            int fontStyle = (font != null) ? font.getStyle() : 0;
+            String sColorStr = (shadowColor != null) ? String.valueOf(shadowColor.getRGB()) : "null";
+
+            String key = text + "|" + fontName + "|" + fontSize + "|" + fontStyle + "|" + color.getRGB() + "|" + shadow + "|" + sColorStr + "|" + shadowRadius;
+
+            HybridRenderText globallyCached = HybridTextRenderer.textCache.get(key);
+
+            if (globallyCached != null && globallyCached.cachedTexture != null) {
+                this.cachedTexture = globallyCached.cachedTexture;
+            } else {
+                this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
+                HybridTextRenderer.textCache.put(key, this);
+            }
+        } else {
+
+            String svgKey = "svg_" + (svgDocument != null ? System.identityHashCode(svgDocument) : "null") + "|" + color.getRGB();
+
+            HybridRenderText globallyCachedIcon = HybridTextRenderer.textCache.get(svgKey);
+
+            if (globallyCachedIcon != null && globallyCachedIcon.cachedTexture != null) {
+                this.cachedTexture = globallyCachedIcon.cachedTexture;
+            } else {
+                this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, false, 0);
+                HybridTextRenderer.textCache.put(svgKey, this);
+            }
+        }
+    }
+
     public void draw(GuiGraphics context) {
         boolean isVanilla = false;
 
         if (isVanilla && svgDocument == null) {
 
         } else {
+            ensureTextureInitialized();
 
-            if (svgDocument == null && text != null) {
-
-                String key = text + "|" + font.getName() + "|" + font.getSize() + "|" + color.getRGB() + "|" + shadow + "|" + shadowColor + "|" + shadowRadius;
-
-
-                HybridRenderText globallyCached = HybridTextRenderer.textCache.get(key);
-
-                if (globallyCached != null && globallyCached.cachedTexture != null) {
-
-                    this.cachedTexture = globallyCached.cachedTexture;
-                } else {
-
-                    this.cachedTexture = HybridFontTexture.createGlyph(this, text, shadowColor, shadow, shadowRadius);
-
-                    HybridTextRenderer.textCache.put(key, this);
-                }
-            } else if (cachedTexture == null) {
-                this.cachedTexture = HybridFontTexture.createGlyph(this, null, null, false, 0);
+            if (this.cachedTexture == null || this.cachedTexture.texture() == null) {
+                return;
             }
-
 
             Matrix3x2fStack matrices = context.pose();
             matrices.pushMatrix();
@@ -98,13 +117,14 @@ public class HybridRenderText {
         }
     }
 
-
     public int getWidth() {
-        return cachedTexture.rectangle().width / 2;
+        ensureTextureInitialized();
+        return (cachedTexture != null) ? cachedTexture.rectangle().width / 2 : 0;
     }
 
     public int getHeight() {
-        return cachedTexture.rectangle().height / 2;
+        ensureTextureInitialized();
+        return (cachedTexture != null) ? cachedTexture.rectangle().height / 2 : 0;
     }
 
     public void setPosition(int x, int y) {

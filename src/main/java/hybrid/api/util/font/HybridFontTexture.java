@@ -12,7 +12,7 @@ import java.awt.image.BufferedImage;
 
 public record HybridFontTexture(DynamicTexture texture, Rectangle rectangle, String text) implements AutoCloseable {
 
-    private static long createdGlyphTextures = 0;
+
 
     @Override
     public void close() {
@@ -24,11 +24,6 @@ public record HybridFontTexture(DynamicTexture texture, Rectangle rectangle, Str
 
     public static HybridFontTexture createGlyph(HybridRenderText hybridRenderText, String text, Color shadowColor, boolean shadow, int shadowRadius) {
         Font font = hybridRenderText.getFont();
-        createdGlyphTextures++;
-
-        if (createdGlyphTextures % 50 == 0) {
-            System.out.println("[HybridFontTexture] Total glyph textures generated: " + createdGlyphTextures);
-        }
 
         boolean fontMode = text != null;
         boolean svgMode = text == null;
