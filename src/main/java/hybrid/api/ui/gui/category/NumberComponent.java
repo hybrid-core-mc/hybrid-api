@@ -41,8 +41,9 @@ public class NumberComponent extends CategoryComponent {
         this.animPercent = (float) Math.max(0.0, Math.min(1.0, percent));
     }
 
-    
-    public int height() {
+
+    @Override
+    public int getHeight() {
         return 36;
     }
 

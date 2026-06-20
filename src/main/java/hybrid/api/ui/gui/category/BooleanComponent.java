@@ -29,7 +29,9 @@ public class BooleanComponent extends CategoryComponent {
         this.anim = lastState ? 1f : 0f;
     }
 
-    public int height() {
+
+    @Override
+    public int getHeight() {
         return 32;
     }
 
@@ -86,6 +88,7 @@ public class BooleanComponent extends CategoryComponent {
     }
     @Override
     public void mouseClicked(MouseButtonEvent event) {
+        System.out.println("leane vent");
         if (bounds == null) return;
         if (event.button() != 0) return;
 

@@ -9,7 +9,6 @@ import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
@@ -27,7 +26,6 @@ public class DefaultSettingsPage extends ContentPart {
     private final List<HybridRenderText> cachedLineTexts = new ArrayList<>();
     private final List<DefaultCategoryBlock> categoryBlocks = new ArrayList<>();
 
-    
     private HybridRenderText iconSettings;
     private HybridRenderText iconTheme;
     private HybridRenderText iconExpand;
@@ -38,53 +36,86 @@ public class DefaultSettingsPage extends ContentPart {
     private HybridRenderText cachedTitleText;
     private int finalCalculatedHeight = 0;
 
+    
+    private double scrollOffset = 0;
+    private int maxScrollBound = 0;
+    private Quad lastViewportQuad;
+
     public DefaultSettingsPage(HybridMod mod) {
         this.mod = mod;
     }
 
     public void render(Quad quad) {
+        this.lastViewportQuad = quad;
+
         int boxWidth = (int) (quad.getWidth() * 0.93);
         int boxX = quad.getX() + (quad.getWidth() - boxWidth) / 2;
-        int boxY = quad.y + 20;
+
+        int boxY = quad.y + 20 - (int) scrollOffset;
 
         String currentDesc = mod.getDescription();
         if (cachedBoxWidth != boxWidth || cachedBoxX != boxX || !currentDesc.equals(cachedDescription)) {
             rebuildLayoutCache(currentDesc, boxX, boxY, boxWidth);
         }
 
-        Quad centerBox = new Quad(boxX, boxY, boxWidth, finalCalculatedHeight);
-        HybridRenderer2D.drawRoundRect(centerBox, 10, 1.5f, BORDER_COLOR, BG_COLOR);
+        if (cachedTitleText != null) {
+            cachedTitleText.setY(boxY + 10);
 
-        HybridTextRenderer.addText(cachedTitleText);
-
-        for (HybridRenderText cachedLineText : cachedLineTexts) {
-            HybridTextRenderer.addText(cachedLineText);
+            int currentTextY = boxY + 10 + cachedTitleText.getHeight() + 6;
+            for (HybridRenderText lineText : cachedLineTexts) {
+                lineText.setY(currentTextY);
+                currentTextY += lineText.getHeight() + 3;
+            }
         }
 
-        Quad links = centerBox.copy().setY(cachedTitleText.getY()).setX(centerBox.x + centerBox.getWidth() - 100);
+        if (boxY + finalCalculatedHeight >= quad.getY() && boxY <= quad.getY() + quad.getHeight()) {
+            Quad centerBox = new Quad(boxX, boxY, boxWidth, finalCalculatedHeight);
+            HybridRenderer2D.drawRoundRect(centerBox, 10, 1.5f, BORDER_COLOR, BG_COLOR);
 
-        
-        positionSettingsMenu(links);
+            HybridTextRenderer.addText(cachedTitleText);
+            for (HybridRenderText cachedLineText : cachedLineTexts) {
+                HybridTextRenderer.addText(cachedLineText);
+            }
 
-        
-        HybridTextRenderer.addText(iconSettings);
-        HybridTextRenderer.addText(iconTheme);
-        HybridTextRenderer.addText(iconExpand);
+            Quad links = centerBox.copy().setY(cachedTitleText.getY()).setX(centerBox.x + centerBox.getWidth() - 100);
+            positionSettingsMenu(links);
+
+            HybridTextRenderer.addText(iconSettings);
+            HybridTextRenderer.addText(iconTheme);
+            HybridTextRenderer.addText(iconExpand);
+        }
 
         int spacing = 132;
-        int categoryPadding  = 15;
-        int currentY = centerBox.getHeight() + spacing;
+        int categoryPadding = 15;
+
+        
+        int currentY = boxY + finalCalculatedHeight + (spacing - 20);
 
         for (DefaultCategoryBlock block : categoryBlocks) {
+            int blockHeight = block.getHeight(); 
+
             Quad categoryQuad = new Quad(
                     boxX,
                     currentY,
                     boxWidth,
-                    block.getHeight()
+                    blockHeight
             );
 
-            block.render(categoryQuad);
-            currentY += block.getHeight() + categoryPadding;
+            if (currentY + blockHeight >= quad.getY() && currentY <= quad.getY() + quad.getHeight()) {
+                block.render(categoryQuad);
+            }
+
+            
+            currentY += blockHeight + categoryPadding;
+        }
+
+        
+        int totalHeightAccumulated = currentY - (boxY + finalCalculatedHeight + (spacing - 20));
+        int rawTotalContentHeight = (finalCalculatedHeight + (spacing - 20)) + totalHeightAccumulated + 40;
+        this.maxScrollBound = Math.max(0, rawTotalContentHeight - quad.getHeight());
+
+        if (scrollOffset > maxScrollBound) {
+            scrollOffset = maxScrollBound;
         }
     }
 
@@ -148,7 +179,6 @@ public class DefaultSettingsPage extends ContentPart {
         currentTrackedHeight += 10;
         this.finalCalculatedHeight = currentTrackedHeight;
 
-        
         this.iconSettings = HybridTextRenderer.getIconRenderer("github", Color.WHITE);
         this.iconTheme = HybridTextRenderer.getIconRenderer("modrinth", new Color(25, 194, 97));
         this.iconExpand = HybridTextRenderer.getIconRenderer("star", Color.WHITE);
@@ -216,10 +246,25 @@ public class DefaultSettingsPage extends ContentPart {
     }
 
     @Override
-    public void mouseScrolled(double d, double e, double f, double g) {
-        for (DefaultCategoryBlock block : categoryBlocks) {
-            block.mouseScrolled(d, e, f, g);
+    public void mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        if (lastViewportQuad != null && isInside(mouseX, mouseY, lastViewportQuad)) {
+            scrollOffset -= verticalAmount * 18;
+
+            if (scrollOffset < 0) {
+                scrollOffset = 0;
+            } else if (scrollOffset > maxScrollBound) {
+                scrollOffset = maxScrollBound;
+            }
         }
-        super.mouseScrolled(d, e, f, g);
+
+        for (DefaultCategoryBlock block : categoryBlocks) {
+            block.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        }
+        super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+    }
+
+    private boolean isInside(double mx, double my, Quad q) {
+        return mx >= q.getX() && mx <= q.getX() + q.getWidth()
+                && my >= q.getY() && my <= q.getY() + q.getHeight();
     }
 }

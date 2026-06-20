@@ -16,6 +16,7 @@ import static hybrid.api.ui.gui.normal.DefaultSettingsPage.DESC_SHADOW_COLOR;
 
 public class CategoryComponent extends GuiEvents {
     public Setting<?> setting;
+    int height;
 
     public CategoryComponent(Setting<?> setting) {
         this.setting = setting;
@@ -46,6 +47,9 @@ public class CategoryComponent extends GuiEvents {
 
         HybridTextRenderer.addText(text);
         HybridTextRenderer.addText(desc);
+    }
 
+    public int getHeight() {
+        return height == 0 ? 36 : height;
     }
 }

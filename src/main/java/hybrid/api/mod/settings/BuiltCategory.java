@@ -1,5 +1,6 @@
 package hybrid.api.mod.settings;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +46,9 @@ public class BuiltCategory {
         return add(new NumberSetting(name, desc,value, min, max));
     }
 
+    public BuiltCategory addColor(String name, String desc, Color value) {
+        return add(new ColorSetting(name, desc, value));
+    }
 
     public BuiltCategory end() {
         return parent != null ? parent : this;

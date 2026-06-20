@@ -2,6 +2,8 @@ package hybrid.api.mod;
 
 import hybrid.api.mod.settings.BuiltCategory;
 
+import java.awt.*;
+
 public class SprintMod extends HybridMod {
 
     public SprintMod() {
@@ -17,7 +19,9 @@ public class SprintMod extends HybridMod {
     public void onSetupSettings() {
         registerCategory(
                 BuiltCategory.add("General")
-                    .addBool("Enabled", "weather toe anble the emoji function",true)
+                             .addColor("color", "gay color picekr",Color.RED)
+
+                             .addBool("Enabled", "weather toe anble the emoji function",true)
                     .addNumber("Speed", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
         );
         registerCategory(

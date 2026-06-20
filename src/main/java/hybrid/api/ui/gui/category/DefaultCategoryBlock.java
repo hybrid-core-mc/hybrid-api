@@ -1,9 +1,6 @@
 package hybrid.api.ui.gui.category;
 
-import hybrid.api.mod.settings.BooleanSetting;
-import hybrid.api.mod.settings.BuiltCategory;
-import hybrid.api.mod.settings.NumberSetting;
-import hybrid.api.mod.settings.Setting;
+import hybrid.api.mod.settings.*;
 import hybrid.api.ui.gui.GuiEvents;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
@@ -28,9 +25,9 @@ public class DefaultCategoryBlock extends GuiEvents {
     private static final Color TEXT = Color.WHITE;
 
     private final BuiltCategory category;
-    private final List<GuiEvents> components = new ArrayList<>();
+    private final List<CategoryComponent> components = new ArrayList<>();
 
-    private boolean expanded = true;
+    private boolean expanded = false;
     private Quad bounds;
     private int targetHeight;
     private float animHeight;
@@ -38,12 +35,18 @@ public class DefaultCategoryBlock extends GuiEvents {
     public DefaultCategoryBlock(BuiltCategory category) {
         this.category = category;
 
+        
+        Runnable heightTicker = this::recalcHeight;
+
         for (Setting<?> s : category.getSettings()) {
+            if (s instanceof ColorSetting c) {
+                components.add(new ColorComponent(c, heightTicker));
+            }
             if (s instanceof BooleanSetting b) {
-                components.add(new BooleanComponent(b));
+                components.add(new BooleanComponent(b)); 
             }
             if (s instanceof NumberSetting n) {
-                components.add(new NumberComponent(n));
+                components.add(new NumberComponent(n)); 
             }
         }
 
@@ -58,9 +61,7 @@ public class DefaultCategoryBlock extends GuiEvents {
     public void render(Quad quad) {
         this.bounds = quad;
 
-
-        int currentTarget = expanded ? targetHeight : 34;
-
+        int currentTarget = expanded ? targetHeight : HEADER_HEIGHT;
 
         animHeight = animHeight + (currentTarget - animHeight) * 0.20f;
         if (Math.abs(animHeight - currentTarget) < 0.5f) {
@@ -68,7 +69,6 @@ public class DefaultCategoryBlock extends GuiEvents {
         }
 
         int currentHeight = Math.round(animHeight);
-
 
         Quad box = new Quad(
                 quad.getX(),
@@ -85,7 +85,6 @@ public class DefaultCategoryBlock extends GuiEvents {
                 new Color(21, 23, 31, 255)
         );
 
-
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
                 category.getName(),
                 FontStyle.BOLD,
@@ -98,37 +97,39 @@ public class DefaultCategoryBlock extends GuiEvents {
         title.setPosition(quad.getX() + 16, quad.getY() + 13);
         HybridTextRenderer.addText(title);
 
-
-        if (currentHeight <= 35) return;
+        
+        if (currentHeight <= HEADER_HEIGHT + PADDING) return;
 
         int stripY = quad.getY() + 32;
-        int stripHeight = currentHeight - 32;
+        
+        int stripHeight = currentHeight - 32 - PADDING;
 
-        Quad strip = new Quad(
-                quad.getX(),
-                stripY - 1,
-                quad.getWidth() - 1,
-                stripHeight
-        );
+        if (stripHeight > 0) {
+            Quad strip = new Quad(
+                    quad.getX(),
+                    stripY - 1,
+                    quad.getWidth() - 1,
+                    stripHeight
+            );
 
-        HybridRenderer2D.drawRoundRect(
-                strip,
-                0,
-                0,
-                new Color(0, 58, 255),
-                new Color(18, 20, 27, 255),
-                10, 0, 10, 0
-        );
+            HybridRenderer2D.drawRoundRect(
+                    strip,
+                    0,
+                    0,
+                    new Color(0, 58, 255),
+                    new Color(18, 20, 27, 255),
+                    10, 0, 10, 0
+            );
+        }
 
-        int y = quad.getY() + HEADER_HEIGHT;
+        int y = quad.getY() + HEADER_HEIGHT + PADDING;
 
-        for (GuiEvents c : components) {
-            int h = (c instanceof BooleanComponent b)
-                    ? b.height()
-                    : ((NumberComponent) c).height();
+        for (CategoryComponent c : components) {
+            int h = c.getHeight();
 
-
-            if (y + h <= quad.getY() + currentHeight) {
+            
+            
+            if (y + h <= quad.getY() + currentHeight - PADDING && y >= quad.getY() + HEADER_HEIGHT) {
                 Quad q = new Quad(
                         quad.getX() + 12,
                         y,
@@ -136,11 +137,10 @@ public class DefaultCategoryBlock extends GuiEvents {
                         h
                 );
 
-                if (c instanceof BooleanComponent b) b.render(q);
-                if (c instanceof NumberComponent n) n.render(q);
+                c.render(q);
             }
 
-            y += h + 3;
+            y += h + SPACING;
         }
     }
 
@@ -166,31 +166,29 @@ public class DefaultCategoryBlock extends GuiEvents {
             return;
         }
 
-
-        if (!expanded || animHeight < targetHeight - 5) return;
+        if (!expanded || animHeight <= HEADER_HEIGHT) return;
 
         int y = bounds.getY() + HEADER_HEIGHT + PADDING;
 
-        for (GuiEvents c : components) {
-            int h = (c instanceof BooleanComponent b)
-                    ? b.height()
-                    : ((NumberComponent) c).height();
+        for (CategoryComponent c : components) {
+            int h = c.getHeight();
 
-            if (c instanceof BooleanComponent b) b.mouseClicked(event);
-            if (c instanceof NumberComponent n) n.mouseClicked(event);
-
+            
+            if (my >= bounds.getY() + HEADER_HEIGHT && my <= bounds.getY() + animHeight - PADDING) {
+                if (my >= y && my <= y + h) {
+                    c.mouseClicked(event);
+                }
+            }
             y += h + SPACING;
         }
     }
 
     @Override
     public void mouseDragged(MouseButtonEvent event) {
-        if (bounds == null || !expanded || animHeight < targetHeight - 5) return;
+        if (bounds == null || !expanded || animHeight <= HEADER_HEIGHT) return;
 
         for (GuiEvents c : components) {
-            if (c instanceof NumberComponent n) {
-                n.mouseDragged(event);
-            }
+            c.mouseDragged(event);
         }
     }
 
@@ -199,21 +197,17 @@ public class DefaultCategoryBlock extends GuiEvents {
         if (bounds == null || !expanded) return;
 
         for (GuiEvents c : components) {
-            if (c instanceof NumberComponent n) {
-                n.mouseReleased(event);
-            }
+            c.mouseReleased(event);
         }
+        recalcHeight();
     }
 
     private void recalcHeight() {
         targetHeight = HEADER_HEIGHT;
 
         if (expanded) {
-            for (GuiEvents c : components) {
-                targetHeight += (c instanceof BooleanComponent b)
-                        ? b.height()
-                        : ((NumberComponent) c).height();
-
+            for (CategoryComponent c : components) {
+                targetHeight += c.getHeight();
                 targetHeight += SPACING;
             }
             targetHeight += PADDING * 2;

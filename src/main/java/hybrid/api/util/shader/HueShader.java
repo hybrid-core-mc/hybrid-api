@@ -71,13 +71,13 @@ public class HueShader extends PictureInPictureRenderer<HueShader.@NotNull State
         float width = (state.width + 2 * state.outset) * state.scale;
         float height = (state.height + 2 * state.outset) * state.scale;
 
-        // Reverted back to using standard POSITION format layout pipeline tracking
+        
         BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
         float quadWidth = width + state.xOffset * state.scale;
         float quadHeight = height + state.yOffset * state.scale;
 
-        // Vertices mapped plain without UV offsets
+        
         builder.addVertex(0F, 0F, 0F);
         builder.addVertex(0F, quadHeight, 0F);
         builder.addVertex(quadWidth, quadHeight, 0F);
@@ -100,8 +100,8 @@ public class HueShader extends PictureInPictureRenderer<HueShader.@NotNull State
                                  state.yOffset * state.scale,
                                  width,
                                  height
-                         ) // packed into uniform hueBounds
-                         .putVec4(state.colorCurrent); // packed into uniform currentColor
+                         ) 
+                         .putVec4(state.colorCurrent); 
         });
 
         GpuBuffer vertexBuffer =
@@ -213,8 +213,8 @@ public class HueShader extends PictureInPictureRenderer<HueShader.@NotNull State
 
     public static class Uniform {
         private static final int SIZE = new Std140SizeCalculator()
-                .putVec4() // hueBounds
-                .putVec4() // currentColor
+                .putVec4() 
+                .putVec4() 
                 .get();
 
         private static final DynamicUniformStorage<DynamicUniformStorage.@NotNull DynamicUniform> STORAGE =
