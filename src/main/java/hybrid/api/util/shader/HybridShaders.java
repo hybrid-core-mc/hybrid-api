@@ -5,5 +5,6 @@ public class HybridShaders {
         QuadShader.init();
         CircleShader.init();
         TriangleShader.init();
+        HueShader.init();
     }
 }

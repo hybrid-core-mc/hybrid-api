@@ -1,6 +1,7 @@
 package hybrid.api.util.render;
 
 import hybrid.api.util.shader.CircleShader;
+import hybrid.api.util.shader.HueShader;
 import hybrid.api.util.shader.QuadShader;
 import hybrid.api.util.shader.TriangleShader;
 
@@ -58,5 +59,13 @@ public class HybridRenderer2D {
                 color.getRGB()
         ));
     }
-
+    public static void drawHueCircle(Quad quad,float radius, Color color) {
+        RenderContext.get().guiRenderState.submitPicturesInPictureState(new HueShader.State(
+                RenderContext.get(),
+                quad.x,
+                quad.y,
+                radius,
+                color.getRGB()
+        ));
+    }
 }
