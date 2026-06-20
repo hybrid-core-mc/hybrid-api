@@ -19,7 +19,7 @@ public class NumberComponent extends CategoryComponent {
 
     private static final Color BASE_FILL = new Color(36, 41, 54, 255);
     private static final Color HOVER_ACTIVE_COLOR = new Color(99, 102, 241, 255);
-    private static final Color DESC_IDLE_COLOR = new Color(148, 163, 184); 
+    private static final Color DESC_IDLE_COLOR = new Color(148, 163, 184);
     private static final Color DESC_SHADOW_COLOR = new Color(15, 23, 42);
 
     private final NumberSetting numberSetting;

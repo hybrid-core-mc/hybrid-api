@@ -45,7 +45,7 @@ public class Main implements ModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (sendToChatKey.consumeClick()) {
-				mc.setScreen(new HybridGuiScreen());
+				mc.setScreen(new ColorPickerScreen());
 			}
 		});
 

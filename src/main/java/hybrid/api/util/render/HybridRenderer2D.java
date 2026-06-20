@@ -2,6 +2,7 @@ package hybrid.api.util.render;
 
 import hybrid.api.util.shader.CircleShader;
 import hybrid.api.util.shader.QuadShader;
+import hybrid.api.util.shader.TriangleShader;
 
 import java.awt.*;
 
@@ -45,6 +46,16 @@ public class HybridRenderer2D {
                 quad.height,
                 radius,
                 color.getRGB(), glow
+        ));
+    }
+    public static void drawTriangle(Quad quad, Color color) {
+        RenderContext.get().guiRenderState.submitPicturesInPictureState(new TriangleShader.State(
+                RenderContext.get(),
+                quad.x,
+                quad.y,
+                quad.width,
+                quad.height,
+                color.getRGB()
         ));
     }
 

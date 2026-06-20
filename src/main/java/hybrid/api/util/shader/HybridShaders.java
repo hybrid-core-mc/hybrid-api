@@ -4,5 +4,6 @@ public class HybridShaders {
     public static void init(){
         QuadShader.init();
         CircleShader.init();
+        TriangleShader.init();
     }
 }
