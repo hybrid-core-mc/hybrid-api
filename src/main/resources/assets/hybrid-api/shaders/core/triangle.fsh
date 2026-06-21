@@ -73,7 +73,7 @@ void main() {
     
     
     vec4 triangleColor = vec4(mixedRGB, uColor.a * alpha);
-    vec4 backgroundColor = vec4(0.0, 0.0, 0.0, 0.5); 
+    vec4 backgroundColor = vec4(0.0, 0.0, 0.0, 0.0);
 
     fragColor = mix(backgroundColor, triangleColor, alpha);
 }

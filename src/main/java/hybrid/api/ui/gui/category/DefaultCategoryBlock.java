@@ -61,7 +61,7 @@ public class DefaultCategoryBlock extends GuiEvents {
     public void render(Quad quad) {
         this.bounds = quad;
 
-        int currentTarget = expanded ? targetHeight : HEADER_HEIGHT;
+        int currentTarget = expanded ? targetHeight : 34;
 
         animHeight = animHeight + (currentTarget - animHeight) * 0.20f;
         if (Math.abs(animHeight - currentTarget) < 0.5f) {
@@ -104,31 +104,27 @@ public class DefaultCategoryBlock extends GuiEvents {
         
         int stripHeight = currentHeight - 32 - PADDING;
 
-        if (stripHeight > 0) {
-            Quad strip = new Quad(
-                    quad.getX(),
-                    stripY - 1,
-                    quad.getWidth() - 1,
-                    stripHeight
-            );
+        Quad strip = new Quad(
+                quad.getX(),
+                stripY - 1,
+                quad.getWidth() - 1,
+                stripHeight
+        );
 
-            HybridRenderer2D.drawRoundRect(
-                    strip,
-                    0,
-                    0,
-                    new Color(0, 58, 255),
-                    new Color(18, 20, 27, 255),
-                    10, 0, 10, 0
-            );
-        }
+        HybridRenderer2D.drawRoundRect(
+                strip,
+                0,
+                0,
+                new Color(0, 58, 255),
+                new Color(18, 20, 27, 255),
+                10, 0, 10, 0
+        );
 
         int y = quad.getY() + HEADER_HEIGHT + PADDING;
 
         for (CategoryComponent c : components) {
             int h = c.getHeight();
 
-            
-            
             if (y + h <= quad.getY() + currentHeight - PADDING && y >= quad.getY() + HEADER_HEIGHT) {
                 Quad q = new Quad(
                         quad.getX() + 12,

@@ -85,20 +85,20 @@ public class DefaultSettingsPage extends ContentPart {
             HybridTextRenderer.addText(iconExpand);
         }
 
-        int spacing = 132;
+        int spacing = 34;
         int categoryPadding = 15;
 
         
         int currentY = boxY + finalCalculatedHeight + (spacing - 20);
 
         for (DefaultCategoryBlock block : categoryBlocks) {
-            int blockHeight = block.getHeight(); 
+            int blockHeight = block.getHeight();
 
             Quad categoryQuad = new Quad(
                     boxX,
                     currentY,
                     boxWidth,
-                    blockHeight
+                    0
             );
 
             if (currentY + blockHeight >= quad.getY() && currentY <= quad.getY() + quad.getHeight()) {

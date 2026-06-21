@@ -120,10 +120,9 @@ public class TriangleGradientPicker {
         }
     }
 
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY,int x,int y) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY,int x,int y,float angle) {
 
-        float slowAngle = (float) ((System.currentTimeMillis() / 5000.0) % (Math.PI * 2.0));
-        rotation = (float) (slowAngle + Math.PI);
+        rotation = (float) (angle + Math.PI);
 
         Color activePickerColor = Color.GREEN;
 
