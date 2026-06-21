@@ -1,6 +1,8 @@
 package hybrid.api.ui.gui.normal;
 
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.ui.gui.parts.SidebarPart;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
@@ -34,7 +36,7 @@ public class DefaultSidebar extends SidebarPart {
         lastFrameTime = currentTime;
         if (delta > 3) delta = 3; 
 
-        HybridRenderer2D.drawRoundRect(bounds, new Color(22, 25, 35), border, 10, 1.5f, 0, 0, 10, 10);
+        HybridRenderer2D.drawRoundRect(bounds, ThemeManager.get(ThemeTarget.SIDEBAR_BG), border, 10, 1.5f, 0, 0, 10, 10);
 
         int leftPadding = 24;
         int topPadding = 24;
@@ -43,7 +45,8 @@ public class DefaultSidebar extends SidebarPart {
         int offzet = 0;
         int logoX = bounds.x + leftPadding;
         int logoY = bounds.y + topPadding + 6;
-        HybridRenderer2D.drawCircle(new Quad(logoX-offzet, logoY - 5, dotSize, dotSize), 3.0f, new Color(99, 102, 241, 255), true);
+
+        HybridRenderer2D.drawCircle(new Quad(logoX-offzet, logoY - 5, dotSize, dotSize), 3.0f, ThemeManager.get(ThemeTarget.ACCENT), true);
 
         HybridRenderText text = HybridTextRenderer.getTextRenderer(
                 "HYBRID CORE",

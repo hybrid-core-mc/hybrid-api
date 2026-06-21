@@ -2,6 +2,8 @@ package hybrid.api.ui.gui.category;
 
 import hybrid.api.mod.settings.BooleanSetting;
 import hybrid.api.mod.settings.Setting;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -10,7 +12,6 @@ import java.awt.*;
 
 public class BooleanComponent extends CategoryComponent {
 
-    private static final Color ON_COLOR = new Color(99, 102, 241);
     private static final Color OFF_COLOR = new Color(51, 65, 85);
     private static final Color KNOB_COLOR = Color.WHITE;
 
@@ -63,7 +64,7 @@ public class BooleanComponent extends CategoryComponent {
         
         Quad toggle = new Quad(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
 
-        Color bg = blend(OFF_COLOR, ON_COLOR, anim);
+        Color bg = blend(OFF_COLOR, ThemeManager.get(ThemeTarget.ACCENT), anim);
 
         HybridRenderer2D.drawRoundRect(toggle, bg, bg, 6, 0);
 

@@ -2,6 +2,8 @@ package hybrid.api.ui.gui.category;
 
 import hybrid.api.mod.settings.NumberSetting;
 import hybrid.api.mod.settings.Setting;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
@@ -18,7 +20,6 @@ import java.awt.*;
 public class NumberComponent extends CategoryComponent {
 
     private static final Color BASE_FILL = new Color(36, 41, 54, 255);
-    private static final Color HOVER_ACTIVE_COLOR = new Color(99, 102, 241, 255);
 
     private final NumberSetting numberSetting;
     private Quad bar;
@@ -76,7 +77,7 @@ public class NumberComponent extends CategoryComponent {
         float fillWidth = w * animPercent;
         if (fillWidth > 0) {
             Quad fillTrack = new Quad(x, y, Math.round(fillWidth), h);
-            HybridRenderer2D.drawRoundRect(fillTrack, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR, 2, 0.5f);
+            HybridRenderer2D.drawRoundRect(fillTrack, ThemeManager.get(ThemeTarget.ACCENT), ThemeManager.get(ThemeTarget.ACCENT), 2, 0.5f);
         }
 
 
@@ -95,7 +96,7 @@ public class NumberComponent extends CategoryComponent {
 
         float targetColorWeight = dragging ? 1f : 0f;
         knobColorAnim = lerp(knobColorAnim, targetColorWeight, 0.15f);
-        Color knobColor = blend(Color.WHITE, HOVER_ACTIVE_COLOR, knobColorAnim);
+        Color knobColor = blend(Color.WHITE, ThemeManager.get(ThemeTarget.ACCENT), knobColorAnim);
 
 
         HybridRenderer2D.drawCircle(
