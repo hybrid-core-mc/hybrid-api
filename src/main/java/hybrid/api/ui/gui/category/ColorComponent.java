@@ -14,121 +14,105 @@ import net.minecraft.client.input.MouseButtonEvent;
 import java.awt.*;
 
 public class ColorComponent extends CategoryComponent {
+
     private static final Color BASE_FILL = new Color(36, 41, 54, 255);
     private static final Color HOVER_ACTIVE_COLOR = new Color(99, 102, 241, 255);
+    private static final Color DROPDOWN_BG = new Color(26, 29, 41, 255);
+    private static final Color DROPDOWN_BORDER = new Color(44, 47, 58, 255);
+    private static final Color BTN_BG = new Color(30, 34, 48, 255);
 
-    private final ColorSetting colorSetting;
-    private int height = 36;
-    private boolean expanded = false;
-    private final Runnable onHeightChanged;
-    private Quad quad;
-    private final Color[] presets;
+    ColorSetting colorSetting;
+    Runnable onHeightChanged;
     TriangleGradientPicker triangleGradientPicker;
     HueCirclePicker picker;
 
-    private Quad barQuad;
-    private boolean isDraggingAlpha = false;
-    private float knobColorAnim = 0f;
+    Color[] presets;
+    Quad[] presetQuads;
 
-    private String cachedRgbString = "";
-    private HybridRenderText cachedRenderText = null;
+    Quad dropdownQuad = new Quad(0, 0, 0, 0),
+            barQuad = new Quad(0, 0, 0, 0),
+            workQuad = new Quad(0, 0, 0, 0),
+            rootQuad;
+
+    int height = 36;
+    boolean expanded, isDraggingAlpha;
+    float knobColorAnim;
+
+    String cachedRgbString = "";
+    HybridRenderText cachedRenderText;
 
     public ColorComponent(Setting<?> setting, Runnable onHeightChanged) {
         super(setting);
         this.colorSetting = (ColorSetting) setting;
         this.onHeightChanged = onHeightChanged;
 
-        this.presets = new Color[6];
-        presets[0] = new Color(99, 102, 241, 255);
-        presets[1] = new Color(16, 185, 129, 255);
-        presets[2] = new Color(244, 63, 94, 255);
-        presets[3] = new Color(139, 92, 246, 255);
-        presets[4] = new Color(245, 158, 11, 255);
-        presets[5] = new Color(6, 182, 212, 255);
+        this.presets = new Color[]{
+                new Color(99, 102, 241),
+                new Color(16, 185, 129),
+                new Color(244, 63, 94),
+                new Color(139, 92, 246),
+                new Color(245, 158, 11),
+                new Color(6, 182, 212)
+        };
 
-        triangleGradientPicker = new TriangleGradientPicker(45, colorSetting);
-        picker = new HueCirclePicker(43, 25, colorSetting);
+        this.presetQuads = new Quad[presets.length];
+        for (int i = 0; i < presets.length; i++) {
+            presetQuads[i] = new Quad(0, 0, 16, 16);
+        }
+
+        this.triangleGradientPicker = new TriangleGradientPicker(45, colorSetting);
+        this.picker = new HueCirclePicker(43, 25, colorSetting);
     }
-
     @Override
     public void render(Quad quad) {
-        this.quad = quad;
+        this.rootQuad = quad;
 
-        int boxWidth = 14;
-        int boxHeight = 14;
-        int padding = 15;
+        int targetX = quad.x + quad.width - 14 - 15;
+        int targetY = quad.y + (35 - 14) / 2;
 
-        int targetX = quad.x + quad.width - boxWidth - padding;
-        int targetY = quad.y + (35 - boxHeight) / 2;
-
-        Quad headerQuad = new Quad(targetX, targetY, boxWidth, boxHeight);
-        HybridRenderer2D.drawRoundRect(headerQuad, 3, 0, Color.RED, colorSetting.get());
+        workQuad.set(targetX, targetY, 14, 14);
+        HybridRenderer2D.drawRoundRect(workQuad, 3, 0, Color.RED, colorSetting.get());
 
         if (expanded) {
-            Quad dropdownQuad = new Quad(
-                    quad.x,
-                    quad.y + 36,
-                    quad.width,
-                    this.height - 36
-            );
+            dropdownQuad.set(quad.x, quad.y + 36, quad.width, this.height - 36);
+            HybridRenderer2D.drawRoundRect(dropdownQuad, 10, 1, DROPDOWN_BORDER, DROPDOWN_BG);
 
-            HybridRenderer2D.drawRoundRect(dropdownQuad, 10, 1, new Color(44, 47, 58, 255), new Color(26, 29, 41, 255));
-            renderPresets();
-            int offset = 8;
-            int xOffset = 7;
-            int cx = dropdownQuad.x + dropdownQuad.getWidth() - 50 + xOffset;
+            recalculateAndRenderPresets();
 
-            picker.render(dropdownQuad.copy().addX(dropdownQuad.getWidth() - 50 + xOffset).addY(offset + 32));
-            
+            int cx = dropdownQuad.x + dropdownQuad.width - 50 + 7;
 
-            triangleGradientPicker.render(dropdownQuad.copy().addX(dropdownQuad.getWidth() - 73 + xOffset).addY(offset + 10));
+            workQuad.set(dropdownQuad).addX(dropdownQuad.width - 50 + 7).addY(8 + 32);
+            picker.render(workQuad);
 
-            this.barQuad = dropdownQuad.copy().setWidth(4).setX(cx - 45).addY(11).subtractHeight(25);
 
+            workQuad.set(dropdownQuad).addX(dropdownQuad.width - 73 + 7).addY(8 + 10);
+            triangleGradientPicker.render(workQuad);
+
+
+            this.barQuad.set(dropdownQuad).setWidth(4).setX(cx - 45).addY(11).subtractHeight(25);
             HybridRenderer2D.drawRoundRect(barQuad, 2, 0.5f, Color.GRAY, BASE_FILL);
 
             float alpha = colorSetting.get().getAlpha() / 255f;
-            float progress = (alpha - 0.1f) / 0.9f;
-            progress = Math.max(0f, Math.min(1f, progress));
-
+            float progress = Math.max(0f, Math.min(1f, (alpha - 0.1f) / 0.9f));
             int progressHeight = (int) (barQuad.height * progress);
 
             if (progressHeight > 0) {
-                Quad progressQuad = new Quad(
-                        barQuad.x,
-                        barQuad.y + barQuad.height - progressHeight,
-                        barQuad.width,
-                        progressHeight
-                );
-                HybridRenderer2D.drawRoundRect(progressQuad, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
+                workQuad.set(barQuad.x, barQuad.y + barQuad.height - progressHeight, barQuad.width, progressHeight);
+                HybridRenderer2D.drawRoundRect(workQuad, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
             }
 
             float knobX = barQuad.x + (barQuad.width / 2f);
             float knobY = barQuad.y + barQuad.height - progressHeight;
 
-            float targetColorWeight = isDraggingAlpha ? 1f : 0f;
-            knobColorAnim = lerp(knobColorAnim, targetColorWeight, 0.15f);
-            Color knobColor = blend(Color.WHITE, HOVER_ACTIVE_COLOR, knobColorAnim);
+            knobColorAnim = knobColorAnim + ((isDraggingAlpha ? 1f : 0f) - knobColorAnim) * 0.15f;
+            Color knobColor = blend(knobColorAnim);
 
-            HybridRenderer2D.drawCircle(
-                    new Quad(Math.round(knobX - 4.9f), (int) (knobY - 5), 1, 1),
-                    5.3f,
-                    knobColor,
-                    isDraggingAlpha
-            );
+            workQuad.set(Math.round(knobX - 4.9f), (int) (knobY - 5), 1, 1);
+            HybridRenderer2D.drawCircle(workQuad, 5.3f, knobColor, isDraggingAlpha);
 
             if (isDraggingAlpha) {
-                String alphaTextStr = String.format("%d%%", Math.round(progress * 100f));
-
-                HybridRenderText text = HybridTextRenderer.getTextRenderer(
-                        alphaTextStr,
-                        FontStyle.BOLD,
-                        15,
-                        Color.WHITE,
-                        Color.WHITE,
-                        false
-                );
-
+                String alphaTextStr = Math.round(progress * 100f) + "%";
+                HybridRenderText text = HybridTextRenderer.getTextRenderer(alphaTextStr, FontStyle.BOLD, 15, Color.WHITE, Color.WHITE, false);
                 text.setPosition((int) (knobX - 15 - (text.getWidth() / 2f)), (int) (knobY - 2));
                 HybridTextRenderer.addText(text);
             }
@@ -137,51 +121,38 @@ public class ColorComponent extends CategoryComponent {
         super.render(quad);
     }
 
-    public void renderPresets() {
-        int presetSize = 16;
-        int gap = 8;
-        int rightPadding = 15;
-        int topPadding = 12;
-
-        int startX = quad.x + rightPadding;
-        int startY = quad.y + 36 + topPadding;
-
+    private void recalculateAndRenderPresets() {
+        int startX = rootQuad.x + 15;
+        int startY = rootQuad.y + 36 + 12;
         int lastY = startY;
 
         for (int i = 0; i < presets.length; i++) {
             int col = i % 3;
             int row = i / 3;
 
-            int renderX = startX + (col * (presetSize + gap));
-            int renderY = startY + (row * (presetSize + gap));
+            int renderX = startX + (col * 24);
+            int renderY = startY + (row * 24);
 
-            Quad presetQuad = new Quad(renderX, renderY, presetSize, presetSize);
-            HybridRenderer2D.drawRoundRect(presetQuad, 4, 0, presets[i], presets[i]);
+            presetQuads[i].setX(renderX).setY(renderY);
+            HybridRenderer2D.drawRoundRect(presetQuads[i], 4, 0, presets[i], presets[i]);
 
-            if (renderY + presetSize > lastY) {
-                lastY = renderY + presetSize;
+            if (renderY + 16 > lastY) {
+                lastY = renderY + 16;
             }
         }
 
-        int buttonWidth = (3 * presetSize) + (2 * gap);
+        int buttonWidth = 64;
         int buttonHeight = 14;
-        int buttonGap = 10;
+        int btnY = lastY + 10;
 
-        int btnX = startX;
-        int btnY = lastY + buttonGap;
+        workQuad.set(startX, btnY, buttonWidth, buttonHeight);
+        HybridRenderer2D.drawRoundRect(workQuad, 4, 0, Color.GRAY, BTN_BG);
 
-        Quad buttonQuad = new Quad(btnX, btnY, buttonWidth, buttonHeight);
+        boolean isDragging = isDraggingAlpha || picker.isDragging || triangleGradientPicker.isDragging;
 
-        Color btnBg = new Color(30, 34, 48, 255);
-        HybridRenderer2D.drawRoundRect(buttonQuad, 4, 0, Color.GRAY, btnBg);
-
-
-        boolean isCurrentlyDragging = isDraggingAlpha || picker.isDragging || triangleGradientPicker.isDragging;
-
-
-        if (!isCurrentlyDragging || cachedRenderText == null) {
+        if (!isDragging || cachedRenderText == null) {
             Color current = colorSetting.get();
-            String currentStr = String.format("RGB(%d, %d, %d)", current.getRed(), current.getGreen(), current.getBlue());
+            String currentStr = "RGB(" + current.getRed() + ", " + current.getGreen() + ", " + current.getBlue() + ")";
 
             if (!currentStr.equals(cachedRgbString) || cachedRenderText == null) {
                 cachedRgbString = currentStr;
@@ -189,80 +160,46 @@ public class ColorComponent extends CategoryComponent {
             }
         }
 
-        if (cachedRenderText != null) {
-            int textWidth = cachedRenderText.getWidth();
-            int textHeight = cachedRenderText.getHeight();
-
-            int textX = btnX + (buttonWidth - textWidth) / 2;
-            int textY = btnY + (buttonHeight - textHeight) / 2;
-
-            cachedRenderText.setPosition(textX, textY);
-            HybridTextRenderer.addText(cachedRenderText);
-        }
+        int textX = startX + (buttonWidth - cachedRenderText.getWidth()) / 2;
+        int textY = btnY + (buttonHeight - cachedRenderText.getHeight()) / 2;
+        cachedRenderText.setPosition(textX, textY);
+        HybridTextRenderer.addText(cachedRenderText);
     }
 
     @Override
-    public void mouseDragged(MouseButtonEvent mouseButtonEvent) {
-        if (expanded && isDraggingAlpha && barQuad != null) {
-            updateAlphaFromMouse((float) mouseButtonEvent.y());
+    public void mouseDragged(MouseButtonEvent event) {
+        if (expanded && isDraggingAlpha) {
+            updateAlphaFromMouse((float) event.y());
         }
-        picker.mouseDragged(mouseButtonEvent);
-        triangleGradientPicker.mouseDragged(mouseButtonEvent);
-
-        super.mouseDragged(mouseButtonEvent);
+        picker.mouseDragged(event);
+        triangleGradientPicker.mouseDragged(event);
+        super.mouseDragged(event);
     }
 
     @Override
     public void mouseClicked(MouseButtonEvent event) {
         triangleGradientPicker.mouseClicked(event);
         picker.mouseClicked(event);
-        if (quad == null) return;
+        if (rootQuad == null) return;
 
         float mouseX = (float) event.x();
         float mouseY = (float) event.y();
 
+        if (expanded && event.button() == 0) {
 
-        if (expanded && barQuad != null && event.button() == 0) {
-            boolean overBar = mouseX >= (barQuad.x - 5) && mouseX <= (barQuad.x + barQuad.width + 5) &&
-                    mouseY >= barQuad.y && mouseY <= barQuad.y + barQuad.height;
-            if (overBar) {
+            if (mouseX >= (barQuad.x - 5) && mouseX <= (barQuad.x + barQuad.width + 5) &&
+                    mouseY >= barQuad.y && mouseY <= barQuad.y + barQuad.height) {
                 isDraggingAlpha = true;
                 updateAlphaFromMouse(mouseY);
                 super.mouseClicked(event);
                 return;
             }
-        }
 
-
-        if (expanded && event.button() == 0) {
-            int presetSize = 16;
-            int gap = 8;
-            int rightPadding = 15;
-            int topPadding = 12;
-
-            int startX = quad.x + rightPadding;
-            int startY = quad.y + 36 + topPadding;
 
             for (int i = 0; i < presets.length; i++) {
-                int col = i % 3;
-                int row = i / 3;
-
-                int renderX = startX + (col * (presetSize + gap));
-                int renderY = startY + (row * (presetSize + gap));
-
-                if (mouseX >= renderX && mouseX <= renderX + presetSize &&
-                        mouseY >= renderY && mouseY <= renderY + presetSize) {
-
-                    int currentAlpha = colorSetting.get().getAlpha();
-                    Color chosenPreset = presets[i];
-
-                    colorSetting.set(new Color(
-                            chosenPreset.getRed(),
-                            chosenPreset.getGreen(),
-                            chosenPreset.getBlue(),
-                            currentAlpha
-                    ));
-
+                Quad q = presetQuads[i];
+                if (mouseX >= q.x && mouseX <= q.x + 16 && mouseY >= q.y && mouseY <= q.y + 16) {
+                    colorSetting.set(new Color(presets[i].getRed(), presets[i].getGreen(), presets[i].getBlue(), colorSetting.get().getAlpha()));
                     super.mouseClicked(event);
                     return;
                 }
@@ -270,14 +207,7 @@ public class ColorComponent extends CategoryComponent {
         }
 
 
-        float x = quad.x;
-        float y = quad.y;
-        float w = quad.width;
-        float h = 36;
-
-        boolean hovered = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
-
-        if (hovered && event.button() == 0) {
+        if (event.button() == 0 && mouseX >= rootQuad.x && mouseX <= rootQuad.x + rootQuad.width && mouseY >= rootQuad.y && mouseY <= rootQuad.y + 36) {
             expanded = !expanded;
             this.height = expanded ? 120 : 36;
 
@@ -300,30 +230,21 @@ public class ColorComponent extends CategoryComponent {
     }
 
     private void updateAlphaFromMouse(float mouseY) {
-        if (barQuad == null) return;
-
-        float distanceFormBottom = (barQuad.y + barQuad.height) - mouseY;
-        float pct = distanceFormBottom / (float) barQuad.height;
+        float pct = ((barQuad.y + barQuad.height) - mouseY) / (float) barQuad.height;
         pct = Math.max(0f, Math.min(1f, pct));
 
-        float targetAlphaVal = 0.1f + (pct * 0.9f);
-        int alphaInt = Math.round(targetAlphaVal * 255f);
-
+        int alphaInt = Math.round((0.1f + (pct * 0.9f)) * 255f);
         Color current = colorSetting.get();
-        Color updatedColor = new Color(current.getRed(), current.getGreen(), current.getBlue(), alphaInt);
-        colorSetting.set(updatedColor);
+        colorSetting.set(new Color(current.getRed(), current.getGreen(), current.getBlue(), alphaInt));
     }
 
-    private float lerp(float a, float b, float t) {
-        return a + (b - a) * t;
-    }
-
-    private Color blend(Color a, Color b, float t) {
-        t = Math.max(0f, Math.min(1f, t));
-        int r = (int) (a.getRed() + (b.getRed() - a.getRed()) * t);
-        int g = (int) (a.getGreen() + (b.getGreen() - a.getGreen()) * t);
-        int b2 = (int) (a.getBlue() + (b.getBlue() - a.getBlue()) * t);
-        return new Color(r, g, b2);
+    private Color blend(float t) {
+        float clampedT = Math.max(0f, Math.min(1f, t));
+        return new Color(
+                (int) (Color.WHITE.getRed() + (ColorComponent.HOVER_ACTIVE_COLOR.getRed() - Color.WHITE.getRed()) * clampedT),
+                (int) (Color.WHITE.getGreen() + (ColorComponent.HOVER_ACTIVE_COLOR.getGreen() - Color.WHITE.getGreen()) * clampedT),
+                (int) (Color.WHITE.getBlue() + (ColorComponent.HOVER_ACTIVE_COLOR.getBlue() - Color.WHITE.getBlue()) * clampedT)
+        );
     }
 
     @Override

@@ -29,6 +29,22 @@ public class Quad {
         return this;
     }
 
+    
+    public Quad set(Quad source) {
+        this.x = source.x;
+        this.y = source.y;
+        this.width = source.width;
+        this.height = source.height;
+        return this;
+    }
+
+    
+    public void set(int x, int y, int width, int height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
     public Quad setHeight(int height) {
         this.height = height;
         return this;

@@ -89,16 +89,16 @@ public class TriangleGradientPicker {
         float p3x = (v3x * cos - v3y * sin) + centerX;
         float p3y = (v3x * sin + v3y * cos) + centerY;
 
-        float denom = (p2y - p3y) * (p1x - p3x) + (p3x - p2x) * (p1y - p3y);
-        if (Math.abs(denom) < 0.0001f) return;
+        float venom = (p2y - p3y) * (p1x - p3x) + (p3x - p2x) * (p1y - p3y);
+        if (Math.abs(venom) < 0.0001f) return;
 
         boolean b1 = ((mouseX - p2x) * (p1y - p2y) - (p1x - p2x) * (mouseY - p2y)) < 0.0f;
         boolean b2 = ((mouseX - p3x) * (p2y - p3y) - (p2x - p3x) * (mouseY - p3y)) < 0.0f;
         boolean b3 = ((mouseX - p1x) * (p3y - p1y) - (p3x - p1x) * (mouseY - p1y)) < 0.0f;
 
         if ((b1 == b2) && (b2 == b3)) {
-            float wWhite = ((p2y - p3y) * (mouseX - p3x) + (p3x - p2x) * (mouseY - p3y)) / denom;
-            float wColor = ((p3y - p1y) * (mouseX - p3x) + (p1x - p3x) * (mouseY - p3y)) / denom;
+            float wWhite = ((p2y - p3y) * (mouseX - p3x) + (p3x - p2x) * (mouseY - p3y)) / venom;
+            float wColor = ((p3y - p1y) * (mouseX - p3x) + (p1x - p3x) * (mouseY - p3y)) / venom;
             float wBlack = 1.0f - wColor - wWhite;
 
             wColor = Math.max(0.0f, Math.min(1.0f, wColor));
