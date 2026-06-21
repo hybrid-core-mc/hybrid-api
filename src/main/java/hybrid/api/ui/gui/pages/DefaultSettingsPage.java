@@ -1,4 +1,4 @@
-package hybrid.api.ui.gui.normal;
+package hybrid.api.ui.gui.pages;
 
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.settings.BuiltCategory;
@@ -70,7 +70,7 @@ public class DefaultSettingsPage extends ContentPart {
 
         if (boxY + finalCalculatedHeight >= quad.getY() && boxY <= quad.getY() + quad.getHeight()) {
             Quad centerBox = new Quad(boxX, boxY, boxWidth, finalCalculatedHeight);
-            HybridRenderer2D.drawRoundRect(centerBox, 10, 1.5f, BORDER_COLOR, BG_COLOR);
+            HybridRenderer2D.drawRoundRect(centerBox, BG_COLOR, BORDER_COLOR, 10, 1.5f);
 
             HybridTextRenderer.addText(cachedTitleText);
             for (HybridRenderText cachedLineText : cachedLineTexts) {
@@ -127,7 +127,7 @@ public class DefaultSettingsPage extends ContentPart {
         int boxY = sidebar.y + 2;
 
         Quad settingsBox = new Quad(boxX, boxY, boxWidth, boxHeight);
-        HybridRenderer2D.drawRoundRect(settingsBox, 8, 1.0f, new Color(0x1F2126), new Color(0x0D0F14));
+        HybridRenderer2D.drawRoundRect(settingsBox, new Color(0x0D0F14), new Color(0x1F2126), 8, 1.0f);
 
         int padding = 10;
 

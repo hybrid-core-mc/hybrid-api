@@ -71,11 +71,11 @@ public class ColorComponent extends CategoryComponent {
         int targetY = quad.y + (35 - 14) / 2;
 
         workQuad.set(targetX, targetY, 14, 14);
-        HybridRenderer2D.drawRoundRect(workQuad, 3, 0, Color.RED, colorSetting.get());
+        HybridRenderer2D.drawRoundRect(workQuad, colorSetting.get(), Color.RED, 3, 0);
 
         if (expanded) {
             dropdownQuad.set(quad.x, quad.y + 36, quad.width, this.height - 36);
-            HybridRenderer2D.drawRoundRect(dropdownQuad, 10, 1, DROPDOWN_BORDER, DROPDOWN_BG);
+            HybridRenderer2D.drawRoundRect(dropdownQuad, DROPDOWN_BG, DROPDOWN_BORDER, 10, 1);
 
             recalculateAndRenderPresets();
 
@@ -90,7 +90,7 @@ public class ColorComponent extends CategoryComponent {
 
 
             this.barQuad.set(dropdownQuad).setWidth(4).setX(cx - 45).addY(11).subtractHeight(25);
-            HybridRenderer2D.drawRoundRect(barQuad, 2, 0.5f, Color.GRAY, BASE_FILL);
+            HybridRenderer2D.drawRoundRect(barQuad, BASE_FILL, Color.GRAY, 2, 0.5f);
 
             float alpha = colorSetting.get().getAlpha() / 255f;
             float progress = Math.max(0f, Math.min(1f, (alpha - 0.1f) / 0.9f));
@@ -98,7 +98,7 @@ public class ColorComponent extends CategoryComponent {
 
             if (progressHeight > 0) {
                 workQuad.set(barQuad.x, barQuad.y + barQuad.height - progressHeight, barQuad.width, progressHeight);
-                HybridRenderer2D.drawRoundRect(workQuad, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
+                HybridRenderer2D.drawRoundRect(workQuad, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR, 2, 0.5f);
             }
 
             float knobX = barQuad.x + (barQuad.width / 2f);
@@ -134,7 +134,7 @@ public class ColorComponent extends CategoryComponent {
             int renderY = startY + (row * 24);
 
             presetQuads[i].setX(renderX).setY(renderY);
-            HybridRenderer2D.drawRoundRect(presetQuads[i], 4, 0, presets[i], presets[i]);
+            HybridRenderer2D.drawRoundRect(presetQuads[i], presets[i], presets[i], 4, 0);
 
             if (renderY + 16 > lastY) {
                 lastY = renderY + 16;
@@ -146,7 +146,7 @@ public class ColorComponent extends CategoryComponent {
         int btnY = lastY + 10;
 
         workQuad.set(startX, btnY, buttonWidth, buttonHeight);
-        HybridRenderer2D.drawRoundRect(workQuad, 4, 0, Color.GRAY, BTN_BG);
+        HybridRenderer2D.drawRoundRect(workQuad, BTN_BG, Color.GRAY, 4, 0);
 
         boolean isDragging = isDraggingAlpha || picker.isDragging || triangleGradientPicker.isDragging;
 

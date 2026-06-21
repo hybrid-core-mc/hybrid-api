@@ -82,10 +82,8 @@ public class DefaultCategoryBlock extends GuiEvents {
 
         HybridRenderer2D.drawRoundRect(
                 box,
-                10,
-                1.5f,
-                BORDER,
-                new Color(21, 23, 31, 255)
+                new Color(21, 23, 31, 255), BORDER, 10,
+                1.5f
         );
 
         HybridRenderText title = HybridTextRenderer.getTextRenderer(
@@ -116,10 +114,8 @@ public class DefaultCategoryBlock extends GuiEvents {
 
         HybridRenderer2D.drawRoundRect(
                 strip,
+                new Color(18, 20, 27, 255), new Color(0, 58, 255), 0,
                 0,
-                0,
-                new Color(0, 58, 255),
-                new Color(18, 20, 27, 255),
                 10, 0, 10, 0
         );
 

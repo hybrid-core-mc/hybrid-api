@@ -3,6 +3,7 @@ package hybrid.api.ui.gui.normal;
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.HybridMods;
 import hybrid.api.mod.SprintMod;
+import hybrid.api.ui.gui.pages.DefaultSettingsPage;
 import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.ui.gui.parts.SidebarPart;
 import hybrid.api.util.font.HybridTextRenderer;
@@ -32,7 +33,7 @@ public class DefaultGui extends GuiPart {
         Quad background = new Quad((screenWidth - w) / 2, (screenHeight - h) / 2, w, h);
         Color border = new Color(44, 45, 56);
 
-        HybridRenderer2D.drawRoundRect(background, 10, 1.5f, border, new Color(18, 20, 28));
+        HybridRenderer2D.drawRoundRect(background, new Color(18, 20, 28), border, 10, 1.5f);
 
         int settingsPageWidth = (int) (background.getWidth() * 0.75);
         Quad sidebarBounds = background.copy().subtractWidth(settingsPageWidth);
@@ -43,8 +44,10 @@ public class DefaultGui extends GuiPart {
         int alignmentX = logoX + dotSize + 10;
 
         RenderContext.get().enableScissor(background.x, background.y, background.x + background.width,background.y+ background.height);
-        sidebarPart.renderSidebar(sidebarBounds, alignmentX);
+        sidebarPart.renderSidebar(sidebarBounds, alignmentX,mouseX,mouseY);
+
         modSettingsPage.render(background.copy().setWidth(settingsPageWidth).setX(sidebarBounds.x + sidebarBounds.width));
+
         HybridTextRenderer.render(RenderContext.get());
         RenderContext.get().disableScissor();
     }

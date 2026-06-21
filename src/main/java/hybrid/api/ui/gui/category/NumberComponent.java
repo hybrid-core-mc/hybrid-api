@@ -70,13 +70,13 @@ public class NumberComponent extends CategoryComponent {
         }
 
 
-        HybridRenderer2D.drawRoundRect(bar, 2, 0.5f, Color.GRAY, BASE_FILL);
+        HybridRenderer2D.drawRoundRect(bar, BASE_FILL, Color.GRAY, 2, 0.5f);
 
 
         float fillWidth = w * animPercent;
         if (fillWidth > 0) {
             Quad fillTrack = new Quad(x, y, Math.round(fillWidth), h);
-            HybridRenderer2D.drawRoundRect(fillTrack, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
+            HybridRenderer2D.drawRoundRect(fillTrack, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR, 2, 0.5f);
         }
 
 

@@ -38,7 +38,7 @@ public class ModeComponent extends CategoryComponent {
 
         Quad modeBox = new Quad(Math.round(x), Math.round(y), Math.round(boxWidth), Math.round(boxHeight));
 
-        HybridRenderer2D.drawRoundRect(modeBox, 3, 0.3f, Color.GRAY, new Color(24, 27, 38, 255));
+        HybridRenderer2D.drawRoundRect(modeBox, new Color(24, 27, 38, 255), Color.GRAY, 3, 0.3f);
 
         String modeName = setting.getMode().name();
         HybridRenderText modeText = HybridTextRenderer.getTextRenderer(

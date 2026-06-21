@@ -5,13 +5,12 @@ import hybrid.api.ui.gui.GuiEvents;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
-import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
 
 import java.awt.*;
 
-import static hybrid.api.ui.gui.normal.DefaultSettingsPage.DESC_IDLE_COLOR;
-import static hybrid.api.ui.gui.normal.DefaultSettingsPage.DESC_SHADOW_COLOR;
+import static hybrid.api.ui.gui.pages.DefaultSettingsPage.DESC_IDLE_COLOR;
+import static hybrid.api.ui.gui.pages.DefaultSettingsPage.DESC_SHADOW_COLOR;
 
 
 public class CategoryComponent extends GuiEvents {

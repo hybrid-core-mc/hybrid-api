@@ -65,7 +65,7 @@ public class BooleanComponent extends CategoryComponent {
 
         Color bg = blend(OFF_COLOR, ON_COLOR, anim);
 
-        HybridRenderer2D.drawRoundRect(toggle, 6, 0, bg, bg);
+        HybridRenderer2D.drawRoundRect(toggle, bg, bg, 6, 0);
 
         float knobSize = 12f;
         float travel = width - knobSize-2 ;
