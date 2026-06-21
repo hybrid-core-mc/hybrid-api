@@ -1,7 +1,6 @@
 package hybrid.api.util.render;
 
 import hybrid.api.mod.settings.ColorSetting;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
@@ -27,41 +26,6 @@ public class HueCirclePicker {
         this.centerY = cy;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         int normalized = radius;
         HybridRenderer2D.drawHueCircle(
                 new Quad((int) cx-normalized, (int) cy-normalized , 0, 0),
@@ -70,21 +34,33 @@ public class HueCirclePicker {
         );
     }
 
-    public void mouseClicked(MouseButtonEvent event) {
+    public void mouseDragged(MouseButtonEvent event) {
         float mouseX = (float) event.x();
         float mouseY = (float) event.y();
-
-        int radiuz = radius - 11;
-        float outerMax = (float) (radiuz * radiuz);
 
         float dx = mouseX - centerX;
         float dy = mouseY - centerY;
         float distSq = dx * dx + dy * dy;
 
+        
+        int innerRadiuz = radius - 11; 
+        float innerMin = (float) (innerRadiuz * innerRadiuz);
+
+        
+        int lenientOuterRadius = radius + 10;
+        float outerMax = (float) (lenientOuterRadius * lenientOuterRadius);
+
+        
+        if (distSq < innerMin) {
+            return;
+        }
+
+        
         if (distSq > outerMax) {
             return;
         }
 
+        
         float angle = (float) Math.atan2(dy, dx);
 
         float hue = angle / ((float)(Math.PI * 2.0));
@@ -92,7 +68,19 @@ public class HueCirclePicker {
         hue -= (float) Math.floor(hue);
 
         selectedHue = hue;
-        colorSetting.set(Color.getHSBColor(selectedHue, 1.0f, 1.0f));
+
+        
+        int currentAlpha = colorSetting.get().getAlpha();
+        Color hsbColor = Color.getHSBColor(selectedHue, 1.0f, 1.0f);
+
+        colorSetting.set(new Color(hsbColor.getRed(), hsbColor.getGreen(), hsbColor.getBlue(), currentAlpha));
+    }
+
+    public void mouseClicked(MouseButtonEvent event) {
+
+    }
+
+    public void mouseReleased(MouseButtonEvent event) {
 
     }
 }

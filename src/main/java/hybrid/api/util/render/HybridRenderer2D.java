@@ -49,14 +49,14 @@ public class HybridRenderer2D {
                 color.getRGB(), glow
         ));
     }
-    public static void drawTriangle(Quad quad, Color color) {
+    public static void drawTriangle(Quad quad, Color color,float angle) {
         RenderContext.get().guiRenderState.submitPicturesInPictureState(new TriangleShader.State(
                 RenderContext.get(),
                 quad.x,
                 quad.y,
                 quad.width,
                 quad.height,
-                color.getRGB()
+                color.getRGB(),angle
         ));
     }
     public static void drawHueCircle(Quad quad,float radius, Color color) {

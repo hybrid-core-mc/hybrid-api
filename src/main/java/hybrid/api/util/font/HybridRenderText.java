@@ -87,6 +87,7 @@ public class HybridRenderText {
     public void draw(GuiGraphics context) {
         boolean isVanilla = false;
 
+
         if (isVanilla && svgDocument == null) {
 
         } else {

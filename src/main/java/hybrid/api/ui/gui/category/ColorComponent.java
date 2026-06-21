@@ -11,6 +11,9 @@ import net.minecraft.client.input.MouseButtonEvent;
 import java.awt.*;
 
 public class ColorComponent extends CategoryComponent {
+    private static final Color BASE_FILL = new Color(36, 41, 54, 255);
+    private static final Color HOVER_ACTIVE_COLOR = new Color(99, 102, 241, 255);
+
     private final ColorSetting colorSetting;
     private int height = 36;
     private boolean expanded = false;
@@ -20,12 +23,15 @@ public class ColorComponent extends CategoryComponent {
     TriangleGradientPicker triangleGradientPicker;
     HueCirclePicker picker;
 
+    private Quad barQuad;
+    private boolean isDraggingAlpha = false;
+    private float knobColorAnim = 0f;
+
     public ColorComponent(Setting<?> setting, Runnable onHeightChanged) {
         super(setting);
         this.colorSetting = (ColorSetting) setting;
         this.onHeightChanged = onHeightChanged;
 
-        
         this.presets = new Color[6];
         presets[0] = new Color(99, 102, 241, 255);
         presets[1] = new Color(16, 185, 129, 255);
@@ -33,8 +39,9 @@ public class ColorComponent extends CategoryComponent {
         presets[3] = new Color(139, 92, 246, 255);
         presets[4] = new Color(245, 158, 11, 255);
         presets[5] = new Color(6, 182, 212, 255);
-        triangleGradientPicker = new TriangleGradientPicker(45);
-        picker = new HueCirclePicker(43,colorSetting);
+
+        triangleGradientPicker = new TriangleGradientPicker(45,colorSetting);
+        picker = new HueCirclePicker(43, colorSetting);
     }
 
     @Override
@@ -52,7 +59,6 @@ public class ColorComponent extends CategoryComponent {
         HybridRenderer2D.drawRoundRect(headerQuad, 3, 0, Color.RED, colorSetting.get());
 
         if (expanded) {
-
             Quad dropdownQuad = new Quad(
                     quad.x,
                     quad.y + 36,
@@ -60,24 +66,84 @@ public class ColorComponent extends CategoryComponent {
                     this.height - 36
             );
 
-
             HybridRenderer2D.drawRoundRect(dropdownQuad, 10, 1, new Color(44, 47, 58, 255), new Color(26, 29, 41, 255));
             renderPresets();
             int offset = 8;
             int xOffset = 7;
-            picker.draw(dropdownQuad.x + dropdownQuad.getWidth()-50+xOffset, dropdownQuad.y + 32+offset, colorSetting.get());
-            triangleGradientPicker.render(RenderContext.get(),0,0,dropdownQuad.x + dropdownQuad.getWidth()-73+xOffset, dropdownQuad.y + 10+offset,0.5f);
+            int cx = dropdownQuad.x + dropdownQuad.getWidth() - 50 + xOffset;
+            picker.draw(cx, dropdownQuad.y + 32 + offset, colorSetting.get());
+            triangleGradientPicker.render(RenderContext.get(), 0, 0, dropdownQuad.x + dropdownQuad.getWidth() - 73 + xOffset, dropdownQuad.y + 10 + offset, 0.5f);
+
+            
+            this.barQuad = dropdownQuad.copy().setWidth(4).setX(cx - 45).addY(11).subtractHeight(25);
+
+            
+            HybridRenderer2D.drawRoundRect(barQuad, 2, 0.5f, Color.GRAY, BASE_FILL);
+
+            
+            float alpha = colorSetting.get().getAlpha() / 255f;
+            float progress = (alpha - 0.1f) / 0.9f;
+            progress = Math.max(0f, Math.min(1f, progress));
+
+            int progressHeight = (int) (barQuad.height * progress);
+
+            
+            if (progressHeight > 0) {
+                Quad progressQuad = new Quad(
+                        barQuad.x,
+                        barQuad.y + barQuad.height - progressHeight,
+                        barQuad.width,
+                        progressHeight
+                );
+                HybridRenderer2D.drawRoundRect(progressQuad, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
+            }
+
+            
+            float knobX = barQuad.x + (barQuad.width / 2f);
+            float knobY = barQuad.y + barQuad.height - progressHeight;
+
+            
+            float targetColorWeight = isDraggingAlpha ? 1f : 0f;
+            knobColorAnim = lerp(knobColorAnim, targetColorWeight, 0.15f);
+            Color knobColor = blend(Color.WHITE, HOVER_ACTIVE_COLOR, knobColorAnim);
+
+            HybridRenderer2D.drawCircle(
+                    new Quad(Math.round(knobX - 4.9f), (int) (knobY - 5), 1, 1),
+                    5.3f,
+                    knobColor,
+                    isDraggingAlpha
+            );
+
+
+            if (isDraggingAlpha) {
+                String alphaTextStr = String.format("%d%%", Math.round(progress * 100f));
+
+                HybridRenderText text = HybridTextRenderer.getTextRenderer(
+                        alphaTextStr,
+                        FontStyle.BOLD,
+                        15,
+                        Color.WHITE,
+                        Color.WHITE,
+                        false
+                );
+
+                
+                text.setPosition((int) (knobX-15 - (text.getWidth() / 2f)), (int) (knobY-2));
+                HybridTextRenderer.addText(text);
+            }
         }
 
         super.render(quad);
     }
+
+
+
     public void renderPresets() {
         int presetSize = 16;
         int gap = 8;
         int rightPadding = 15;
         int topPadding = 12;
 
-        
         int startX = quad.x + rightPadding;
         int startY = quad.y + 36 + topPadding;
 
@@ -98,7 +164,6 @@ public class ColorComponent extends CategoryComponent {
             }
         }
 
-        
         int buttonWidth = (3 * presetSize) + (2 * gap);
         int buttonHeight = 14;
         int buttonGap = 10;
@@ -112,33 +177,52 @@ public class ColorComponent extends CategoryComponent {
         HybridRenderer2D.drawRoundRect(buttonQuad, 4, 0, Color.GRAY, btnBg);
 
         String textStr = String.format("RGB(%d, %d, %d)", colorSetting.get().getRed(), colorSetting.get().getGreen(), colorSetting.get().getBlue());
-        HybridRenderText x = HybridTextRenderer.getTextRenderer(textStr, FontStyle.REGULAR, 14, Color.WHITE);
 
 
-        int textWidth = x.getWidth();
-        int textHeight = x.getHeight(); 
 
-        int textX = btnX + (buttonWidth - textWidth) / 2;
-        int textY = btnY + (buttonHeight - textHeight) / 2;
 
-        x.setPosition(textX, textY);
-        HybridTextRenderer.addText(x);
+
+
+
+
+
+
     }
 
     @Override
     public void mouseDragged(MouseButtonEvent mouseButtonEvent) {
-        picker.mouseClicked(mouseButtonEvent);
+
+        if (expanded && isDraggingAlpha && barQuad != null) {
+            updateAlphaFromMouse((float) mouseButtonEvent.y());
+        }
+        picker.mouseDragged(mouseButtonEvent);
+        triangleGradientPicker.mouseDragged(mouseButtonEvent);
+
         super.mouseDragged(mouseButtonEvent);
     }
 
+
+
     @Override
     public void mouseClicked(MouseButtonEvent event) {
+        triangleGradientPicker.mouseClicked(event);
+        picker.mouseClicked(event);
         if (quad == null) return;
 
-        triangleGradientPicker.mouseClicked(event);
 
         float mouseX = (float) event.x();
         float mouseY = (float) event.y();
+
+        if (expanded && barQuad != null && event.button() == 0) {
+            boolean overBar = mouseX >= (barQuad.x - 5) && mouseX <= (barQuad.x + barQuad.width + 5) &&
+                    mouseY >= barQuad.y && mouseY <= barQuad.y + barQuad.height;
+            if (overBar) {
+                isDraggingAlpha = true;
+                updateAlphaFromMouse(mouseY);
+                super.mouseClicked(event);
+                return;
+            }
+        }
 
         float x = quad.x;
         float y = quad.y;
@@ -149,9 +233,7 @@ public class ColorComponent extends CategoryComponent {
 
         if (hovered && event.button() == 0) {
             expanded = !expanded;
-            
             this.height = expanded ? 120 : 36;
-
 
             if (onHeightChanged != null) {
                 onHeightChanged.run();
@@ -159,6 +241,43 @@ public class ColorComponent extends CategoryComponent {
         }
 
         super.mouseClicked(event);
+    }
+
+    @Override
+    public void mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0) {
+            isDraggingAlpha = false;
+        }
+        triangleGradientPicker.mouseReleased(event);
+        picker.mouseReleased(event);
+        super.mouseReleased(event);
+    }
+
+    private void updateAlphaFromMouse(float mouseY) {
+        if (barQuad == null) return;
+
+        float distanceFormBottom = (barQuad.y + barQuad.height) - mouseY;
+        float pct = distanceFormBottom / (float) barQuad.height;
+        pct = Math.max(0f, Math.min(1f, pct));
+
+        float targetAlphaVal = 0.1f + (pct * 0.9f);
+        int alphaInt = Math.round(targetAlphaVal * 255f);
+
+        Color current = colorSetting.get();
+        Color updatedColor = new Color(current.getRed(), current.getGreen(), current.getBlue(), alphaInt);
+        colorSetting.set(updatedColor);
+    }
+
+    private float lerp(float a, float b, float t) {
+        return a + (b - a) * t;
+    }
+
+    private Color blend(Color a, Color b, float t) {
+        t = Math.max(0f, Math.min(1f, t));
+        int r = (int) (a.getRed() + (b.getRed() - a.getRed()) * t);
+        int g = (int) (a.getGreen() + (b.getGreen() - a.getGreen()) * t);
+        int b2 = (int) (a.getBlue() + (b.getBlue() - a.getBlue()) * t);
+        return new Color(r, g, b2);
     }
 
     @Override

@@ -93,7 +93,7 @@ public class TriangleShader extends PictureInPictureRenderer<TriangleShader.@Not
 
         
         
-        float slowAngle = (float) ((System.currentTimeMillis() / 5000.0) % (Math.PI * 2.0));
+        float slowAngle = 1;
 
         GpuBufferSlice uniformBuffer = Uniform.STORAGE.writeUniform(buffer -> {
             Std140Builder.intoBuffer(buffer)
@@ -144,13 +144,13 @@ public class TriangleShader extends PictureInPictureRenderer<TriangleShader.@Not
 
     public static class State implements PictureInPictureRenderState {
         float edgeSoftness = 1.0F;
-        float x, y, width, height, scale;
+        float x, y, width, height, scale,angle;
         Vector4f color;
 
         float xOffset, yOffset;
         ScreenRectangle scissorArea, bounds;
 
-        public State(GuiGraphics context, float x, float y, float width, float height, int color) {
+        public State(GuiGraphics context, float x, float y, float width, float height, int color,float angle) {
             this.scale = Minecraft.getInstance().getWindow().getGuiScale();
 
             this.x = x;
@@ -160,7 +160,7 @@ public class TriangleShader extends PictureInPictureRenderer<TriangleShader.@Not
 
             this.xOffset = x - Mth.floor(x);
             this.yOffset = y - Mth.floor(y);
-
+            this.angle = angle;
             this.color = new Vector4f(
                     ARGB.red(color) / 255F,
                     ARGB.green(color) / 255F,
