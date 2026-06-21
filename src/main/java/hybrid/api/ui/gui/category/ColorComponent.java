@@ -27,6 +27,9 @@ public class ColorComponent extends CategoryComponent {
     private boolean isDraggingAlpha = false;
     private float knobColorAnim = 0f;
 
+    private String cachedRgbString = "";
+    private HybridRenderText cachedRenderText = null;
+
     public ColorComponent(Setting<?> setting, Runnable onHeightChanged) {
         super(setting);
         this.colorSetting = (ColorSetting) setting;
@@ -40,8 +43,8 @@ public class ColorComponent extends CategoryComponent {
         presets[4] = new Color(245, 158, 11, 255);
         presets[5] = new Color(6, 182, 212, 255);
 
-        triangleGradientPicker = new TriangleGradientPicker(45,colorSetting);
-        picker = new HueCirclePicker(43, colorSetting);
+        triangleGradientPicker = new TriangleGradientPicker(45, colorSetting);
+        picker = new HueCirclePicker(43, 25, colorSetting);
     }
 
     @Override
@@ -72,22 +75,18 @@ public class ColorComponent extends CategoryComponent {
             int xOffset = 7;
             int cx = dropdownQuad.x + dropdownQuad.getWidth() - 50 + xOffset;
             picker.draw(cx, dropdownQuad.y + 32 + offset, colorSetting.get());
-            triangleGradientPicker.render(RenderContext.get(), 0, 0, dropdownQuad.x + dropdownQuad.getWidth() - 73 + xOffset, dropdownQuad.y + 10 + offset, 0.5f);
+            triangleGradientPicker.render(dropdownQuad.x + dropdownQuad.getWidth() - 73 + xOffset, dropdownQuad.y + 10 + offset);
 
-            
             this.barQuad = dropdownQuad.copy().setWidth(4).setX(cx - 45).addY(11).subtractHeight(25);
 
-            
             HybridRenderer2D.drawRoundRect(barQuad, 2, 0.5f, Color.GRAY, BASE_FILL);
 
-            
             float alpha = colorSetting.get().getAlpha() / 255f;
             float progress = (alpha - 0.1f) / 0.9f;
             progress = Math.max(0f, Math.min(1f, progress));
 
             int progressHeight = (int) (barQuad.height * progress);
 
-            
             if (progressHeight > 0) {
                 Quad progressQuad = new Quad(
                         barQuad.x,
@@ -98,11 +97,9 @@ public class ColorComponent extends CategoryComponent {
                 HybridRenderer2D.drawRoundRect(progressQuad, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
             }
 
-            
             float knobX = barQuad.x + (barQuad.width / 2f);
             float knobY = barQuad.y + barQuad.height - progressHeight;
 
-            
             float targetColorWeight = isDraggingAlpha ? 1f : 0f;
             knobColorAnim = lerp(knobColorAnim, targetColorWeight, 0.15f);
             Color knobColor = blend(Color.WHITE, HOVER_ACTIVE_COLOR, knobColorAnim);
@@ -113,7 +110,6 @@ public class ColorComponent extends CategoryComponent {
                     knobColor,
                     isDraggingAlpha
             );
-
 
             if (isDraggingAlpha) {
                 String alphaTextStr = String.format("%d%%", Math.round(progress * 100f));
@@ -127,16 +123,13 @@ public class ColorComponent extends CategoryComponent {
                         false
                 );
 
-                
-                text.setPosition((int) (knobX-15 - (text.getWidth() / 2f)), (int) (knobY-2));
+                text.setPosition((int) (knobX - 15 - (text.getWidth() / 2f)), (int) (knobY - 2));
                 HybridTextRenderer.addText(text);
             }
         }
 
         super.render(quad);
     }
-
-
 
     public void renderPresets() {
         int presetSize = 16;
@@ -176,22 +169,34 @@ public class ColorComponent extends CategoryComponent {
         Color btnBg = new Color(30, 34, 48, 255);
         HybridRenderer2D.drawRoundRect(buttonQuad, 4, 0, Color.GRAY, btnBg);
 
-        String textStr = String.format("RGB(%d, %d, %d)", colorSetting.get().getRed(), colorSetting.get().getGreen(), colorSetting.get().getBlue());
+        // Check if ANY component is actively dragging right now
+        boolean isCurrentlyDragging = isDraggingAlpha || picker.isDragging || triangleGradientPicker.isDragging;
 
+        // ONLY generate a fresh texture if we aren't dragging, OR if we don't have any texture cached yet
+        if (!isCurrentlyDragging || cachedRenderText == null) {
+            Color current = colorSetting.get();
+            String currentStr = String.format("RGB(%d, %d, %d)", current.getRed(), current.getGreen(), current.getBlue());
 
+            if (!currentStr.equals(cachedRgbString) || cachedRenderText == null) {
+                cachedRgbString = currentStr;
+                cachedRenderText = HybridTextRenderer.getTextRenderer(cachedRgbString, FontStyle.REGULAR, 14, Color.WHITE);
+            }
+        }
 
+        if (cachedRenderText != null) {
+            int textWidth = cachedRenderText.getWidth();
+            int textHeight = cachedRenderText.getHeight();
 
+            int textX = btnX + (buttonWidth - textWidth) / 2;
+            int textY = btnY + (buttonHeight - textHeight) / 2;
 
-
-
-
-
-
+            cachedRenderText.setPosition(textX, textY);
+            HybridTextRenderer.addText(cachedRenderText);
+        }
     }
 
     @Override
     public void mouseDragged(MouseButtonEvent mouseButtonEvent) {
-
         if (expanded && isDraggingAlpha && barQuad != null) {
             updateAlphaFromMouse((float) mouseButtonEvent.y());
         }
@@ -201,18 +206,16 @@ public class ColorComponent extends CategoryComponent {
         super.mouseDragged(mouseButtonEvent);
     }
 
-
-
     @Override
     public void mouseClicked(MouseButtonEvent event) {
         triangleGradientPicker.mouseClicked(event);
         picker.mouseClicked(event);
         if (quad == null) return;
 
-
         float mouseX = (float) event.x();
         float mouseY = (float) event.y();
 
+        // 1. Process Alpha Bar first
         if (expanded && barQuad != null && event.button() == 0) {
             boolean overBar = mouseX >= (barQuad.x - 5) && mouseX <= (barQuad.x + barQuad.width + 5) &&
                     mouseY >= barQuad.y && mouseY <= barQuad.y + barQuad.height;
@@ -224,6 +227,43 @@ public class ColorComponent extends CategoryComponent {
             }
         }
 
+        // 2. Process Preset Clicks
+        if (expanded && event.button() == 0) {
+            int presetSize = 16;
+            int gap = 8;
+            int rightPadding = 15;
+            int topPadding = 12;
+
+            int startX = quad.x + rightPadding;
+            int startY = quad.y + 36 + topPadding;
+
+            for (int i = 0; i < presets.length; i++) {
+                int col = i % 3;
+                int row = i / 3;
+
+                int renderX = startX + (col * (presetSize + gap));
+                int renderY = startY + (row * (presetSize + gap));
+
+                if (mouseX >= renderX && mouseX <= renderX + presetSize &&
+                        mouseY >= renderY && mouseY <= renderY + presetSize) {
+
+                    int currentAlpha = colorSetting.get().getAlpha();
+                    Color chosenPreset = presets[i];
+
+                    colorSetting.set(new Color(
+                            chosenPreset.getRed(),
+                            chosenPreset.getGreen(),
+                            chosenPreset.getBlue(),
+                            currentAlpha
+                    ));
+
+                    super.mouseClicked(event);
+                    return;
+                }
+            }
+        }
+
+        // 3. Process Header Expand/Collapse button
         float x = quad.x;
         float y = quad.y;
         float w = quad.width;

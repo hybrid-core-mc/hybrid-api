@@ -102,7 +102,7 @@ public class TriangleShader extends PictureInPictureRenderer<TriangleShader.@Not
                          .putVec4(
                                  state.edgeSoftness * state.scale, 
                                  state.scale,                      
-                                 slowAngle,                        
+                                 state.angle,
                                  0.0F                              
                          );
         });

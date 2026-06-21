@@ -83,17 +83,19 @@ public class HybridRenderText {
             }
         }
     }
-
     public void draw(GuiGraphics context) {
         boolean isVanilla = false;
 
-
         if (isVanilla && svgDocument == null) {
-
         } else {
             ensureTextureInitialized();
 
             if (this.cachedTexture == null || this.cachedTexture.texture() == null) {
+                return;
+            }
+            try {
+                this.cachedTexture.texture().getTextureView();
+            } catch (IllegalStateException | NullPointerException e) {
                 return;
             }
 
