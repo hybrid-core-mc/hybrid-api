@@ -5,7 +5,10 @@ import hybrid.api.mod.settings.Setting;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
-import hybrid.api.util.render.*;
+import hybrid.api.util.render.HueCirclePicker;
+import hybrid.api.util.render.HybridRenderer2D;
+import hybrid.api.util.render.Quad;
+import hybrid.api.util.render.TriangleGradientPicker;
 import net.minecraft.client.input.MouseButtonEvent;
 
 import java.awt.*;
@@ -74,8 +77,11 @@ public class ColorComponent extends CategoryComponent {
             int offset = 8;
             int xOffset = 7;
             int cx = dropdownQuad.x + dropdownQuad.getWidth() - 50 + xOffset;
-            picker.draw(cx, dropdownQuad.y + 32 + offset, colorSetting.get());
-            triangleGradientPicker.render(dropdownQuad.x + dropdownQuad.getWidth() - 73 + xOffset, dropdownQuad.y + 10 + offset);
+
+            picker.render(dropdownQuad.copy().addX(dropdownQuad.getWidth() - 50 + xOffset).addY(offset + 32));
+            
+
+            triangleGradientPicker.render(dropdownQuad.copy().addX(dropdownQuad.getWidth() - 73 + xOffset).addY(offset + 10));
 
             this.barQuad = dropdownQuad.copy().setWidth(4).setX(cx - 45).addY(11).subtractHeight(25);
 
@@ -169,10 +175,10 @@ public class ColorComponent extends CategoryComponent {
         Color btnBg = new Color(30, 34, 48, 255);
         HybridRenderer2D.drawRoundRect(buttonQuad, 4, 0, Color.GRAY, btnBg);
 
-        // Check if ANY component is actively dragging right now
+
         boolean isCurrentlyDragging = isDraggingAlpha || picker.isDragging || triangleGradientPicker.isDragging;
 
-        // ONLY generate a fresh texture if we aren't dragging, OR if we don't have any texture cached yet
+
         if (!isCurrentlyDragging || cachedRenderText == null) {
             Color current = colorSetting.get();
             String currentStr = String.format("RGB(%d, %d, %d)", current.getRed(), current.getGreen(), current.getBlue());
@@ -215,7 +221,7 @@ public class ColorComponent extends CategoryComponent {
         float mouseX = (float) event.x();
         float mouseY = (float) event.y();
 
-        // 1. Process Alpha Bar first
+
         if (expanded && barQuad != null && event.button() == 0) {
             boolean overBar = mouseX >= (barQuad.x - 5) && mouseX <= (barQuad.x + barQuad.width + 5) &&
                     mouseY >= barQuad.y && mouseY <= barQuad.y + barQuad.height;
@@ -227,7 +233,7 @@ public class ColorComponent extends CategoryComponent {
             }
         }
 
-        // 2. Process Preset Clicks
+
         if (expanded && event.button() == 0) {
             int presetSize = 16;
             int gap = 8;
@@ -263,7 +269,7 @@ public class ColorComponent extends CategoryComponent {
             }
         }
 
-        // 3. Process Header Expand/Collapse button
+
         float x = quad.x;
         float y = quad.y;
         float w = quad.width;
