@@ -19,8 +19,6 @@ public class NumberComponent extends CategoryComponent {
 
     private static final Color BASE_FILL = new Color(36, 41, 54, 255);
     private static final Color HOVER_ACTIVE_COLOR = new Color(99, 102, 241, 255);
-    private static final Color DESC_IDLE_COLOR = new Color(148, 163, 184);
-    private static final Color DESC_SHADOW_COLOR = new Color(15, 23, 42);
 
     private final NumberSetting numberSetting;
     private Quad bar;
@@ -28,7 +26,7 @@ public class NumberComponent extends CategoryComponent {
 
     private boolean dragging;
 
-    
+
     private float animPercent = 0f;
     private float knobColorAnim = 0f;
 
@@ -36,7 +34,7 @@ public class NumberComponent extends CategoryComponent {
         super(setting);
         this.numberSetting = (NumberSetting) setting;
 
-        
+
         double percent = (numberSetting.get() - numberSetting.getMin()) / (numberSetting.getMax() - numberSetting.getMin());
         this.animPercent = (float) Math.max(0.0, Math.min(1.0, percent));
     }
@@ -51,7 +49,7 @@ public class NumberComponent extends CategoryComponent {
     public void render(Quad quad) {
         super.render(quad);
 
-        
+
 
         int w = 80;
         int h = 4;
@@ -61,31 +59,31 @@ public class NumberComponent extends CategoryComponent {
 
         bar = new Quad(x, y, w, h);
 
-        
+
         double targetPercent = (numberSetting.get() - numberSetting.getMin()) / (numberSetting.getMax() - numberSetting.getMin());
         targetPercent = Math.max(0.0, Math.min(1.0, targetPercent));
 
-        
+
         animPercent = lerp(animPercent, (float) targetPercent, 0.22f);
         if (Math.abs(animPercent - targetPercent) < 0.001f) {
             animPercent = (float) targetPercent;
         }
 
-        
+
         HybridRenderer2D.drawRoundRect(bar, 2, 0.5f, Color.GRAY, BASE_FILL);
 
-        
+
         float fillWidth = w * animPercent;
         if (fillWidth > 0) {
             Quad fillTrack = new Quad(x, y, Math.round(fillWidth), h);
             HybridRenderer2D.drawRoundRect(fillTrack, 2, 0.5f, HOVER_ACTIVE_COLOR, HOVER_ACTIVE_COLOR);
         }
 
-        
+
         float knobX = x + fillWidth;
         float knobY = y + (h / 2f);
 
-        
+
         int clickRadius = 14;
         clickableKnobHitbox = new Quad(
                 Math.round(knobX - 7),
@@ -94,12 +92,12 @@ public class NumberComponent extends CategoryComponent {
                 clickRadius
         );
 
-        
+
         float targetColorWeight = dragging ? 1f : 0f;
         knobColorAnim = lerp(knobColorAnim, targetColorWeight, 0.15f);
         Color knobColor = blend(Color.WHITE, HOVER_ACTIVE_COLOR, knobColorAnim);
 
-        
+
         HybridRenderer2D.drawCircle(
                 new Quad(Math.round(knobX - 3), (int) (knobY - 5), 1, 1),
                 5.3f,
@@ -107,8 +105,8 @@ public class NumberComponent extends CategoryComponent {
                 dragging
         );
 
-        
-        
+
+
         if (dragging) {
             String settingText = String.format("%.1f", numberSetting.get());
 
@@ -121,8 +119,8 @@ public class NumberComponent extends CategoryComponent {
                     false
             );
 
-            
-            
+
+
             text.setPosition((int) (knobX - (text.getWidth() / 2f)), (int) (knobY - 15));
 
             HybridTextRenderer.addText(text);

@@ -48,6 +48,9 @@ public class DefaultCategoryBlock extends GuiEvents {
             if (s instanceof NumberSetting n) {
                 components.add(new NumberComponent(n)); 
             }
+            if(s instanceof ModeSetting<?> m) {
+                components.add(new ModeComponent(m));
+            }
         }
 
         recalcHeight();
@@ -100,13 +103,13 @@ public class DefaultCategoryBlock extends GuiEvents {
         
         if (currentHeight <= HEADER_HEIGHT + PADDING) return;
 
-        int stripY = quad.getY() + 32;
+        int stripY = quad.getY() + 35;
         
         int stripHeight = currentHeight - 32 - PADDING;
 
         Quad strip = new Quad(
                 quad.getX(),
-                stripY - 1,
+                stripY ,
                 quad.getWidth() - 1,
                 stripHeight
         );

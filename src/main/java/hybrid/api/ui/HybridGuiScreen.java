@@ -44,19 +44,19 @@ public class HybridGuiScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(MouseButtonEvent mouseButtonEvent, double d, double e) {
+    public boolean mouseDragged(@NotNull MouseButtonEvent mouseButtonEvent, double d, double e) {
         gui.mouseDragged(mouseButtonEvent);
         return super.mouseDragged(mouseButtonEvent, d, e);
     }
 
     @Override
-    public boolean mouseReleased(MouseButtonEvent mouseButtonEvent) {
+    public boolean mouseReleased(@NotNull MouseButtonEvent mouseButtonEvent) {
         gui.mouseReleased(mouseButtonEvent);
         return super.mouseReleased(mouseButtonEvent);
     }
 
     @Override
-    public boolean mouseClicked(MouseButtonEvent mouseButtonEvent, boolean bl) {
+    public boolean mouseClicked(@NotNull MouseButtonEvent mouseButtonEvent, boolean bl) {
         gui.mouseClicked(mouseButtonEvent);
         return super.mouseClicked(mouseButtonEvent, bl);
     }

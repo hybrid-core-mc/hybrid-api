@@ -49,7 +49,9 @@ public class BuiltCategory {
     public BuiltCategory addColor(String name, String desc, Color value) {
         return add(new ColorSetting(name, desc, value));
     }
-
+    public <T extends Enum<T>> BuiltCategory addMode(String name, String desc, T value) {
+        return add(new ModeSetting<T>(name, desc, value));
+    }
     public BuiltCategory end() {
         return parent != null ? parent : this;
     }

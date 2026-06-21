@@ -28,7 +28,14 @@ public class SprintMod extends HybridMod {
                 BuiltCategory.add("Gay boys")
                              .addBool("sigma", "weather toe anble the emoji function",true)
                              .addNumber("boy", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
+                             .addMode("Gay level", "choose gay level", GayMode.MONOGAY)
         );
+    }
 
+    public enum GayMode {
+        LITTLE,
+        ALOT,
+        EXTREMELY,
+        MONOGAY
     }
 }
