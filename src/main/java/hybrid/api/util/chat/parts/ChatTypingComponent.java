@@ -62,7 +62,7 @@ public class ChatTypingComponent {
                 textInputQuad.getX() + 6,
                 textY,
                 fontSize,
-                -1
+                -1,clippy
         );
 
 
