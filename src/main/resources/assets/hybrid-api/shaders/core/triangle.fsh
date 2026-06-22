@@ -1,9 +1,9 @@
 #version 150 core
 
 layout(std140) uniform TriangleUniforms {
-    vec4 uCoords;  
-    vec4 uColor;   
-    vec4 uParams;  
+    vec4 uCoords;
+    vec4 uColor;
+    vec4 uParams;
 };
 
 in vec2 f_Position;
@@ -17,7 +17,7 @@ void main() {
     float aspect = size.x / size.y;
 
     p.x *= aspect;
-    
+
     float angle = uParams.z;
     float c = cos(angle);
     float s = sin(angle);
@@ -27,15 +27,15 @@ void main() {
     p.x /= aspect;
     p /= min(size.x, size.y);
     p *= 0.9;
-    
+
     float r = 0.22;
     const float k = sqrt(3.0);
 
-    vec2 vertexColor = vec2(0.0, r * 2.0);      
-    vec2 vertexWhite = vec2(-k * r, -r);        
-    vec2 vertexBlack = vec2(k * r, -r);         
+    vec2 vertexColor = vec2(0.0, r * 2.0);
+    vec2 vertexWhite = vec2(-k * r, -r);
+    vec2 vertexBlack = vec2(k * r, -r);
 
-    
+
     float denom = (vertexWhite.y - vertexBlack.y) * (vertexColor.x - vertexBlack.x) +
     (vertexBlack.x - vertexWhite.x) * (vertexColor.y - vertexBlack.y);
 
@@ -47,15 +47,15 @@ void main() {
 
     float wBlack = 1.0 - wColor - wWhite;
 
-    
+
     wColor = clamp(wColor, 0.0, 1.0);
     wWhite = clamp(wWhite, 0.0, 1.0);
     wBlack = clamp(wBlack, 0.0, 1.0);
 
-    
+
     vec3 mixedRGB = (wColor * uColor.rgb) + (wWhite * vec3(1.0)) + (wBlack * vec3(0.0));
 
-    
+
     p.x = abs(p.x) - k * r;
     p.y = p.y + r;
 
@@ -67,11 +67,11 @@ void main() {
 
     float d = -length(p) * sign(p.y);
 
-    
+
     float pixelDistance = d * min(size.x, size.y);
     float alpha = smoothstep(edgeSoftness, -edgeSoftness, pixelDistance);
-    
-    
+
+
     vec4 triangleColor = vec4(mixedRGB, uColor.a * alpha);
     vec4 backgroundColor = vec4(0.0, 0.0, 0.0, 0.0);
 

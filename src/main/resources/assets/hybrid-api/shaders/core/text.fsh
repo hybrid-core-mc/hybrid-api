@@ -18,40 +18,25 @@ in vec2 texCoord;
 in vec4 vertColor;
 out vec4 fragColor;
 
-vec3 hsv2rgb(vec3 c) {
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
-
 void main() {
+    // Sample the distance field texture
     float dist = texture(Sampler0, texCoord).r;
 
+    // Keep the exact same edge sharpness and calculation
     float edgeWidth = fwidth(dist) * 0.7;
-    float time = u_EffectParams.x;
 
-    vec2 screenCenter = vec2(500.0, 300.0);
-    vec2 diff = gl_FragCoord.xy - screenCenter;
-    float angle = atan(diff.y, diff.x);
-
-    float hue = (angle / (3.1415926535 * 2.0)) + 0.5;
-    hue += time * 0.15;
-    hue = fract(hue);
-
-    vec3 rainbowColor = hsv2rgb(vec3(hue, 1.0, 1.0));
-
+    // Exact same inner text and glow alpha calculation
     float innerTextAlpha = smoothstep(0.5 - edgeWidth, 0.5 + edgeWidth, dist);
-
     float glowAlpha = smoothstep(0.38 - edgeWidth, 0.5 + edgeWidth, dist);
-
     float smoothFadeGlow = pow(glowAlpha, 2.0) * 0.65;
-
     float finalVisibility = max(innerTextAlpha, smoothFadeGlow);
 
-    vec3 finalRGB = rainbowColor * vertColor.rgb;
-    vec4 combinedColor = vec4(finalRGB, vertColor.a * finalVisibility);
+    // Use the passed vertex color directly instead of the rainbow
+    vec4 combinedColor = vec4(vertColor.rgb, vertColor.a * finalVisibility);
 
+    // Alpha discard check remains untouched
     if (combinedColor.a < 0.01) discard;
 
+    // Apply final dynamic color modulation
     fragColor = combinedColor * ColorModulator;
 }
