@@ -17,19 +17,19 @@ public class SprintMod extends HybridMod {
 
     @Override
     public void onSetupSettings() {
-        registerCategory(
-                BuiltCategory.add("General")
-                             .addColor("color", "gay color picekr",Color.RED)
 
-                             .addBool("Enabled", "weather toe anble the emoji function",true)
-                    .addNumber("Speed", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
-        );
-        registerCategory(
-                BuiltCategory.add("Gay boys")
-                             .addBool("sigma", "weather toe anble the emoji function",true)
-                             .addNumber("boy", "speed of the chat LOL idk wtf",1.2f, 1.0f, 2.0f)
-                             .addMode("Gay level", "choose gay level", GayMode.MONOGAY)
-        );
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     public enum GayMode {

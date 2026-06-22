@@ -3,6 +3,9 @@ package hybrid.api.ui.gui.normal;
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.HybridMods;
 import hybrid.api.mod.SprintMod;
+import hybrid.api.mod.ThemeMod;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.ui.gui.pages.DefaultSettingsPage;
 import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.ui.gui.parts.SidebarPart;
@@ -21,7 +24,7 @@ public class DefaultGui extends GuiPart {
     DefaultSettingsPage modSettingsPage;
 
     public DefaultGui() {
-        modSettingsPage = new DefaultSettingsPage(HybridMods.getMod(SprintMod.class));
+        modSettingsPage = new DefaultSettingsPage(HybridMods.getMod(ThemeMod.class));
     }
 
     @Override
@@ -31,13 +34,14 @@ public class DefaultGui extends GuiPart {
         int h = (int) (490 * 0.65);
 
         Quad background = new Quad((screenWidth - w) / 2, (screenHeight - h) / 2, w, h);
-        Color border = new Color(44, 45, 56);
 
-        HybridRenderer2D.drawRoundRect(background, new Color(18, 20, 28), border, 10, 1.5f);
+
 
         int settingsPageWidth = (int) (background.getWidth() * 0.75);
         Quad sidebarBounds = background.copy().subtractWidth(settingsPageWidth);
 
+        HybridRenderer2D.drawRoundRect(background.copy().setWidth(settingsPageWidth).addX(sidebarBounds.width), ThemeManager.get(ThemeTarget.MAIN_BG), ThemeManager.get(ThemeTarget.BORDER), 10, 1.5f,10,10,0,0);
+        HybridRenderer2D.drawRoundRect(sidebarBounds, ThemeManager.get(ThemeTarget.SIDEBAR_BG), ThemeManager.get(ThemeTarget.BORDER), 10, 1.5f, 0, 0, 10, 10);
         int leftPadding = 24;
         int dotSize = 6;
         int logoX = sidebarBounds.x + leftPadding;
@@ -50,7 +54,10 @@ public class DefaultGui extends GuiPart {
 
         HybridTextRenderer.render(RenderContext.get());
         RenderContext.get().disableScissor();
+
+
     }
+
 
     @Override
     public void mouseScrolled(double d, double e, double f, double g) {

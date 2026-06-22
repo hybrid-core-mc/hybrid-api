@@ -1,6 +1,8 @@
 package hybrid.api.ui.gui.category;
 
 import hybrid.api.mod.settings.*;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.ui.gui.GuiEvents;
 import hybrid.api.util.font.FontStyle;
 import hybrid.api.util.font.HybridRenderText;
@@ -19,10 +21,6 @@ public class DefaultCategoryBlock extends GuiEvents {
     private static final int PADDING = 4;
     private static final int SPACING = 6;
 
-    private static final Color BORDER = new Color(35, 36, 45);
-    private static final Color BG = new Color(19, 21, 29);
-    private static final Color CONTENT_BG = new Color(16, 18, 26);
-    private static final Color TEXT = Color.WHITE;
 
     private final BuiltCategory category;
     private final List<CategoryComponent> components = new ArrayList<>();
@@ -82,7 +80,7 @@ public class DefaultCategoryBlock extends GuiEvents {
 
         HybridRenderer2D.drawRoundRect(
                 box,
-                new Color(21, 23, 31, 255), BORDER, 10,
+                ThemeManager.get(ThemeTarget.COMP_BG), ThemeManager.get(ThemeTarget.BORDER).darker(), 10,
                 1.5f
         );
 
@@ -90,8 +88,8 @@ public class DefaultCategoryBlock extends GuiEvents {
                 category.getName(),
                 FontStyle.BOLD,
                 18,
-                TEXT,
-                TEXT,
+                ThemeManager.get(ThemeTarget.TEXT_COLOR),
+                ThemeManager.get(ThemeTarget.TEXT_COLOR),
                 false
         );
 
@@ -112,12 +110,7 @@ public class DefaultCategoryBlock extends GuiEvents {
                 stripHeight
         );
 
-        HybridRenderer2D.drawRoundRect(
-                strip,
-                new Color(18, 20, 27, 255), new Color(0, 58, 255), 0,
-                0,
-                10, 0, 10, 0
-        );
+        HybridRenderer2D.drawRoundRect(strip, ThemeManager.get(ThemeTarget.COMP_SECONDARY), new Color(0, 58, 0), 0, 0, 10, 0, 10, 0);
 
         int y = quad.getY() + HEADER_HEIGHT + PADDING;
 

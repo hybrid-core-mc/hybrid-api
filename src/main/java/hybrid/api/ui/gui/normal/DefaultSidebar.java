@@ -12,11 +12,11 @@ import hybrid.api.util.render.Quad;
 import hybrid.api.util.render.RenderContext;
 import net.minecraft.client.input.MouseButtonEvent;
 
+import javax.swing.border.Border;
 import java.awt.*;
 
 public class DefaultSidebar extends SidebarPart {
 
-    private final Color border = new Color(44, 45, 56);
 
     
     private final float FADE_SPEED = 0.08f; 
@@ -36,7 +36,6 @@ public class DefaultSidebar extends SidebarPart {
         lastFrameTime = currentTime;
         if (delta > 3) delta = 3; 
 
-        HybridRenderer2D.drawRoundRect(bounds, ThemeManager.get(ThemeTarget.SIDEBAR_BG), border, 10, 1.5f, 0, 0, 10, 10);
 
         int leftPadding = 24;
         int topPadding = 24;
@@ -156,7 +155,7 @@ public class DefaultSidebar extends SidebarPart {
         int boxY = (sidebar.y + sidebar.getHeight()) - boxHeight - margin;
 
         Quad settingsBox = new Quad(boxX, boxY, boxWidth, boxHeight);
-        HybridRenderer2D.drawRoundRect(settingsBox, new Color(0x0D0F14), new Color(0x1F2126), 8, 1.0f);
+        HybridRenderer2D.drawRoundRect(settingsBox, ThemeManager.get(ThemeTarget.ICONS_BG), ThemeManager.get(ThemeTarget.BORDER).darker(), 8, 1.0f);
 
         int padding = 10;
         int bgSize = 20;

@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public abstract class Setting<T> {
 
-    protected String name,desc;
+    protected String name, desc;
     protected T value;
 
     private final List<Consumer<T>> listeners = new ArrayList<>();
@@ -30,6 +30,10 @@ public abstract class Setting<T> {
     }
 
     public void set(T value) {
+        
+        if (this.value != null && this.value.equals(value)) {
+            return;
+        }
         this.value = value;
         notifyListeners();
     }

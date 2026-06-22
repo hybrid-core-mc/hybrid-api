@@ -1,7 +1,10 @@
 package hybrid.api.ui.gui.pages;
 
 import hybrid.api.mod.HybridMod;
+import hybrid.api.mod.ThemeMod;
 import hybrid.api.mod.settings.BuiltCategory;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.ui.gui.category.DefaultCategoryBlock;
 import hybrid.api.ui.gui.parts.ContentPart;
 import hybrid.api.util.font.FontStyle;
@@ -16,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefaultSettingsPage extends ContentPart {
-    private static final Color BORDER_COLOR = new Color(35, 36, 45);
     private static final Color BG_COLOR = new Color(19, 21, 29, 255);
     private static final Color TITLE_COLOR = Color.WHITE;
     public static final Color DESC_IDLE_COLOR = new Color(150, 160, 175);
@@ -70,7 +72,7 @@ public class DefaultSettingsPage extends ContentPart {
 
         if (boxY + finalCalculatedHeight >= quad.getY() && boxY <= quad.getY() + quad.getHeight()) {
             Quad centerBox = new Quad(boxX, boxY, boxWidth, finalCalculatedHeight);
-            HybridRenderer2D.drawRoundRect(centerBox, BG_COLOR, BORDER_COLOR, 10, 1.5f);
+            HybridRenderer2D.drawRoundRect(centerBox, BG_COLOR, ThemeManager.get(ThemeTarget.BORDER).darker(), 10, 1.5f);
 
             HybridTextRenderer.addText(cachedTitleText);
             for (HybridRenderText cachedLineText : cachedLineTexts) {
@@ -127,7 +129,7 @@ public class DefaultSettingsPage extends ContentPart {
         int boxY = sidebar.y + 2;
 
         Quad settingsBox = new Quad(boxX, boxY, boxWidth, boxHeight);
-        HybridRenderer2D.drawRoundRect(settingsBox, new Color(0x0D0F14), new Color(0x1F2126), 8, 1.0f);
+        HybridRenderer2D.drawRoundRect(settingsBox, ThemeManager.get(ThemeTarget.ICONS_BG), ThemeManager.get(ThemeTarget.BORDER).darker(), 8, 1.0f);
 
         int padding = 10;
 

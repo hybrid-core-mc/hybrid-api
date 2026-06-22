@@ -13,6 +13,7 @@ public class HybridMods {
 
     public static void init() {
 
+        register(new ThemeMod());
         register(new SprintMod());
 
         for (HybridMod mod : MODS) {

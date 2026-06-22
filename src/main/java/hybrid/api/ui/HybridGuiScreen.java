@@ -2,6 +2,7 @@ package hybrid.api.ui;
 
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.SprintMod;
+import hybrid.api.mod.ThemeMod;
 import hybrid.api.ui.gui.normal.DefaultGui;
 import hybrid.api.ui.gui.parts.GuiPart;
 import hybrid.api.util.font.HybridTextRenderer;
@@ -23,7 +24,7 @@ public class HybridGuiScreen extends Screen {
         super(Component.translatable("hybrid.gui"));
 
         this.gui = new DefaultGui();
-        this.currentMod = new SprintMod();
+        this.currentMod = new ThemeMod();
     }
 
     @Override
