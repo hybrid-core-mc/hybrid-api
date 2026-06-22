@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RenderSystem.class)
-public class MixinRenderSystem {
+public class RenderSystemMixin {
     @Inject(method = "flipFrame", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;endFrame()V"))
     private static void endFrame(Window window, TracyFrameCapture tracyFrameCapture, CallbackInfo ci) {
         QuadShader.Uniform.clear();
