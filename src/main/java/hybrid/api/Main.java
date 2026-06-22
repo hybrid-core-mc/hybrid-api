@@ -3,7 +3,7 @@ package hybrid.api;
 import com.mojang.blaze3d.platform.InputConstants;
 import hybrid.api.mod.HybridMods;
 import hybrid.api.theme.ThemeManager;
-import hybrid.api.util.font.fancy.Test;
+import hybrid.api.util.font.fancy.CustomChatScreen;
 import hybrid.api.util.shader.HybridShaders;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -47,7 +47,7 @@ public class Main implements ModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (sendToChatKey.consumeClick()) {
-				mc.setScreen(new Test());
+				mc.setScreen(new CustomChatScreen());
 			}
 		});
 

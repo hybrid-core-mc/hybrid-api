@@ -2,14 +2,18 @@ package hybrid.api.util.font.fancy;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.DepthTestFunction;
+import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.GpuSampler;
+import net.minecraft.client.renderer.DynamicUniformStorage;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
@@ -33,6 +37,7 @@ public class FontRenderer {
                           .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/text"))
                           .withBlend(BlendFunction.TRANSLUCENT)
                           .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+                          .withUniform("FontUniforms", UniformType.UNIFORM_BUFFER) 
                           .build()
     );
     private static final List<TextCommand> COMMAND_QUEUE = new ArrayList<>();
@@ -46,12 +51,11 @@ public class FontRenderer {
         }
 
         COMMAND_QUEUE.clear();
+        Uniform.clear(); 
     }
 
     private static void renderTextCommand(TextCommand cmd) {
-        if (cmd.font() == null) {
-            return;
-        }
+        if (cmd.font() == null) return;
 
         RenderTarget fbo = mc.getMainRenderTarget();
 
@@ -70,15 +74,12 @@ public class FontRenderer {
                 : cmd.font().getQuads(cmd.text(), cmd.x(), cmd.y(), cmd.size());
 
         int vertexCount = quads.length * 4;
-
         ByteBuffer vertexBuffer = MemoryUtil.memAlloc(vertexCount * VERTEX_STRIDE_BYTES);
 
         try {
             for (int i = 0; i < quads.length; i++) {
                 float[] quad = quads[i];
-                int color = (cmd.charColors() != null && i < cmd.charColors().length)
-                        ? cmd.charColors()[i]
-                        : cmd.color();
+                int color = (cmd.charColors() != null && i < cmd.charColors().length) ? cmd.charColors()[i] : cmd.color();
 
                 float x0 = quad[0], y0 = quad[1], x1 = quad[2], y1 = quad[3];
                 float u0 = quad[4], v0 = quad[5], x1_u = quad[6], y1_v = quad[7];
@@ -91,8 +92,7 @@ public class FontRenderer {
             vertexBuffer.flip();
 
             int indexCount = quads.length * 6;
-            RenderSystem.AutoStorageIndexBuffer indexStorage =
-                    RenderSystem.getSequentialBuffer(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS);
+            RenderSystem.AutoStorageIndexBuffer indexStorage = RenderSystem.getSequentialBuffer(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS);
             GpuBuffer indexBuf = indexStorage.getBuffer(indexCount);
 
             GpuBuffer vertexBuf = RenderSystem.getDevice().createBuffer(
@@ -100,8 +100,16 @@ public class FontRenderer {
                     GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_COPY_DST,
                     vertexBuffer.remaining()
             );
-
             RenderSystem.getDevice().createCommandEncoder().writeToBuffer(vertexBuf.slice(), vertexBuffer);
+
+            
+            float currentTimeSeconds = (System.currentTimeMillis() % 1000000) / 1000.0f;
+
+            
+            GpuBufferSlice fontUniformBuffer = Uniform.STORAGE.writeUniform(buffer -> {
+                Std140Builder.intoBuffer(buffer)
+                             .putVec4(currentTimeSeconds, 0.0F, 0.0F, 0.0F); 
+            });
 
             assert fbo.getColorTextureView() != null;
             try (RenderPass pass = RenderSystem.getDevice()
@@ -116,6 +124,7 @@ public class FontRenderer {
                 pass.setPipeline(TEXT_PIPELINE);
                 RenderSystem.bindDefaultUniforms(pass);
                 pass.setUniform("DynamicTransforms", dynamicTransforms);
+                pass.setUniform("FontUniforms", fontUniformBuffer); 
                 pass.bindTexture("Sampler0", cmd.font().atlasView, sampler);
                 pass.setVertexBuffer(0, vertexBuf);
                 pass.setIndexBuffer(indexBuf, indexStorage.type());
@@ -125,7 +134,9 @@ public class FontRenderer {
             vertexBuf.close();
         } finally {
             MemoryUtil.memFree(vertexBuffer);
+
         }
+
     }
 
     private static void vertex(ByteBuffer buf, float x, float y, float u, float v, int color) {
@@ -140,33 +151,28 @@ public class FontRenderer {
         buf.put((byte) ((color >> 24) & 0xFF));
     }
 
-
     public void drawText(StyledFont font, String text, float x, float y, float size, int color) {
         COMMAND_QUEUE.add(new TextCommand(font, text, x, y, size, color, false));
     }
-
-    public void drawTextShadow(StyledFont font, String text, float x, float y, float size, int color) {
-        COMMAND_QUEUE.add(new TextCommand(font, text, x, y, size, color, true));
-    }
-
-
-    public void drawText(String text, float x, float y, int color) {
-        COMMAND_QUEUE.add(new TextCommand(null, text, x, y, 0, color, false));
-    }
-
-    public void drawTextShadow(String text, float x, float y, int color) {
-        COMMAND_QUEUE.add(new TextCommand(null, text, x, y, 0, color, true));
-    }
-
-    public void drawTextCentered(String text, float x, float y, int color) {
-        COMMAND_QUEUE.add(new TextCommand(null, text, x, y, 0, color, false));
-    }
-
 
     private record TextCommand(StyledFont font, String text, float x, float y, float size, int color, boolean shadow,
                                int[] charColors, float[][] bakedQuads) {
         TextCommand(StyledFont font, String text, float x, float y, float size, int color, boolean shadow) {
             this(font, text, x, y, size, color, shadow, null, null);
+        }
+    }
+
+    
+    public static class Uniform {
+        private static final int SIZE = new Std140SizeCalculator()
+                .putVec4() 
+                .get();
+
+        private static final DynamicUniformStorage<DynamicUniformStorage.DynamicUniform> STORAGE =
+                new DynamicUniformStorage<>("Font UBO", SIZE, 4);
+
+        public static void clear() {
+            STORAGE.endFrame();
         }
     }
 }

@@ -9,12 +9,12 @@ import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
-public class Test extends Screen {
-    private final FontRenderer bRender = new FontRenderer();
+public class CustomChatScreen extends Screen {
+    private final FontRenderer magicFont = new FontRenderer();
     private StyledFont font;
     private String text = "Type here...";
 
-    public Test() {
+    public CustomChatScreen() {
         super(Component.literal("BRender Test Screen"));
     }
 
@@ -31,16 +31,7 @@ public class Test extends Screen {
         int y = 14;
         int size = 32;
 
-        
-        int width = Math.max(20, (int) Math.ceil(font.getWidth(text, size)));
-        int height = (int) Math.ceil(font.getHeight(size));
-
-        
-        int padding = 4;
-        graphics.fill(x - padding, y, x + width + padding, y + height, 0x44FF0000);
-
-        
-        bRender.drawText(font, text, x, y, size, 0xFFFF8800);
+        magicFont.drawText(font, text, x, y, size, 0xFFFF8800);
     }
 
     @Override
