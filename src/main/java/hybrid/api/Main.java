@@ -34,8 +34,9 @@ public class Main implements ModInitializer {
 		return INTER_BOLD;
 	}
 
+
 	@Override
-    public void onInitialize() {
+	public void onInitialize() {
 
 
 		LOGGER.info("Hello HELL!!");

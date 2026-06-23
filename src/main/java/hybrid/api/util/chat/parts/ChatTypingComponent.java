@@ -11,22 +11,20 @@ import net.minecraft.client.input.KeyEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
+
+import static hybrid.api.Main.mc;
 
 public class ChatTypingComponent {
 
-    // Define the record to hold message details
-    public record ChatMessage(String senderName, int index, String message) {}
-
     private final StringBuilder currentText = new StringBuilder();
+    private final ChatTextComponent historyComponent;
     private Quad textInputQuad;
 
-    // Track sent messages and assign unique indices
-    private final List<ChatMessage> messageHistory = new ArrayList<>();
-    private int messageIndexCounter = 0;
+    private static final float FONT_SIZE = 11f;
 
-    public ChatTypingComponent() {
+    
+    public ChatTypingComponent(ChatTextComponent historyComponent) {
+        this.historyComponent = historyComponent;
     }
 
     public void render(Quad quad) {
@@ -41,33 +39,31 @@ public class ChatTypingComponent {
         int inputWidth = quad.getWidth() - buttonWidth - buttonSpacing;
         textInputQuad = new Quad(quad.getX(), quad.getY(), inputWidth, quad.getHeight());
 
+        
         HybridRenderer2D.drawRoundRect(textInputQuad, new Color(101, 98, 98, 124), Color.RED, 8, 0);
 
+        
         String textToDraw = currentText.toString();
-
         if (System.currentTimeMillis() % 1000 < 500) {
             textToDraw += "|";
         } else {
             textToDraw += " ";
         }
 
-        float fontSize = 11f;
-        float textY = textInputQuad.getY() + ((float) textInputQuad.getHeight() / 2f) - (fontSize / 2f);
-
+        float textY = textInputQuad.getY() + ((float) textInputQuad.getHeight() / 2f) - (FONT_SIZE / 2f);
         Quad clippy = textInputQuad.copy().addX(5).subtractWidth(10);
 
+        
         Main.RENDERER.drawText(
                 Main.getStyle(),
                 textToDraw,
                 textInputQuad.getX() + 6,
                 textY,
-                fontSize,
-                -1,clippy
+                FONT_SIZE,
+                -1, clippy
         );
 
-
-
-
+        
         HybridRenderer2D.drawRoundRect(buttonQuad, new Color(255, 255, 255, 140), Color.RED, 8, 0);
         HybridRenderText dots = HybridTextRenderer.getIconRenderer("dots", Color.BLACK);
         dots.setPosition(btnX + buttonWidth / 2 - dots.getWidth() / 2, btnY + buttonWidth / 2 - (dots.getHeight() + 6) / 2);
@@ -77,39 +73,28 @@ public class ChatTypingComponent {
 
     public void charTyped(CharacterEvent characterEvent) {
         char codePoint = (char) characterEvent.codepoint();
-
         if (codePoint >= 32 && codePoint != 127) {
             currentText.append(codePoint);
         }
     }
 
     public void keyPressed(KeyEvent keyEvent) {
-        // Handle Backspace
         if (keyEvent.key() == GLFW.GLFW_KEY_BACKSPACE) {
             if (!currentText.isEmpty()) {
                 currentText.deleteCharAt(currentText.length() - 1);
             }
         }
 
-        // Handle Enter key to submit the message
         if (keyEvent.key() == GLFW.GLFW_KEY_ENTER || keyEvent.key() == GLFW.GLFW_KEY_KP_ENTER) {
             String messageToSend = currentText.toString().trim();
 
             if (!messageToSend.isEmpty()) {
-                // Instantiating the record with (Name, index, message)
-                // Swap "LocalPlayer" out with Minecraft.getInstance().getUser().getName() if desired!
-                ChatMessage newMessage = new ChatMessage("LocalPlayer", messageIndexCounter++, messageToSend);
 
-                messageHistory.add(newMessage);
-
+                assert mc.player != null;
+                historyComponent.addMessage(mc.player.getPlainTextName(), messageToSend);
                 clearText();
             }
         }
-    }
-
-    // Grab the full list of sent messages from other classes
-    public List<ChatMessage> getMessageHistory() {
-        return messageHistory;
     }
 
     public String getText() {

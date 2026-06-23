@@ -133,9 +133,9 @@ public class FontRenderer {
 
                 pass.bindTexture("Sampler0", cmd.font().atlasView, sampler);
 
-                // =========================
-                // ✅ SCISSOR (CLIP REGION)
-                // =========================
+                
+                
+                
                 if (cmd.clip() != null) {
                     applyScissor(pass, cmd.clip(), fbo);
                 }
