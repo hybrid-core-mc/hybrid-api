@@ -72,22 +72,12 @@ public class Test extends Screen {
                     skinTexture,
                     headX, headY, headSize, headSize,
                     8, 8, 8, 8,
-                    colorFilter, false
+                    colorFilter, 1,false
             );
-
-
-            if (playerInfo.showHat()) {
-                hybridTextureRenderer.drawTextureSubRegion(
-                        skinTexture,
-                        headX, headY, headSize, headSize,
-                        40, 8, 8, 8,
-                        colorFilter, false
-                );
-            }
         }
 
 
-        hybridTextureRenderer.drawTexture(texture, 10, rowY, 500, 300, 0xFFFFFFFF, true);
+        hybridTextureRenderer.drawTexture(texture, 10, rowY, 500, 300, 0xFFFFFFFF, 0.4f,true);
 
 
         hybridTextureRenderer.flush();

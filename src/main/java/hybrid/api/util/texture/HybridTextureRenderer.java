@@ -2,6 +2,8 @@ package hybrid.api.util.texture;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.buffers.Std140Builder;
+import com.mojang.blaze3d.buffers.Std140SizeCalculator;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -11,6 +13,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.DynamicUniformStorage;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import org.joml.Matrix4f;
@@ -29,7 +32,7 @@ public class HybridTextureRenderer {
                           .withVertexShader(Identifier.fromNamespaceAndPath("hybrid-api", "core/text"))
                           .withBlend(BlendFunction.TRANSLUCENT)
                           .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-                          .withUniform("FontUniforms", UniformType.UNIFORM_BUFFER)
+                          .withUniform("TextureUniforms", UniformType.UNIFORM_BUFFER)
                           .build()
     );
 
@@ -39,31 +42,28 @@ public class HybridTextureRenderer {
             HybridTexture texture,
             float x, float y, float width, float height,
             float u0, float v0, float u1, float v1,
-            int color, boolean linear 
+            int color, float radius, boolean linear
     ) {}
 
     private final List<TextureCommand> localTextures = new ArrayList<>();
 
-    
-    public void drawTexture(HybridTexture texture, float x, float y, float width, float height, int color, boolean linear) {
-        localTextures.add(new TextureCommand(texture, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, color, linear));
+    public void drawTexture(HybridTexture texture, float x, float y, float width, float height, int color, float radius, boolean linear) {
+        localTextures.add(new TextureCommand(texture, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, color, radius, linear));
     }
 
-    
     public void drawTextureUV(HybridTexture texture, float x, float y, float width, float height,
-                              float u0, float v0, float u1, float v1, int color, boolean linear) {
-        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, linear));
+                              float u0, float v0, float u1, float v1, int color, float radius, boolean linear) {
+        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, radius, linear));
     }
 
-    
     public void drawTextureSubRegion(HybridTexture texture, float x, float y, float width, float height,
-                                     int sourceX, int sourceY, int sourceWidth, int sourceHeight, int color, boolean linear) {
+                                     int sourceX, int sourceY, int sourceWidth, int sourceHeight, int color, float radius, boolean linear) {
         float u0 = (float) sourceX / texture.width;
         float v0 = (float) sourceY / texture.height;
         float u1 = (float) (sourceX + sourceWidth) / texture.width;
         float v1 = (float) (sourceY + sourceHeight) / texture.height;
 
-        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, linear));
+        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, radius, linear));
     }
 
     public void flush() {
@@ -76,28 +76,37 @@ public class HybridTextureRenderer {
 
         RenderTarget renderTarget = Minecraft.getInstance().getMainRenderTarget();
 
-        GpuBufferSlice transformSlice = RenderSystem.getDynamicUniforms().writeTransform(
-                new Matrix4f().setTranslation(0, 0, -11000),
-                new Vector4f(1, 1, 1, 1), new Vector3f(), new Matrix4f()
-        );
-
         for (TextureCommand cmd : DRAW_LIST) {
-            
             FilterMode filterMode = cmd.linear() ? FilterMode.LINEAR : FilterMode.NEAREST;
             GpuSampler sampler = RenderSystem.getSamplerCache().getClampToEdge(filterMode);
 
+            
+            Matrix4f textureMat = new Matrix4f();
+            textureMat.m02(cmd.u0());
+            textureMat.m12(cmd.v0());
+            textureMat.m22(cmd.u1());
+            textureMat.m32(cmd.v1());
+
+            GpuBufferSlice transformSlice = RenderSystem.getDynamicUniforms().writeTransform(
+                    new Matrix4f().setTranslation(0, 0, -11000),
+                    new Vector4f(1, 1, 1, 1),
+                    new Vector3f(),
+                    textureMat
+            );
+
             drawTextureQuad(renderTarget, transformSlice, sampler, cmd.texture().view,
                     cmd.x(), cmd.y(), cmd.width(), cmd.height(),
-                    cmd.u0(), cmd.v0(), cmd.u1(), cmd.v1(), cmd.color());
+                    cmd.u0(), cmd.v0(), cmd.u1(), cmd.v1(), cmd.color(), cmd.radius());
         }
-
         DRAW_LIST.clear();
+        Uniform.clear();
     }
 
     private static void drawTextureQuad(RenderTarget renderTarget, GpuBufferSlice dynamicTransforms,
                                         GpuSampler sampler, GpuTextureView textureView,
                                         float x, float y, float width, float height,
-                                        float u0, float v0, float u1, float v1, int color) {
+                                        float u0, float v0, float u1, float v1, int color, float radius) {
+
         ByteBuffer vertexBuffer = MemoryUtil.memAlloc(4 * 24);
         try {
             vertexTexture(vertexBuffer, x,         y,          u0, v0, color);
@@ -117,6 +126,11 @@ public class HybridTextureRenderer {
                     RenderSystem.getSequentialBuffer(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS);
             GpuBuffer indexBufferObj = indexStorage.getBuffer(6);
 
+            
+            GpuBufferSlice fontUniformBuffer = Uniform.STORAGE.writeUniform(buffer ->
+                    Std140Builder.intoBuffer(buffer).putFloat(radius)
+            );
+
             try (RenderPass renderPass = RenderSystem.getDevice()
                                                      .createCommandEncoder()
                                                      .createRenderPass(
@@ -129,6 +143,7 @@ public class HybridTextureRenderer {
                 renderPass.setPipeline(TEXTURE_PIPELINE);
                 RenderSystem.bindDefaultUniforms(renderPass);
                 renderPass.setUniform("DynamicTransforms", dynamicTransforms);
+                renderPass.setUniform("TextureUniforms", fontUniformBuffer);
                 renderPass.bindTexture("Sampler0", textureView, sampler);
                 renderPass.setVertexBuffer(0, vertexBufferObj);
                 renderPass.setIndexBuffer(indexBufferObj, indexStorage.type());
@@ -151,5 +166,18 @@ public class HybridTextureRenderer {
         buffer.put((byte) ((color >> 8)  & 0xFF));
         buffer.put((byte) (color         & 0xFF));
         buffer.put((byte) ((color >> 24) & 0xFF));
+    }
+
+    public static class Uniform {
+        private static final int SIZE = new Std140SizeCalculator()
+                .putFloat()
+                .get();
+
+        private static final DynamicUniformStorage<DynamicUniformStorage.DynamicUniform> STORAGE =
+                new DynamicUniformStorage<>("Font UBO", SIZE, 4);
+
+        public static void clear() {
+            STORAGE.endFrame();
+        }
     }
 }
