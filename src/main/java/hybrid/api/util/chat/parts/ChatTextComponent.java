@@ -9,6 +9,7 @@ import hybrid.api.util.texture.HybridTextureRenderer;
 import hybrid.api.util.texture.PlayerInfoAccessor;
 import hybrid.api.util.texture.TextureCache;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.special.PlayerHeadSpecialRenderer;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,8 +39,9 @@ public class ChatTextComponent {
     public void render(Quad anchorQuad, Quad clipping) {
         if (messageHistory.isEmpty()) return;
 
-        float currentY = anchorQuad.getY() - 16;
+        float currentY = anchorQuad.getY() - 5;
         int renderedCount = 0;
+
         List<PlayerInfo> playerInfos = ((PlayerInfoAccessor) mc.gui.getTabList()).hybrid_api$playerInfo();
 
         for (int i = messageHistory.size() - 1; i >= 0; i--) {
@@ -48,7 +50,7 @@ public class ChatTextComponent {
             ChatMessage msg = messageHistory.get(i);
             boolean isGrouped = (i > 0) && messageHistory.get(i - 1).senderName().equals(msg.senderName());
 
-            RenderableMessage renderBlock = new RenderableMessage(msg, isGrouped);
+            RenderableMessage renderBlock = new RenderableMessage(msg, isGrouped, clipping);
 
 
             currentY -= LayoutController.getLayoutMargin(isGrouped);
@@ -102,7 +104,9 @@ public class ChatTextComponent {
             if (!isGrouped) {
 
                 float textHeight = usernameFontSize + usernameToTextSpacing + contentHeight;
+
                 float minHeaderHeight = headSize + avatarBottomPadding;
+
                 return Math.max(textHeight, minHeaderHeight);
             } else {
                 return contentHeight;
@@ -111,8 +115,7 @@ public class ChatTextComponent {
 
 
         public static float getLayoutMargin(boolean isGrouped) {
-            int lineSpacing = 4;
-            return lineSpacing;
+            return 4;
         }
     }
 
@@ -120,10 +123,12 @@ public class ChatTextComponent {
         private final ChatMessage msg;
         private final boolean isGrouped;
         private final float visualHeight;
+        Quad clipping;
 
-        public RenderableMessage(ChatMessage msg, boolean isGrouped) {
+        public RenderableMessage(ChatMessage msg, boolean isGrouped, Quad clipping) {
             this.msg = msg;
             this.isGrouped = isGrouped;
+            this.clipping = clipping;
             this.visualHeight = LayoutController.calculateVisualHeight(msg.type(), isGrouped);
         }
 
@@ -136,11 +141,17 @@ public class ChatTextComponent {
             Quad textClipping = baseClipping.copy().subtractHeight((int) (anchorHeight + 8));
             float bodyY;
 
+            PlayerInfo info = null;
+            for (PlayerInfo playerInfo : playerInfos) {
+                if(playerInfo.getProfile().equals(mc.player.getGameProfile())) info = playerInfo;
+            }
+
 
             if (!isGrouped) {
 
-                renderAvatar(startX, startY, playerInfos);
-
+                if(info != null) {
+                    renderAvatar(startX, startY, info);
+                }
                 Main.RENDERER.drawText(
                         Main.getStyle(), msg.senderName(), contentX, startY,
                         LayoutController.usernameFontSize, 0xFFFFFFFF, textClipping
@@ -154,10 +165,8 @@ public class ChatTextComponent {
             renderContent(contentX, bodyY, textClipping);
         }
 
-        private void renderAvatar(float startX, float startY, List<PlayerInfo> playerInfos) {
-            if (playerInfos == null || playerInfos.isEmpty()) return;
+        private void renderAvatar(float startX, float startY, PlayerInfo playerInfo) {
 
-            PlayerInfo playerInfo = playerInfos.getFirst();
             if (playerInfo != null) {
                 playerInfo.getSkin();
                 playerInfo.getSkin();
@@ -168,6 +177,7 @@ public class ChatTextComponent {
                         skinTexture, avatarX, startY, LayoutController.headSize, LayoutController.headSize,
                         8, 8, 8, 8, 0xFFFFFFFF, 1f, false
                 );
+                hybridTextureRenderer.setClip(clipping);
                 hybridTextureRenderer.flush();
             }
         }
@@ -184,6 +194,7 @@ public class ChatTextComponent {
                         RenderContext.get(), path, contentX, bodyY,
                         LayoutController.gifWidth, LayoutController.gifHeight
                 );
+                hybridTextureRenderer.setClip(clipping);
             }
         }
     }

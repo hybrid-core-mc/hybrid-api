@@ -18,8 +18,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static hybrid.api.Main.mc;
+
 public class HybridTexture implements ResourceManagerReloadListener {
-    private static final List<HybridTexture> ALL_TEXTURES = new ArrayList<>();
+    private static final ThreadLocal<List<HybridTexture>> ALL_TEXTURES = ThreadLocal.withInitial(ArrayList::new);
 
     private final Identifier location;
     private final NativeImage providedImage; 
@@ -27,23 +29,14 @@ public class HybridTexture implements ResourceManagerReloadListener {
     public GpuTextureView view;
     public int width;
     public int height;
+    private boolean isShared = false;
 
     
     public HybridTexture(Identifier location) {
         this.location = location;
         this.providedImage = null;
         this.load();
-        ALL_TEXTURES.add(this);
-    }
-
-    
-    public HybridTexture(Identifier location, NativeImage dynamicImage) {
-        this.location = location;
-        this.providedImage = dynamicImage;
-        this.width = dynamicImage.getWidth();
-        this.height = dynamicImage.getHeight();
-        this.loadDynamic();
-        ALL_TEXTURES.add(this);
+        ALL_TEXTURES.get().add(this);
     }
 
     private void loadDynamic() {
@@ -70,9 +63,35 @@ public class HybridTexture implements ResourceManagerReloadListener {
 
         view = RenderSystem.getDevice().createTextureView(texture);
     }
+    public HybridTexture(Identifier location, NativeImage dynamicImage) {
+        this.location = location;
+        this.providedImage = dynamicImage;
+        this.width = dynamicImage.getWidth();
+        this.height = dynamicImage.getHeight();
+        this.loadDynamic();
+        ALL_TEXTURES.get().add(this);
+    }
+    private static ByteBuffer makeMissingTexture() {
+        ByteBuffer buf = MemoryUtil.memAlloc(16 * 16 * 4);
+        for (int py = 0; py < 16; py++) {
+            for (int px = 0; px < 16; px++) {
+                boolean magenta = (px < 8) != (py < 8);
+                buf.put((byte) (magenta ? 0xFF : 0x00));
+                buf.put((byte) 0x00);
+                buf.put((byte) (magenta ? 0xFF : 0x00));
+                buf.put((byte) 0xFF);
+            }
+        }
+        buf.flip();
+        return buf;
+    }
+
+    @Override
+    public void onResourceManagerReload(@NotNull ResourceManager manager) {
+        this.load();
+    }
 
     private void load() {
-        
         if (providedImage != null) {
             loadDynamic();
             return;
@@ -81,11 +100,32 @@ public class HybridTexture implements ResourceManagerReloadListener {
         if (view != null) { view.close(); view = null; }
         if (texture != null) { texture.close(); texture = null; }
 
+        
+        net.minecraft.client.renderer.texture.AbstractTexture mcTexture =
+                Minecraft.getInstance().getTextureManager().getTexture(location);
+
+        if (mcTexture != null) {
+            try {
+                
+                this.texture = mcTexture.getTexture();
+                this.view = mcTexture.getTextureView();
+                this.isShared = true; 
+
+                
+                this.width = 64;
+                this.height = 64;
+                return;
+            } catch (IllegalStateException e) {
+                
+            }
+        }
+        
+
+        
         ByteBuffer pixels;
         ByteBuffer rawBuffer = null;
-
         try {
-            InputStream stream = Minecraft.getInstance().getResourceManager().open(location);
+            InputStream stream = mc.getResourceManager().open(location);
             byte[] bytes = stream.readAllBytes();
             stream.close();
 
@@ -134,30 +174,12 @@ public class HybridTexture implements ResourceManagerReloadListener {
         view = RenderSystem.getDevice().createTextureView(texture);
     }
 
-    private static ByteBuffer makeMissingTexture() {
-        ByteBuffer buf = MemoryUtil.memAlloc(16 * 16 * 4);
-        for (int py = 0; py < 16; py++) {
-            for (int px = 0; px < 16; px++) {
-                boolean magenta = (px < 8) != (py < 8);
-                buf.put((byte) (magenta ? 0xFF : 0x00));
-                buf.put((byte) 0x00);
-                buf.put((byte) (magenta ? 0xFF : 0x00));
-                buf.put((byte) 0xFF);
-            }
-        }
-        buf.flip();
-        return buf;
-    }
-
-    @Override
-    public void onResourceManagerReload(@NotNull ResourceManager manager) {
-        this.load();
-    }
-
     public void close() {
-        ALL_TEXTURES.remove(this);
-        if (view != null) view.close();
-        if (texture != null) texture.close();
-        if (providedImage != null) providedImage.close(); 
+        ALL_TEXTURES.get().remove(this);
+        if (!isShared) {
+            if (view != null) view.close();
+            if (texture != null) texture.close();
+        }
+        if (providedImage != null) providedImage.close();
     }
 }

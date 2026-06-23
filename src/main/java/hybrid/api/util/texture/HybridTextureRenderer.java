@@ -12,6 +12,7 @@ import com.mojang.blaze3d.shaders.UniformType;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.*;
+import hybrid.api.util.render.Quad; 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.DynamicUniformStorage;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -38,22 +39,24 @@ public class HybridTextureRenderer {
 
     public static final List<TextureCommand> DRAW_LIST = new ArrayList<>();
 
+    
     private record TextureCommand(
             HybridTexture texture,
             float x, float y, float width, float height,
             float u0, float v0, float u1, float v1,
-            int color, float radius, boolean linear
+            int color, float radius, boolean linear,
+            Quad clip
     ) {}
 
     private final List<TextureCommand> localTextures = new ArrayList<>();
+    private Quad currentClip = null; 
 
-    public void drawTexture(HybridTexture texture, float x, float y, float width, float height, int color, float radius, boolean linear) {
-        localTextures.add(new TextureCommand(texture, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, color, radius, linear));
+    public void setClip(Quad clip) {
+        this.currentClip = clip;
     }
 
-    public void drawTextureUV(HybridTexture texture, float x, float y, float width, float height,
-                              float u0, float v0, float u1, float v1, int color, float radius, boolean linear) {
-        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, radius, linear));
+    public void drawTexture(HybridTexture texture, float x, float y, float width, float height, int color, float radius, boolean linear) {
+        localTextures.add(new TextureCommand(texture, x, y, width, height, 0.0f, 0.0f, 1.0f, 1.0f, color, radius, linear, currentClip));
     }
 
     public void drawTextureSubRegion(HybridTexture texture, float x, float y, float width, float height,
@@ -63,7 +66,7 @@ public class HybridTextureRenderer {
         float u1 = (float) (sourceX + sourceWidth) / texture.width;
         float v1 = (float) (sourceY + sourceHeight) / texture.height;
 
-        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, radius, linear));
+        localTextures.add(new TextureCommand(texture, x, y, width, height, u0, v0, u1, v1, color, radius, linear, currentClip));
     }
 
     public void flush() {
@@ -80,7 +83,6 @@ public class HybridTextureRenderer {
             FilterMode filterMode = cmd.linear() ? FilterMode.LINEAR : FilterMode.NEAREST;
             GpuSampler sampler = RenderSystem.getSamplerCache().getClampToEdge(filterMode);
 
-            
             Matrix4f textureMat = new Matrix4f();
             textureMat.m02(cmd.u0());
             textureMat.m12(cmd.v0());
@@ -96,7 +98,7 @@ public class HybridTextureRenderer {
 
             drawTextureQuad(renderTarget, transformSlice, sampler, cmd.texture().view,
                     cmd.x(), cmd.y(), cmd.width(), cmd.height(),
-                    cmd.u0(), cmd.v0(), cmd.u1(), cmd.v1(), cmd.color(), cmd.radius());
+                    cmd.u0(), cmd.v0(), cmd.u1(), cmd.v1(), cmd.color(), cmd.radius(), cmd.clip());
         }
         DRAW_LIST.clear();
         Uniform.clear();
@@ -105,7 +107,7 @@ public class HybridTextureRenderer {
     private static void drawTextureQuad(RenderTarget renderTarget, GpuBufferSlice dynamicTransforms,
                                         GpuSampler sampler, GpuTextureView textureView,
                                         float x, float y, float width, float height,
-                                        float u0, float v0, float u1, float v1, int color, float radius) {
+                                        float u0, float v0, float u1, float v1, int color, float radius, Quad clip) {
 
         ByteBuffer vertexBuffer = MemoryUtil.memAlloc(4 * 24);
         try {
@@ -116,7 +118,7 @@ public class HybridTextureRenderer {
             vertexBuffer.flip();
 
             GpuBuffer vertexBufferObj = RenderSystem.getDevice().createBuffer(
-                    () -> "BRender texture vertices",
+                    () -> "HybridTexture texture vertices",
                     GpuBuffer.USAGE_VERTEX | GpuBuffer.USAGE_COPY_DST,
                     vertexBuffer.remaining()
             );
@@ -126,7 +128,6 @@ public class HybridTextureRenderer {
                     RenderSystem.getSequentialBuffer(com.mojang.blaze3d.vertex.VertexFormat.Mode.QUADS);
             GpuBuffer indexBufferObj = indexStorage.getBuffer(6);
 
-            
             GpuBufferSlice fontUniformBuffer = Uniform.STORAGE.writeUniform(buffer ->
                     Std140Builder.intoBuffer(buffer).putFloat(radius)
             );
@@ -145,6 +146,12 @@ public class HybridTextureRenderer {
                 renderPass.setUniform("DynamicTransforms", dynamicTransforms);
                 renderPass.setUniform("TextureUniforms", fontUniformBuffer);
                 renderPass.bindTexture("Sampler0", textureView, sampler);
+
+                
+                if (clip != null) {
+                    applyScissor(renderPass, clip, renderTarget);
+                }
+
                 renderPass.setVertexBuffer(0, vertexBufferObj);
                 renderPass.setIndexBuffer(indexBufferObj, indexStorage.type());
                 renderPass.drawIndexed(0, 0, 6, 1);
@@ -155,6 +162,24 @@ public class HybridTextureRenderer {
         }
     }
 
+    private static void applyScissor(RenderPass pass, Quad q, RenderTarget fbo) {
+        int scale = (int) Minecraft.getInstance().getWindow().getGuiScale();
+        int fbW = fbo.width;
+        int fbH = fbo.height;
+
+        int x = Math.max(0, (int) (q.getX() * scale));
+        int y = (int) (q.getY() * scale);
+        int w = Math.min(fbW - x, (int) (q.getWidth() * scale));
+        int h = (int) (q.getHeight() * scale);
+
+        int flippedY = Math.max(0, fbH - (y + h));
+        h = Math.min(fbH - flippedY, h);
+
+        if (w > 0 && h > 0) {
+            pass.enableScissor(x, flippedY, w, h);
+        }
+    }
+
     private static void vertexTexture(ByteBuffer buffer, float x, float y, float u, float v, int color) {
         buffer.putFloat(x);
         buffer.putFloat(y);
@@ -162,10 +187,10 @@ public class HybridTextureRenderer {
         buffer.putFloat(u);
         buffer.putFloat(v);
 
-        buffer.put((byte) ((color >> 16) & 0xFF));
-        buffer.put((byte) ((color >> 8)  & 0xFF));
-        buffer.put((byte) (color         & 0xFF));
-        buffer.put((byte) ((color >> 24) & 0xFF));
+        buffer.put((byte) ((color >> 16)  & 0xFF));
+        buffer.put((byte) ((color >> 8)   & 0xFF));
+        buffer.put((byte) (color          & 0xFF));
+        buffer.put((byte) ((color >> 24)  & 0xFF));
     }
 
     public static class Uniform {
