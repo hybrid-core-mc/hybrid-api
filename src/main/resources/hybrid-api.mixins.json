@@ -16,6 +16,7 @@
     "GuiMixin",
     "GuiRendererMixin",
     "MouseHandlerMixin",
+    "PlayerTabOverlayMixin",
     "RenderSystemMixin",
     "ScreenMixin"
   ]

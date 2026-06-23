@@ -7,6 +7,7 @@ import hybrid.api.util.chat.CustomChatScreen;
 import hybrid.api.util.font.fancy.FontRenderer;
 import hybrid.api.util.font.fancy.StyledFont;
 import hybrid.api.util.shader.HybridShaders;
+import hybrid.api.util.texture.Test;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -60,7 +61,7 @@ public class Main implements ModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (sendToChatKey.consumeClick()) {
-				mc.setScreen(new CustomChatScreen());
+				mc.setScreen(new Test());
 			}
 		});
 
