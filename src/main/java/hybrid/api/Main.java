@@ -61,7 +61,7 @@ public class Main implements ModInitializer {
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (sendToChatKey.consumeClick()) {
-				mc.setScreen(new Test());
+				mc.setScreen(new CustomChatScreen());
 			}
 		});
 

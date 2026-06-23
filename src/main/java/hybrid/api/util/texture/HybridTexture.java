@@ -12,8 +12,6 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -24,22 +22,66 @@ public class HybridTexture implements ResourceManagerReloadListener {
     private static final List<HybridTexture> ALL_TEXTURES = new ArrayList<>();
 
     private final Identifier location;
+    private final NativeImage providedImage; 
     public GpuTexture texture;
     public GpuTextureView view;
     public int width;
     public int height;
 
+    
     public HybridTexture(Identifier location) {
         this.location = location;
+        this.providedImage = null;
         this.load();
         ALL_TEXTURES.add(this);
     }
 
-    private void load() {
+    
+    public HybridTexture(Identifier location, NativeImage dynamicImage) {
+        this.location = location;
+        this.providedImage = dynamicImage;
+        this.width = dynamicImage.getWidth();
+        this.height = dynamicImage.getHeight();
+        this.loadDynamic();
+        ALL_TEXTURES.add(this);
+    }
+
+    private void loadDynamic() {
         if (view != null) { view.close(); view = null; }
         if (texture != null) { texture.close(); texture = null; }
 
-        ByteBuffer pixels = null;
+        
+        texture = RenderSystem.getDevice().createTexture(
+                location.toString(),
+                GpuTexture.USAGE_TEXTURE_BINDING | GpuTexture.USAGE_COPY_DST,
+                TextureFormat.RGBA8,
+                width, height, 1, 1
+        );
+
+        
+        int bufferSize = width * height * 4;
+
+        
+        java.nio.ByteBuffer buffer = org.lwjgl.system.MemoryUtil.memByteBuffer(providedImage.getPointer(), bufferSize);
+
+        
+        RenderSystem.getDevice().createCommandEncoder()
+                    .writeToTexture(texture, buffer, NativeImage.Format.RGBA, 0, 0, 0, 0, width, height);
+
+        view = RenderSystem.getDevice().createTextureView(texture);
+    }
+
+    private void load() {
+        
+        if (providedImage != null) {
+            loadDynamic();
+            return;
+        }
+
+        if (view != null) { view.close(); view = null; }
+        if (texture != null) { texture.close(); texture = null; }
+
+        ByteBuffer pixels;
         ByteBuffer rawBuffer = null;
 
         try {
@@ -63,7 +105,7 @@ public class HybridTexture implements ResourceManagerReloadListener {
             height = heightArr[0];
 
         } catch (Exception e) {
-            System.out.println(" Failed to load texture '{}': {} — using missing texture\", location, e.getMessage()");
+            System.out.println("Failed to load texture '" + location + "': " + e.getMessage() + " — using missing texture");
             pixels = makeMissingTexture();
             width = 16;
             height = 16;
@@ -105,7 +147,6 @@ public class HybridTexture implements ResourceManagerReloadListener {
         }
         buf.flip();
         return buf;
-
     }
 
     @Override
@@ -117,5 +158,6 @@ public class HybridTexture implements ResourceManagerReloadListener {
         ALL_TEXTURES.remove(this);
         if (view != null) view.close();
         if (texture != null) texture.close();
+        if (providedImage != null) providedImage.close(); 
     }
 }

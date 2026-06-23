@@ -1,10 +1,10 @@
 package hybrid.api.util.render;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import net.minecraft.client.Minecraft;
+import hybrid.api.util.texture.HybridTexture;
+import hybrid.api.util.texture.HybridTextureRenderer;
+import hybrid.api.util.texture.TextureCache;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 
 import javax.imageio.ImageIO;
@@ -12,51 +12,39 @@ import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.metadata.IIOMetadataNode;
 import javax.imageio.stream.ImageInputStream;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
-import static hybrid.api.Main.mc;
+import java.util.List;
 
 public class ExternalImageRenderer {
 
-
-    
     private static final Map<Path, GifAnimation> CACHE = new HashMap<>();
 
-    
-    public static void renderGif(GuiGraphics g, Path path, float x, float y, float w, float h) {
+    public static void renderGif(HybridTextureRenderer hybridTextureRenderer, GuiGraphics g, Path path, float x, float y, float w, float h) {
         if (path == null || !Files.exists(path)) return;
 
         GifAnimation animation = CACHE.get(path);
 
-        
         if (animation == null) {
             animation = loadGif(path);
             if (animation == null) return;
             CACHE.put(path, animation);
         }
 
-        
         Identifier currentFrameId = animation.getCurrentFrameId();
 
         
-        g.blit(RenderPipelines.GUI_TEXTURED,
-                currentFrameId,
-                (int) x,
-                (int) y,
-                0,
-                0,
-                (int) w,
-                (int) h,
-                (int) w,
-                (int) h
-        );
+        HybridTexture texture = TextureCache.getOrCreate(currentFrameId);
+        if (texture != null) {
+            hybridTextureRenderer.drawTexture(texture, x, y, w, h, Color.WHITE.getRGB(), 0.2f, true);
+        }
     }
-    
+
     private static GifAnimation loadGif(Path path) {
         List<Identifier> frames = new ArrayList<>();
         List<Integer> delays = new ArrayList<>();
@@ -76,16 +64,18 @@ public class ExternalImageRenderer {
                 int delay = getFrameDelay(reader, i);
 
                 NativeImage nativeImage = convertToNativeImage(bImage);
-                int finalI = i;
-                DynamicTexture texture = new DynamicTexture(() -> "frame: " + path.getFileName() + " #" + finalI, nativeImage);
-                texture.upload();
 
                 Identifier id = Identifier.fromNamespaceAndPath(
                         "hybrid-api",
                         "gifs/" + UUID.randomUUID()
                 );
 
-                mc.getTextureManager().register(id, texture);
+                
+                HybridTexture hybridTexture = new HybridTexture(id, nativeImage);
+
+                
+                TextureCache.putDirectly(id, hybridTexture);
+
                 frames.add(id);
                 delays.add(delay);
             }
@@ -101,7 +91,6 @@ public class ExternalImageRenderer {
         }
     }
 
-    
     private static int getFrameDelay(ImageReader reader, int imageIndex) {
         try {
             IIOMetadata metadata = reader.getImageMetadata(imageIndex);
@@ -110,12 +99,11 @@ public class ExternalImageRenderer {
 
             IIOMetadataNode graphicsControlExtension = getMetadataNode(root, "GraphicControlExtension");
             if (graphicsControlExtension != null) {
-                
                 int delayTime = Integer.parseInt(graphicsControlExtension.getAttribute("delayTime"));
-                return delayTime > 0 ? delayTime * 10 : 100; 
+                return delayTime > 0 ? delayTime * 10 : 100;
             }
         } catch (Exception ignored) {}
-        return 100; 
+        return 100;
     }
 
     private static IIOMetadataNode getMetadataNode(IIOMetadataNode root, String nodeName) {
@@ -160,7 +148,6 @@ public class ExternalImageRenderer {
         CACHE.clear();
     }
 
-    
     private static class GifAnimation {
         private final List<Identifier> frameIds;
         private final List<Integer> delays;
@@ -178,7 +165,6 @@ public class ExternalImageRenderer {
         public Identifier getCurrentFrameId() {
             if (frameIds.size() == 1 || totalDuration == 0) return frameIds.getFirst();
 
-            
             long timeInLoop = System.currentTimeMillis() % totalDuration;
 
             int cumulativeDelay = 0;
@@ -193,7 +179,10 @@ public class ExternalImageRenderer {
 
         public void release() {
             for (Identifier id : frameIds) {
-                mc.getTextureManager().release(id);
+                HybridTexture tex = TextureCache.getOrCreate(id);
+                if (tex != null) {
+                    tex.close();
+                }
             }
         }
     }

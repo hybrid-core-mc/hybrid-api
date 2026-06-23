@@ -45,7 +45,7 @@ public class CustomChatScreen extends Screen {
         chatBoxBounds.setX(margin);
         chatBoxBounds.setY(this.height - chatBoxBounds.getHeight() - margin);
 
-        
+
         chatBoxComponent.render(chatBoxBounds, mouseX, mouseY);
 
         int padding = 5;
@@ -55,10 +55,10 @@ public class CustomChatScreen extends Screen {
         int inputY = chatBoxBounds.getY() + chatBoxBounds.getHeight() - inputHeight - padding;
         int inputWidth = chatBoxBounds.getWidth() - (padding * 2);
 
-        
+
         Quad typingBounds = new Quad(inputX, inputY, inputWidth, inputHeight);
 
-        
+
         textComponent.render(typingBounds,chatBoxBounds);
 
 
@@ -87,6 +87,6 @@ public class CustomChatScreen extends Screen {
 
     @Override
     public void removed() {
-        if (Main.INTER_BOLD != null) Main.INTER_BOLD.close();
+
     }
 }

@@ -18,7 +18,7 @@ in vec4 vertColor;
 out vec4 fragColor;
 
 void main() {
-    
+
     float u0 = TextureMat[0].z;
     float v0 = TextureMat[1].z;
     float u1 = TextureMat[2].z;

@@ -4,104 +4,187 @@ import hybrid.api.Main;
 import hybrid.api.util.render.ExternalImageRenderer;
 import hybrid.api.util.render.Quad;
 import hybrid.api.util.render.RenderContext;
+import hybrid.api.util.texture.HybridTexture;
+import hybrid.api.util.texture.HybridTextureRenderer;
+import hybrid.api.util.texture.PlayerInfoAccessor;
+import hybrid.api.util.texture.TextureCache;
+import net.minecraft.client.multiplayer.PlayerInfo;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static hybrid.api.Main.mc;
+
 public class ChatTextComponent {
 
-    
     public enum ChatType {
         TEXT,
         GIF
     }
 
-    
     public record ChatMessage(String senderName, int index, String message, ChatType type, String gifPath) {}
+
+
+    private final HybridTextureRenderer hybridTextureRenderer = new HybridTextureRenderer();
 
     private final List<ChatMessage> messageHistory = new ArrayList<>();
     private int messageIndexCounter = 0;
 
-    private static final int MAX_VISIBLE_MESSAGES = 10;
-    private static final float CHAT_FONT_SIZE = 11f;
-
-    
-    private static final int MESSAGE_SPACING = 14;
-    private static final int GIF_RENDER_HEIGHT = 40;
-    private static final int GIF_RENDER_WIDTH = 40;  
-
     public ChatTextComponent() {
     }
+
     public void render(Quad anchorQuad, Quad clipping) {
         if (messageHistory.isEmpty()) return;
 
-        float currentY = anchorQuad.getY() - MESSAGE_SPACING;
+        float currentY = anchorQuad.getY() - 16;
         int renderedCount = 0;
+        List<PlayerInfo> playerInfos = ((PlayerInfoAccessor) mc.gui.getTabList()).hybrid_api$playerInfo();
 
         for (int i = messageHistory.size() - 1; i >= 0; i--) {
-            if (renderedCount >= MAX_VISIBLE_MESSAGES) break;
+            if (renderedCount >= LayoutController.MAX_VISIBLE_MESSAGES) break;
 
             ChatMessage msg = messageHistory.get(i);
+            boolean isGrouped = (i > 0) && messageHistory.get(i - 1).senderName().equals(msg.senderName());
 
-            if (msg.type() == ChatType.TEXT) {
-                
-                String formattedMessage = msg.senderName() + ": " + msg.message();
+            RenderableMessage renderBlock = new RenderableMessage(msg, isGrouped);
 
-                Main.RENDERER.drawText(
-                        Main.getStyle(),
-                        formattedMessage,
-                        anchorQuad.getX() + 6,
-                        currentY,
-                        CHAT_FONT_SIZE,
-                        -1,
-                        clipping.copy().subtractHeight(anchorQuad.height + 8)
-                );
 
-                currentY -= MESSAGE_SPACING;
-            } else if (msg.type() == ChatType.GIF) {
-                String senderPrefix = msg.senderName();
-                Main.RENDERER.drawText(
-                        Main.getStyle(),
-                        senderPrefix,
-                        anchorQuad.getX() + 6,
-                        currentY,
-                        CHAT_FONT_SIZE,
-                        -1,
-                        clipping.copy().subtractHeight(anchorQuad.height + 8)
-                );
+            currentY -= LayoutController.getLayoutMargin(isGrouped);
 
-                
-                currentY -= MESSAGE_SPACING;
 
-                
-                float gifCenterX = anchorQuad.getX() + ((anchorQuad.getWidth() - GIF_RENDER_WIDTH) / 2f);
+            currentY -= renderBlock.getHeight();
 
-                
-                float gifYPos = currentY - GIF_RENDER_HEIGHT + 10;
 
-                Path path = Paths.get(msg.gifPath());
-                ExternalImageRenderer.renderGif(RenderContext.get(), path, gifCenterX, gifYPos, GIF_RENDER_WIDTH, GIF_RENDER_HEIGHT);
-
-                currentY -= (GIF_RENDER_HEIGHT);
-            }
+            renderBlock.render(anchorQuad.getX(), currentY, anchorQuad.getWidth(), clipping, anchorQuad.height, playerInfos);
 
             renderedCount++;
         }
     }
 
-    
+    public List<ChatMessage> getMessageHistory() {
+        return messageHistory;
+    }
+
     public void addMessage(String senderName, String message) {
         messageHistory.add(new ChatMessage(senderName, messageIndexCounter++, message, ChatType.TEXT, null));
     }
 
-    
     public void submitGif(String senderName, String path) {
         messageHistory.add(new ChatMessage(senderName, messageIndexCounter++, "[GIF]", ChatType.GIF, path));
     }
 
-    public List<ChatMessage> getMessageHistory() {
-        return messageHistory;
+    public static class LayoutController {
+
+        public static final int MAX_VISIBLE_MESSAGES = 10;
+        public static float chatFontSize = 11f;
+        public static float usernameFontSize = 10f;
+        public static int headSize = 20;
+        public static int headPaddingX = 6;
+        public static int textPaddingAfterHead = 6;
+        public static float avatarBottomPadding = 2f;
+        public static float usernameToTextSpacing = 3f;
+        public static int gifWidth = 40;
+        public static int gifHeight = 40;
+
+        public static float getAvatarX(float startX) {
+            return startX + headPaddingX;
+        }
+
+        public static float getContentX(float startX) {
+            return startX + headPaddingX + headSize + textPaddingAfterHead;
+        }
+
+
+        public static float calculateVisualHeight(ChatType type, boolean isGrouped) {
+            float contentHeight = (type == ChatType.GIF) ? gifHeight : chatFontSize;
+            if (!isGrouped) {
+
+                float textHeight = usernameFontSize + usernameToTextSpacing + contentHeight;
+                float minHeaderHeight = headSize + avatarBottomPadding;
+                return Math.max(textHeight, minHeaderHeight);
+            } else {
+                return contentHeight;
+            }
+        }
+
+
+        public static float getLayoutMargin(boolean isGrouped) {
+            int lineSpacing = 4;
+            return lineSpacing;
+        }
+    }
+
+    private class RenderableMessage {
+        private final ChatMessage msg;
+        private final boolean isGrouped;
+        private final float visualHeight;
+
+        public RenderableMessage(ChatMessage msg, boolean isGrouped) {
+            this.msg = msg;
+            this.isGrouped = isGrouped;
+            this.visualHeight = LayoutController.calculateVisualHeight(msg.type(), isGrouped);
+        }
+
+        public float getHeight() {
+            return this.visualHeight;
+        }
+
+        public void render(float startX, float startY, float blockWidth, Quad baseClipping, float anchorHeight, List<PlayerInfo> playerInfos) {
+            float contentX = LayoutController.getContentX(startX);
+            Quad textClipping = baseClipping.copy().subtractHeight((int) (anchorHeight + 8));
+            float bodyY;
+
+
+            if (!isGrouped) {
+
+                renderAvatar(startX, startY, playerInfos);
+
+                Main.RENDERER.drawText(
+                        Main.getStyle(), msg.senderName(), contentX, startY,
+                        LayoutController.usernameFontSize, 0xFFFFFFFF, textClipping
+                );
+
+                bodyY = startY + (LayoutController.usernameFontSize + LayoutController.usernameToTextSpacing);
+            } else {
+                bodyY = startY;
+            }
+
+            renderContent(contentX, bodyY, textClipping);
+        }
+
+        private void renderAvatar(float startX, float startY, List<PlayerInfo> playerInfos) {
+            if (playerInfos == null || playerInfos.isEmpty()) return;
+
+            PlayerInfo playerInfo = playerInfos.getFirst();
+            if (playerInfo != null) {
+                playerInfo.getSkin();
+                playerInfo.getSkin();
+                HybridTexture skinTexture = TextureCache.getOrCreate(playerInfo.getSkin().body().texturePath());
+
+                float avatarX = LayoutController.getAvatarX(startX);
+                hybridTextureRenderer.drawTextureSubRegion(
+                        skinTexture, avatarX, startY, LayoutController.headSize, LayoutController.headSize,
+                        8, 8, 8, 8, 0xFFFFFFFF, 1f, false
+                );
+                hybridTextureRenderer.flush();
+            }
+        }
+
+        private void renderContent(float contentX, float bodyY, Quad textClipping) {
+            if (msg.type() == ChatType.TEXT) {
+                Main.RENDERER.drawText(
+                        Main.getStyle(), msg.message(), contentX, bodyY,
+                        LayoutController.chatFontSize, 0xFFD0D0D0, textClipping
+                );
+            } else if (msg.type() == ChatType.GIF) {
+                Path path = Paths.get(msg.gifPath());
+                ExternalImageRenderer.renderGif(hybridTextureRenderer,
+                        RenderContext.get(), path, contentX, bodyY,
+                        LayoutController.gifWidth, LayoutController.gifHeight
+                );
+            }
+        }
     }
 }
