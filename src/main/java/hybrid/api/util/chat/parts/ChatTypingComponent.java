@@ -6,11 +6,15 @@ import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;
 import hybrid.api.util.render.RenderContext;
+import hybrid.api.util.texture.PlayerInfoAccessor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
+import java.util.List;
 
 import static hybrid.api.Main.mc;
 
@@ -90,8 +94,19 @@ public class ChatTypingComponent {
 
             if (!messageToSend.isEmpty()) {
 
+                List<PlayerInfo> playerInfos = ((PlayerInfoAccessor) mc.gui.getTabList()).hybrid_api$playerInfo();
+
+                PlayerInfo info = null;
+                for (PlayerInfo playerInfo : playerInfos) {
+                    if(playerInfo.getProfile().equals(mc.player.getGameProfile())) info = playerInfo;
+                }
+
+
                 assert mc.player != null;
-                historyComponent.addMessage(mc.player.getPlainTextName(), messageToSend);
+                if(info != null) {
+                    historyComponent.submitMessage(mc.player.getGameProfile().name(),messageToSend, mc.player.getSkin());
+                } else System.out.println("playeri skin is bull");
+
                 clearText();
             }
         }
