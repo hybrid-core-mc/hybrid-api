@@ -46,13 +46,14 @@ public abstract class ClientPacketListenerMixin {
             if (name == null || name.isEmpty()) continue;
 
             if (text.contains(name)) {
-                screen.submitMsg(info.getTabListDisplayName().getString(), text, info.getSkin());
+                screen.submitMsg(info.getTabListDisplayName().getString(), packet.content(), info.getSkin());
                 found = true;
                 break;
             }
         }
         if(!found){
-            screen.submitMsg("Server", text,null);
+            System.out.println("we gout a servererr"+packet);
+            screen.submitMsg("Server", packet.content(),null);
         }
     }
 

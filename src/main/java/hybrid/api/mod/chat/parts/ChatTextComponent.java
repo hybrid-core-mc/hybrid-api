@@ -4,6 +4,7 @@ import hybrid.api.mod.chat.parts.msgs.MessageRenderFactory;
 import hybrid.api.mod.chat.parts.msgs.RenderableMessage;
 import hybrid.api.util.render.Quad;
 import hybrid.api.util.texture.HybridTextureRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerSkin;
 
 import java.util.ArrayList;
@@ -44,12 +45,12 @@ public class ChatTextComponent {
         }
     }
 
-    public void submitMessage(String name, String message, PlayerSkin skin) {
+    public void submitMessage(String name, Component message, PlayerSkin skin) {
         messageHistory.add(new ChatMessage(name, messageIndexCounter++, message, ChatType.TEXT, null, skin));
     }
 
     public void submitGif(String senderName, String path) {
-        messageHistory.add(new ChatMessage(senderName, messageIndexCounter++, "[GIF]", ChatType.GIF, path, null));
+        messageHistory.add(new ChatMessage(senderName, messageIndexCounter++, null, ChatType.GIF, path, null));
     }
 
     public List<ChatMessage> getMessageHistory() { return messageHistory; }
@@ -57,7 +58,7 @@ public class ChatTextComponent {
     public record ChatMessage(
             String senderName,
             int index,
-            String message,
+            Component message,
             ChatType type,
             String gifPath,
             PlayerSkin skin

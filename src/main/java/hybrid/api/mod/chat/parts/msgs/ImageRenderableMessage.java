@@ -17,6 +17,11 @@ public class ImageRenderableMessage extends RenderableMessage {
     }
 
     @Override
+    public float getHeight() {
+        return 40;
+    }
+
+    @Override
     protected void renderContent(HybridTextureRenderer textureRenderer, float contentX, float bodyY, Quad textClipping) {
         Path path = Paths.get(msg.gifPath());
 

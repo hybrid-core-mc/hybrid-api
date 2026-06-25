@@ -10,6 +10,7 @@ import hybrid.api.util.texture.PlayerInfoAccessor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
@@ -103,7 +104,7 @@ public class ChatTypingComponent {
 
                 assert mc.player != null;
                 if(info != null) {
-                    historyComponent.submitMessage(mc.player.getGameProfile().name(),messageToSend, mc.player.getSkin());
+                    historyComponent.submitMessage(mc.player.getGameProfile().name(), Component.literal(messageToSend), mc.player.getSkin());
                 }
 
                 clearText();

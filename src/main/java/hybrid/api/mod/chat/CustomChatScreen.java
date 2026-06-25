@@ -62,7 +62,7 @@ public class CustomChatScreen extends Screen {
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }
-    public void submitMsg(String playername, String msg,PlayerSkin skin){
+    public void submitMsg(String playername, Component msg,PlayerSkin skin){
         textComponent.submitMessage(playername,msg,skin);
     }
 
