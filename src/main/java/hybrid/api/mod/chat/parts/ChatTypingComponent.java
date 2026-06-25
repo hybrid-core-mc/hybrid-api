@@ -1,4 +1,4 @@
-package hybrid.api.util.chat.parts;
+package hybrid.api.mod.chat.parts;
 
 import hybrid.api.Main;
 import hybrid.api.util.font.HybridRenderText;
@@ -10,7 +10,6 @@ import hybrid.api.util.texture.PlayerInfoAccessor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.data.worldgen.placement.PlacementUtils;
 import org.lwjgl.glfw.GLFW;
 
 import java.awt.*;
@@ -105,7 +104,7 @@ public class ChatTypingComponent {
                 assert mc.player != null;
                 if(info != null) {
                     historyComponent.submitMessage(mc.player.getGameProfile().name(),messageToSend, mc.player.getSkin());
-                } else System.out.println("playeri skin is bull");
+                }
 
                 clearText();
             }

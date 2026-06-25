@@ -1,4 +1,4 @@
-package hybrid.api.util.chat.parts;
+package hybrid.api.mod.chat.parts;
 
 import hybrid.api.util.render.HybridRenderer2D;
 import hybrid.api.util.render.Quad;

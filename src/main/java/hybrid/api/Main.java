@@ -3,11 +3,11 @@ package hybrid.api;
 import com.mojang.blaze3d.platform.InputConstants;
 import hybrid.api.mod.HybridMods;
 import hybrid.api.theme.ThemeManager;
-import hybrid.api.util.chat.CustomChatScreen;
+import hybrid.api.mod.chat.CustomChatScreen;
+import hybrid.api.ui.HybridGuiScreen;
 import hybrid.api.util.font.fancy.FontRenderer;
 import hybrid.api.util.font.fancy.StyledFont;
 import hybrid.api.util.shader.HybridShaders;
-import hybrid.api.util.texture.Test;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -59,8 +59,19 @@ public class Main implements ModInitializer {
 						CATEGORY
 				));
 
+		KeyMapping chat = KeyBindingHelper.registerKeyBinding(
+				new KeyMapping(
+						Component.translatable("test").getString(),
+						InputConstants.Type.KEYSYM,
+						GLFW.GLFW_KEY_Z,
+						CATEGORY
+				));
+
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while (sendToChatKey.consumeClick()) {
+				mc.setScreen(new HybridGuiScreen());
+			}
+			while (chat.consumeClick()) {
 				mc.setScreen(new CustomChatScreen());
 			}
 		});

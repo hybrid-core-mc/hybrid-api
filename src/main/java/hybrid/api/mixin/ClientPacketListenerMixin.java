@@ -1,25 +1,20 @@
 package hybrid.api.mixin;
 
 
-import hybrid.api.util.chat.CustomChatScreen;
+import hybrid.api.mod.chat.CustomChatScreen;
 import hybrid.api.util.texture.PlayerInfoAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import java.util.UUID;
-
-import static hybrid.api.Main.mc;
 
 
 @Mixin(ClientPacketListener.class)

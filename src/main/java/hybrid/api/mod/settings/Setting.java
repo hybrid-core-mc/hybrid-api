@@ -29,6 +29,7 @@ public abstract class Setting<T> {
         return value;
     }
 
+
     public void set(T value) {
         
         if (this.value != null && this.value.equals(value)) {

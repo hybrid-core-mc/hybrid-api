@@ -14,7 +14,7 @@ public class HybridMods {
     public static void init() {
 
         register(new ThemeMod());
-        register(new SprintMod());
+        register(new ChatMod());
 
         for (HybridMod mod : MODS) {
             mod.onInitialize();

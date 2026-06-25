@@ -2,7 +2,7 @@ package hybrid.api.mixin;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
-import hybrid.api.util.chat.CustomChatScreen;
+import hybrid.api.mod.chat.CustomChatScreen;
 import net.minecraft.client.MouseHandler;
 import org.lwjgl.glfw.*;
 import org.spongepowered.asm.mixin.Mixin;

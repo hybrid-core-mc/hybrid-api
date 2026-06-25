@@ -23,4 +23,8 @@ public class NumberSetting extends Setting<Float> {
     public float getMax() {
         return max;
     }
+
+    public int getInt() {
+        return Math.round(get());
+    }
 }

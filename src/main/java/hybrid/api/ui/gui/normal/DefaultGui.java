@@ -1,8 +1,8 @@
 package hybrid.api.ui.gui.normal;
 
+import hybrid.api.mod.ChatMod;
 import hybrid.api.mod.HybridMod;
 import hybrid.api.mod.HybridMods;
-import hybrid.api.mod.SprintMod;
 import hybrid.api.mod.ThemeMod;
 import hybrid.api.theme.ThemeManager;
 import hybrid.api.theme.ThemeTarget;
@@ -15,8 +15,6 @@ import hybrid.api.util.render.Quad;
 import hybrid.api.util.render.RenderContext;
 import net.minecraft.client.input.MouseButtonEvent;
 
-import java.awt.*;
-
 public class DefaultGui extends GuiPart {
 
     private final SidebarPart sidebarPart = new DefaultSidebar();
@@ -24,7 +22,7 @@ public class DefaultGui extends GuiPart {
     DefaultSettingsPage modSettingsPage;
 
     public DefaultGui() {
-        modSettingsPage = new DefaultSettingsPage(HybridMods.getMod(ThemeMod.class));
+        modSettingsPage = new DefaultSettingsPage(HybridMods.getMod(ChatMod.class));
     }
 
     @Override

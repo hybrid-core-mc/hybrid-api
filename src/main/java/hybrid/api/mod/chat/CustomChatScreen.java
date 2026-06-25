@@ -1,14 +1,13 @@
-package hybrid.api.util.chat;
+package hybrid.api.mod.chat;
 
-import hybrid.api.util.chat.parts.ChatBoxComponent;
-import hybrid.api.util.chat.parts.ChatTextComponent;
-import hybrid.api.util.chat.parts.ChatTypingComponent;
+import hybrid.api.mod.chat.parts.ChatBoxComponent;
+import hybrid.api.mod.chat.parts.ChatTextComponent;
+import hybrid.api.mod.chat.parts.ChatTypingComponent;
 import hybrid.api.util.render.Quad;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
-import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.jetbrains.annotations.NotNull;

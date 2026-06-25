@@ -23,9 +23,9 @@ public class ThemeMod extends HybridMod {
             var targetSetting = cat.addMode("Color Target", "Target part of the GUI", ThemeTarget.ACCENT);
             var colorSetting = cat.addColor("Color Value", "Color value for target", Color.PINK);
 
-            colorSetting.onChange(newColor -> {
-                ThemeManager.update(targetSetting.get(), newColor);
-            });
+
+
+
         }));
 
         registerCategory(BuiltCategory.create("Layout", cat -> {
