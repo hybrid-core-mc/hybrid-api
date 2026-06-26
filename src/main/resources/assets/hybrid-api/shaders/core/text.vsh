@@ -16,9 +16,11 @@ in vec4 Color;
 
 out vec2 texCoord;
 out vec4 vertColor;
+out float localY; // Pass the local vertical position to the fragment shader
 
 void main() {
     gl_Position = ProjMat * ModelViewMat * vec4(Position, 1.0);
     texCoord = UV0;
     vertColor = Color;
+    localY = Position.y; // Capture raw height before transformations
 }

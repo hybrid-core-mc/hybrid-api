@@ -32,6 +32,7 @@ public class CustomChatScreen extends Screen {
         textComponent.submitGif(mc.player.getPlainTextName(),path);
     }
 
+
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int margin = 5;
@@ -81,6 +82,12 @@ public class CustomChatScreen extends Screen {
     public boolean keyPressed(KeyEvent keyEvent) {
         chatTypingComponent.keyPressed(keyEvent);
         return super.keyPressed(keyEvent);
+    }
+
+    @Override
+    public boolean keyReleased(KeyEvent keyEvent) {
+        chatTypingComponent.keyReleased(keyEvent);
+        return super.keyReleased(keyEvent);
     }
 
     @Override

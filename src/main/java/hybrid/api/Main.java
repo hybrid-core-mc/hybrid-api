@@ -26,7 +26,7 @@ public class Main implements ModInitializer {
 	public static final Minecraft mc = Minecraft.getInstance();
 	public static final FontRenderer RENDERER = new FontRenderer();
 
-	public static StyledFont INTER_BOLD;
+	private static StyledFont INTER_BOLD;
 
 	public static StyledFont getStyle() {
 		if (INTER_BOLD == null) {

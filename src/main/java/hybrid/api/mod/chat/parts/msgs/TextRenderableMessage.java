@@ -39,7 +39,7 @@ public class TextRenderableMessage extends RenderableMessage {
             String[] words = literalText.split("(?<=\\s)"); 
 
             for (String word : words) {
-                float wordWidth = Main.INTER_BOLD.getWidth(word, fontSize);
+                float wordWidth = Main.getStyle().getWidth(word, fontSize);
 
                 
                 if (currentLineWidth[0] + wordWidth <= maxWidth) {
@@ -59,7 +59,7 @@ public class TextRenderableMessage extends RenderableMessage {
                     for (int i = 0; i < word.length(); i++) {
                         char c = word.charAt(i);
                         String charStr = String.valueOf(c);
-                        float charWidth = Main.INTER_BOLD.getWidth(charStr, fontSize);
+                        float charWidth = Main.getStyle().getWidth(charStr, fontSize);
 
                         if (currentLineWidth[0] + charWidth <= maxWidth) {
                             currentChunk.append(c);
@@ -129,10 +129,10 @@ public class TextRenderableMessage extends RenderableMessage {
                         currentX,
                         currentY,
                         fontSize,
-                        run.color(),
+                        run.color(),1,
                         textClipping
                 );
-                currentX += Main.INTER_BOLD.getWidth(run.text(), fontSize);
+                currentX += Main.getStyle().getWidth(run.text(), fontSize);
             }
             currentY += lineHeight; 
         }

@@ -41,8 +41,9 @@ public class FontRenderer {
     private static final List<TextCommand> COMMAND_QUEUE = new ArrayList<>();
     private static final int VERTEX_STRIDE_BYTES = 24;
 
-    public void drawText(StyledFont font, String text, float x, float y, float size, int color, Quad clip) {
-        COMMAND_QUEUE.add(new TextCommand(font, text, x, y, size, color, false, clip));
+    public void drawText(StyledFont font, String text, float x, float y, float size, int color,int style, Quad clip) {
+        if (text == null || text.isEmpty()) return;
+        COMMAND_QUEUE.add(new TextCommand(font, text, x, y, size, color, false, style,clip));
     }
 
     public static void flushAll() {
@@ -111,7 +112,7 @@ public class FontRenderer {
             float time = (System.currentTimeMillis() % 1000000) / 1000.0f;
 
             GpuBufferSlice fontUniformBuffer = Uniform.STORAGE.writeUniform(buffer ->
-                    Std140Builder.intoBuffer(buffer).putVec4(time, 0.0F, 0.0F, 0.0F)
+                    Std140Builder.intoBuffer(buffer).putVec4(time, cmd.style, 0.0F, 0.0F)
             );
 
             try (RenderPass pass = RenderSystem.getDevice()
@@ -185,13 +186,14 @@ public class FontRenderer {
             float y,
             float size,
             int color,
+            int style,
             boolean shadow,
             int[] charColors,
             float[][] bakedQuads,
             Quad clip
     ) {
-        TextCommand(StyledFont font, String text, float x, float y, float size, int color, boolean shadow, Quad clip) {
-            this(font, text, x, y, size, color, shadow, null, null, clip);
+        TextCommand(StyledFont font, String text, float x, float y, float size, int color, boolean shadow, int style, Quad clip) {
+            this(font, text, x, y, size, color, style,shadow, null, null, clip);
         }
     }
 
