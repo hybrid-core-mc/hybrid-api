@@ -22,7 +22,7 @@ public class ImageRenderableMessage extends RenderableMessage {
     }
 
     @Override
-    protected void renderContent(HybridTextureRenderer textureRenderer, float contentX, float bodyY, Quad textClipping) {
+    protected void renderContent(HybridTextureRenderer textureRenderer, float contentX, float bodyY, Quad textClipping, int alpha) {
         Path path = Paths.get(msg.gifPath());
 
         ExternalImageRenderer.renderGif(
@@ -37,4 +37,6 @@ public class ImageRenderableMessage extends RenderableMessage {
 
         textureRenderer.setClip(clipping);
     }
+
+
 }

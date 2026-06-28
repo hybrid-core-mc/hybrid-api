@@ -20,6 +20,21 @@ public class ThemeManager {
         return themeColors.getOrDefault(target, defaultColor);
     }
 
+    public static Color getColorWithAlpha(ThemeTarget target, int alhpa) {
+        
+        Color themeColor = get(target);
+
+        
+        float clampedAlpha = Math.max(0.0f, Math.min(1.0f, alhpa));
+
+        return new Color(
+                themeColor.getRed() / 255.0f,
+                themeColor.getGreen() / 255.0f,
+                themeColor.getBlue() / 255.0f,
+                clampedAlpha
+        );
+    }
+
     public static void update(ThemeTarget target, Color newColor) {
         Color oldColor = themeColors.get(target);
         if (oldColor == null || !oldColor.equals(newColor)) {

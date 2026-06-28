@@ -1,6 +1,8 @@
 package hybrid.api.mod.chat.parts;
 
 import hybrid.api.Main;
+import hybrid.api.theme.ThemeManager;
+import hybrid.api.theme.ThemeTarget;
 import hybrid.api.util.font.HybridRenderText;
 import hybrid.api.util.font.HybridTextRenderer;
 import hybrid.api.util.render.HybridRenderer2D;
@@ -25,8 +27,6 @@ public class ChatTypingComponent {
     private final StringBuilder currentText = new StringBuilder();
     private final ChatTextComponent historyComponent;
 
-    private Quad textInputQuad;
-
     private static final float FONT_SIZE = 11f;
 
     private int caretIndex = 0;
@@ -43,7 +43,7 @@ public class ChatTypingComponent {
         undoStack.push(currentText.toString());
     }
 
-    public void render(Quad quad) {
+    public void render(Quad quad,int alpha) {
         int buttonSpacing = 5;
         int buttonWidth = 28;
 
@@ -53,9 +53,21 @@ public class ChatTypingComponent {
         Quad buttonQuad = new Quad(btnX, btnY, buttonWidth, quad.getHeight());
 
         int inputWidth = quad.getWidth() - buttonWidth - buttonSpacing;
-        textInputQuad = new Quad(quad.getX(), quad.getY(), inputWidth, quad.getHeight());
+        Quad textInputQuad = new Quad(quad.getX(), quad.getY(), inputWidth, quad.getHeight());
 
-        HybridRenderer2D.drawRoundRect(textInputQuad, new Color(101, 98, 98, 124), Color.RED, 8, 0);
+
+        Color base = new Color(ThemeManager.get(ThemeTarget.BORDER).getRGB(), true);
+
+        float factor = 0.10f;
+
+        int r = base.getRed()   + (int)((255 - base.getRed()) * factor);
+        int g = base.getGreen() + (int)((255 - base.getGreen()) * factor);
+        int b = base.getBlue()  + (int)((255 - base.getBlue()) * factor);
+
+        Color border = new Color(r, g, b, alpha);
+
+        HybridRenderer2D.drawRoundRect(textInputQuad, new Color(17, 20, 32, alpha),border
+                , 8, 1);
 
         String fullText = currentText.toString();
 
@@ -84,8 +96,8 @@ public class ChatTypingComponent {
 
         if (selecting && caretIndex != selectIndex) {
             HybridRenderer2D.drawRoundRect(
-                    new Quad((int) selectionX, textInputQuad.getY(), (int) selectedWidth, textInputQuad.getHeight()),
-                    new Color(28, 73, 140, 140),
+                    new Quad((int) selectionX, textInputQuad.getY(), (int) selectedWidth, (int) ChatLayoutController.getChatFontSize()),
+                    new Color(28, 73, 140, alpha),
                     Color.BLACK,
                     0,
                     0
@@ -103,14 +115,14 @@ public class ChatTypingComponent {
                 x,
                 y,
                 FONT_SIZE,
-                -1,
+                new Color(255, 255, 255,alpha).getRGB(),
                 0,
                 textInputQuad
         );
 
-        HybridRenderer2D.drawRoundRect(buttonQuad, new Color(255, 255, 255, 140), Color.RED, 8, 0);
+        HybridRenderer2D.drawRoundRect(buttonQuad, new Color(17, 20, 32, alpha), border, 8, 1);
 
-        HybridRenderText dots = HybridTextRenderer.getIconRenderer("dots", Color.BLACK);
+        HybridRenderText dots = HybridTextRenderer.getIconRenderer("dots", new Color(160,161,166,alpha));
         dots.setPosition(
                 btnX + buttonWidth / 2 - dots.getWidth() / 2,
                 btnY + buttonWidth / 2 - (dots.getHeight() + 6) / 2

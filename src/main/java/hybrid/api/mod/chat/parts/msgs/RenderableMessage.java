@@ -22,7 +22,7 @@ public abstract class RenderableMessage {
     
     public abstract float getHeight();
 
-    public void render(HybridTextureRenderer textureRenderer, float startX, float startY, Quad baseClipping, boolean playerHeads, float anchorHeight) {
+    public void render(HybridTextureRenderer textureRenderer, float startX, float startY, Quad baseClipping, boolean playerHeads, float anchorHeight,int alpha) {
         float contentX = ChatLayoutController.getContentX(startX, playerHeads);
         Quad textClipping = baseClipping.copy().subtractHeight((int) (anchorHeight + 8));
         float bodyY;
@@ -30,11 +30,11 @@ public abstract class RenderableMessage {
         if (!isGrouped) {
             
             if (playerHeads && msg.skin() != null) {
-                AvatarRenderer.render(textureRenderer, startX, startY, msg.skin(), clipping);
+                AvatarRenderer.render(textureRenderer, startX, startY, msg.skin(), clipping,alpha);
             }
 
             
-            UsernameRenderer.render(msg.senderName(), contentX, startY, textClipping);
+            UsernameRenderer.render(msg.senderName(), contentX, startY, textClipping,alpha);
 
             
             bodyY = startY + (ChatLayoutController.getUsernameFontSize() + ChatLayoutController.usernameToTextSpacing);
@@ -43,8 +43,8 @@ public abstract class RenderableMessage {
         }
 
         
-        renderContent(textureRenderer, contentX, bodyY, textClipping);
+        renderContent(textureRenderer, contentX, bodyY, textClipping,alpha);
     }
 
-    protected abstract void renderContent(HybridTextureRenderer textureRenderer, float contentX, float bodyY, Quad textClipping);
+    protected abstract void renderContent(HybridTextureRenderer textureRenderer, float contentX, float bodyY, Quad textClipping,int alpha);
 }

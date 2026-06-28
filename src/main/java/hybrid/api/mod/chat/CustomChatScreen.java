@@ -1,8 +1,10 @@
 package hybrid.api.mod.chat;
 
+import com.mojang.brigadier.suggestion.Suggestion;
 import hybrid.api.mod.chat.parts.ChatBoxComponent;
 import hybrid.api.mod.chat.parts.ChatTextComponent;
 import hybrid.api.mod.chat.parts.ChatTypingComponent;
+import hybrid.api.mod.chat.parts.commands.CommandTreeHelper;
 import hybrid.api.util.render.Quad;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -19,30 +21,35 @@ public class CustomChatScreen extends Screen {
     Quad chatBoxBounds;
     ChatTypingComponent chatTypingComponent;
     ChatTextComponent textComponent;
-
+    private float currentAlphaProgress = 0.35f;
     public CustomChatScreen() {
-        super(Component.literal("BRender Test Screen"));
+        super(Component.literal("chat screen"));
         chatBoxComponent = new ChatBoxComponent();
-        chatBoxBounds = new Quad(0, 0, 300, 160);
+        chatBoxBounds = new Quad(0, 0, 280, 140);
         textComponent = new ChatTextComponent();
         chatTypingComponent = new ChatTypingComponent(textComponent);
+
     }
 
     public void submitGif(String path){
         textComponent.submitGif(mc.player.getPlainTextName(),path);
     }
 
-
     @Override
     public void render(@NotNull GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         int margin = 5;
 
-
         chatBoxBounds.setX(margin);
         chatBoxBounds.setY(this.height - chatBoxBounds.getHeight() - margin);
 
+        float targetAlpha = chatBoxBounds.isHovered(mouseX, mouseY) ? 1.0f : 0.35f;
 
-        chatBoxComponent.render(chatBoxBounds, mouseX, mouseY);
+        float smoothFactor = 0.05f * Math.max(0.5f, partialTick);
+        currentAlphaProgress += (targetAlpha - currentAlphaProgress) * smoothFactor;
+
+        currentAlphaProgress = Math.max(0.35f, Math.min(1.0f, currentAlphaProgress));
+
+        int alpha = (int) (255 * currentAlphaProgress);
 
         int padding = 5;
         int inputHeight = 23;
@@ -51,15 +58,11 @@ public class CustomChatScreen extends Screen {
         int inputY = chatBoxBounds.getY() + chatBoxBounds.getHeight() - inputHeight - padding;
         int inputWidth = chatBoxBounds.getWidth() - (padding * 2);
 
-
         Quad typingBounds = new Quad(inputX, inputY, inputWidth, inputHeight);
 
-
-        textComponent.render(typingBounds,chatBoxBounds,false);
-
-
-        chatTypingComponent.render(typingBounds);
-
+        chatBoxComponent.render(chatBoxBounds, chatTypingComponent.getText(), typingBounds, alpha);
+        textComponent.render(typingBounds, chatBoxBounds, false,alpha);
+        chatTypingComponent.render(typingBounds, alpha);
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }

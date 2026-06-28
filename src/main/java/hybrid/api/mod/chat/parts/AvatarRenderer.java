@@ -7,10 +7,12 @@ import hybrid.api.util.texture.HybridTextureRenderer;
 import hybrid.api.util.texture.TextureCache;
 import net.minecraft.world.entity.player.PlayerSkin;
 
+import java.awt.*;
+
 public class AvatarRenderer {
 
 
-    public static void render(HybridTextureRenderer renderer, float startX, float startY, PlayerSkin skin, Quad clipping) {
+    public static void render(HybridTextureRenderer renderer, float startX, float startY, PlayerSkin skin, Quad clipping,int alhpa) {
 
 
         HybridTexture skinTexture = TextureCache.getOrCreate(skin.body().texturePath());
@@ -25,7 +27,7 @@ public class AvatarRenderer {
                 size,
                 size,
                 8, 8, 8, 8,
-                0xFFFFFFFF,
+                new Color(255,255,255,alhpa).getRGB(),
                 1f,
                 false
         );

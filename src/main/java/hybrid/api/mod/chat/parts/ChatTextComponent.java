@@ -21,7 +21,7 @@ public class ChatTextComponent {
     private final List<ChatMessage> messageHistory = new ArrayList<>();
     private int messageIndexCounter = 0;
 
-    public void render(Quad anchorQuad, Quad clipping, boolean playerHeads) {
+    public void render(Quad anchorQuad, Quad clipping, boolean playerHeads,int alpha) {
         if (messageHistory.isEmpty()) return;
 
         float currentY = anchorQuad.getY() - 5;
@@ -39,7 +39,7 @@ public class ChatTextComponent {
             currentY -= ChatLayoutController.getLayoutMargin(isGrouped);
             currentY -= block.getHeight();
 
-            block.render(hybridTextureRenderer, anchorQuad.getX(), currentY, clipping, ChatLayoutController.isChatHeads(), anchorQuad.height);
+            block.render(hybridTextureRenderer, anchorQuad.getX(), currentY, clipping, ChatLayoutController.isChatHeads(), anchorQuad.height,alpha);
 
             renderedCount++;
         }
