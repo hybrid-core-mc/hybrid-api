@@ -35,6 +35,11 @@ public class ChatTypingComponent {
 
     private final Deque<String> undoStack = new ArrayDeque<>();
 
+    
+    private float inputHoverProgress = 0f;
+    private float buttonHoverProgress = 0f;
+    private long lastRenderTime = System.currentTimeMillis();
+
     public ChatTypingComponent(ChatTextComponent historyComponent) {
         this.historyComponent = historyComponent;
     }
@@ -43,7 +48,25 @@ public class ChatTypingComponent {
         undoStack.push(currentText.toString());
     }
 
-    public void render(Quad quad,int alpha) {
+    
+    private Color interpolateColor(Color start, Color end, float progress) {
+        float p = Math.max(0f, Math.min(1f, progress));
+        int r = (int) (start.getRed() + (end.getRed() - start.getRed()) * p);
+        int g = (int) (start.getGreen() + (end.getGreen() - start.getGreen()) * p);
+        int b = (int) (start.getBlue() + (end.getBlue() - start.getBlue()) * p);
+        int a = (int) (start.getAlpha() + (end.getAlpha() - start.getAlpha()) * p);
+        return new Color(r, g, b, a);
+    }
+
+    public void render(Quad quad, int alpha, int mouseX, int mouseY) {
+        
+        long currentTime = System.currentTimeMillis();
+        float deltaTime = (currentTime - lastRenderTime) / 1000f;
+        lastRenderTime = currentTime;
+
+        
+        float transitionSpeed = 3.5f;
+
         int buttonSpacing = 5;
         int buttonWidth = 28;
 
@@ -55,7 +78,6 @@ public class ChatTypingComponent {
         int inputWidth = quad.getWidth() - buttonWidth - buttonSpacing;
         Quad textInputQuad = new Quad(quad.getX(), quad.getY(), inputWidth, quad.getHeight());
 
-
         Color base = new Color(ThemeManager.get(ThemeTarget.BORDER).getRGB(), true);
 
         float factor = 0.10f;
@@ -66,8 +88,22 @@ public class ChatTypingComponent {
 
         Color border = new Color(r, g, b, alpha);
 
-        HybridRenderer2D.drawRoundRect(textInputQuad, new Color(17, 20, 32, alpha),border
-                , 8, 1);
+        
+        boolean isInputHovered = textInputQuad.isHovered(mouseX, mouseY);
+        if (isInputHovered) {
+            inputHoverProgress = Math.min(1f, inputHoverProgress + deltaTime * transitionSpeed);
+        } else {
+            inputHoverProgress = Math.max(0f, inputHoverProgress - deltaTime * transitionSpeed);
+        }
+
+        Color inputBgNormal = new Color(17, 20, 32, alpha);
+        Color inputBgHovered = new Color(17, 21, 38, alpha);
+        Color inputBorderHovered = new Color(55, 56, 142, alpha);
+
+        Color mixedInputBg = interpolateColor(inputBgNormal, inputBgHovered, inputHoverProgress);
+        Color mixedInputBorder = interpolateColor(border, inputBorderHovered, inputHoverProgress);
+
+        HybridRenderer2D.drawRoundRect(textInputQuad, mixedInputBg, mixedInputBorder, 8, 1);
 
         String fullText = currentText.toString();
 
@@ -120,9 +156,25 @@ public class ChatTypingComponent {
                 textInputQuad
         );
 
-        HybridRenderer2D.drawRoundRect(buttonQuad, new Color(17, 20, 32, alpha), border, 8, 1);
+        
+        boolean isButtonHovered = buttonQuad.isHovered(mouseX, mouseY);
+        if (isButtonHovered) {
+            buttonHoverProgress = Math.min(1f, buttonHoverProgress + deltaTime * transitionSpeed);
+        } else {
+            buttonHoverProgress = Math.max(0f, buttonHoverProgress - deltaTime * transitionSpeed);
+        }
+
+        Color btnBgNormal = new Color(17, 20, 32, alpha);
+        Color btnBgHovered = new Color(28, 30, 68, alpha);
+        Color btnBorderHovered = new Color(61, 60, 168, alpha);
+
+        Color mixedButtonBg = interpolateColor(btnBgNormal, btnBgHovered, buttonHoverProgress);
+        Color mixedButtonBorder = interpolateColor(border, btnBorderHovered, buttonHoverProgress);
+
+        HybridRenderer2D.drawRoundRect(buttonQuad, mixedButtonBg, mixedButtonBorder, 8, 1);
 
         HybridRenderText dots = HybridTextRenderer.getIconRenderer("dots", new Color(160,161,166,alpha));
+
         dots.setPosition(
                 btnX + buttonWidth / 2 - dots.getWidth() / 2,
                 btnY + buttonWidth / 2 - (dots.getHeight() + 6) / 2

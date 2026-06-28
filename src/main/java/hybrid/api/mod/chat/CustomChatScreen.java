@@ -61,8 +61,9 @@ public class CustomChatScreen extends Screen {
         Quad typingBounds = new Quad(inputX, inputY, inputWidth, inputHeight);
 
         chatBoxComponent.render(chatBoxBounds, chatTypingComponent.getText(), typingBounds, alpha);
+
         textComponent.render(typingBounds, chatBoxBounds, false,alpha);
-        chatTypingComponent.render(typingBounds, alpha);
+        chatTypingComponent.render(typingBounds, alpha,mouseX,mouseY);
 
         super.render(graphics, mouseX, mouseY, partialTick);
     }

@@ -21,12 +21,12 @@ public class ChatBoxComponent {
         helper = new CommandTreeHelper("");
     }
 
-    public void render(Quad quad, String commands, Quad typingBounds, int transparancy) {
+    public void render(Quad quad, String commands, Quad typingBounds, int alpha) {
 
 
         int headingSpacing = 25;
-        HybridRenderer2D.drawRoundRect(quad.copy().subtractY(headingSpacing).addHeight(headingSpacing), new Color(12, 15, 23, transparancy), Color.GRAY, 8, 0.5f);
-        Color base = new Color(24, 26, 36, transparancy);
+        HybridRenderer2D.drawRoundRect(quad.copy().subtractY(headingSpacing).addHeight(headingSpacing), new Color(12, 15, 23, alpha), Color.GRAY, 8, 0.5f);
+        Color base = new Color(24, 26, 36, alpha);
 
         float factor = 0.55f;
 
@@ -57,11 +57,11 @@ public class ChatBoxComponent {
                 base1.getRed(),
                 base1.getGreen(),
                 base1.getBlue(),
-                transparancy
+                alpha
         );
 
-        HybridRenderer2D.drawCircle(line.copy().subtractY(15).addX(5), 3f, withAlpha, transparancy > 50);
-        HybridRenderText text = HybridTextRenderer.getTextRenderer("HYBRID CHAT", FontStyle.EXTRABOLD,16,new Color(255, 255, 255,transparancy),false);
+        HybridRenderer2D.drawCircle(line.copy().subtractY(15).addX(5), 3f, withAlpha, alpha > 50);
+        HybridRenderText text = HybridTextRenderer.getTextRenderer("HYBRID CHAT", FontStyle.EXTRABOLD,16,new Color(255, 255, 255,alpha),false);
 
         text.setPosition(line.x + 18, line.y - text.getHeight() - 8);
         HybridTextRenderer.addText(text);
@@ -104,8 +104,6 @@ public class ChatBoxComponent {
                             1,
                             null
                     );
-
-                    System.out.println("got for " + suggestion);
                 }
             });
         }
