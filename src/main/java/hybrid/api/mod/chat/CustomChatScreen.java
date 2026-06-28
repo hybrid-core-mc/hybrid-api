@@ -1,15 +1,14 @@
 package hybrid.api.mod.chat;
 
-import com.mojang.brigadier.suggestion.Suggestion;
 import hybrid.api.mod.chat.parts.ChatBoxComponent;
 import hybrid.api.mod.chat.parts.ChatTextComponent;
 import hybrid.api.mod.chat.parts.ChatTypingComponent;
-import hybrid.api.mod.chat.parts.commands.CommandTreeHelper;
 import hybrid.api.util.render.Quad;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.PlayerSkin;
 import org.jetbrains.annotations.NotNull;
@@ -24,10 +23,10 @@ public class CustomChatScreen extends Screen {
     private float currentAlphaProgress = 0.35f;
     public CustomChatScreen() {
         super(Component.literal("chat screen"));
-        chatBoxComponent = new ChatBoxComponent();
         chatBoxBounds = new Quad(0, 0, 280, 140);
         textComponent = new ChatTextComponent();
         chatTypingComponent = new ChatTypingComponent(textComponent);
+        chatBoxComponent = new ChatBoxComponent(chatTypingComponent);
 
     }
 
@@ -42,7 +41,7 @@ public class CustomChatScreen extends Screen {
         chatBoxBounds.setX(margin);
         chatBoxBounds.setY(this.height - chatBoxBounds.getHeight() - margin);
 
-        float targetAlpha = chatBoxBounds.isHovered(mouseX, mouseY) ? 1.0f : 0.35f;
+        float targetAlpha = (chatBoxBounds.isHovered(mouseX, mouseY) || chatTypingComponent.isChatOpen()) ? 1.0f : 0.35f;
 
         float smoothFactor = 0.05f * Math.max(0.5f, partialTick);
         currentAlphaProgress += (targetAlpha - currentAlphaProgress) * smoothFactor;
@@ -60,8 +59,7 @@ public class CustomChatScreen extends Screen {
 
         Quad typingBounds = new Quad(inputX, inputY, inputWidth, inputHeight);
 
-        chatBoxComponent.render(chatBoxBounds, chatTypingComponent.getText(), typingBounds, alpha);
-
+        chatBoxComponent.render(chatBoxBounds, chatTypingComponent.getText(), typingBounds, alpha, chatTypingComponent.isChatOpen(), mouseX, mouseY);
         textComponent.render(typingBounds, chatBoxBounds, false,alpha);
         chatTypingComponent.render(typingBounds, alpha,mouseX,mouseY);
 
@@ -77,25 +75,29 @@ public class CustomChatScreen extends Screen {
     }
 
     @Override
-    public boolean charTyped(CharacterEvent characterEvent) {
+    public boolean charTyped(@NotNull CharacterEvent characterEvent) {
         chatTypingComponent.charTyped(characterEvent);
         return super.charTyped(characterEvent);
     }
 
     @Override
-    public boolean keyPressed(KeyEvent keyEvent) {
+    public boolean mouseReleased(@NotNull MouseButtonEvent mouseButtonEvent) {
+        chatTypingComponent.mouseRelease(mouseButtonEvent);
+        chatBoxComponent.mouseReleased(mouseButtonEvent);
+        return super.mouseReleased(mouseButtonEvent);
+    }
+
+    @Override
+    public boolean keyPressed(@NotNull KeyEvent keyEvent) {
         chatTypingComponent.keyPressed(keyEvent);
         return super.keyPressed(keyEvent);
     }
 
-    @Override
-    public boolean keyReleased(KeyEvent keyEvent) {
-        chatTypingComponent.keyReleased(keyEvent);
-        return super.keyReleased(keyEvent);
-    }
 
     @Override
-    public void removed() {
-
+    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        chatBoxComponent.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
+        return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
+
 }

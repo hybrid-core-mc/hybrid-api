@@ -11,6 +11,7 @@ import hybrid.api.util.render.RenderContext;
 import hybrid.api.util.texture.PlayerInfoAccessor;
 import net.minecraft.client.input.CharacterEvent;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
@@ -34,8 +35,8 @@ public class ChatTypingComponent {
     private boolean selecting = false;
 
     private final Deque<String> undoStack = new ArrayDeque<>();
+    Quad buttonQuad;
 
-    
     private float inputHoverProgress = 0f;
     private float buttonHoverProgress = 0f;
     private long lastRenderTime = System.currentTimeMillis();
@@ -58,13 +59,28 @@ public class ChatTypingComponent {
         return new Color(r, g, b, a);
     }
 
+    boolean chatOpen = false;
+
+    public void charTyped(CharacterEvent e) {
+        selecting = false;
+
+        char c = (char) e.codepoint();
+        if (c >= 32 && c != 127) {
+            pushUndo();
+            deleteSelectionIfAny();
+            currentText.insert(caretIndex, c);
+            caretIndex++;
+            selectIndex = caretIndex;
+        }
+    }
+
     public void render(Quad quad, int alpha, int mouseX, int mouseY) {
-        
+
         long currentTime = System.currentTimeMillis();
         float deltaTime = (currentTime - lastRenderTime) / 1000f;
         lastRenderTime = currentTime;
 
-        
+
         float transitionSpeed = 3.5f;
 
         int buttonSpacing = 5;
@@ -73,7 +89,7 @@ public class ChatTypingComponent {
         int btnX = quad.getX() + quad.getWidth() - buttonWidth;
         int btnY = quad.getY();
 
-        Quad buttonQuad = new Quad(btnX, btnY, buttonWidth, quad.getHeight());
+        buttonQuad = new Quad(btnX, btnY, buttonWidth, quad.getHeight());
 
         int inputWidth = quad.getWidth() - buttonWidth - buttonSpacing;
         Quad textInputQuad = new Quad(quad.getX(), quad.getY(), inputWidth, quad.getHeight());
@@ -88,7 +104,7 @@ public class ChatTypingComponent {
 
         Color border = new Color(r, g, b, alpha);
 
-        
+
         boolean isInputHovered = textInputQuad.isHovered(mouseX, mouseY);
         if (isInputHovered) {
             inputHoverProgress = Math.min(1f, inputHoverProgress + deltaTime * transitionSpeed);
@@ -156,7 +172,7 @@ public class ChatTypingComponent {
                 textInputQuad
         );
 
-        
+
         boolean isButtonHovered = buttonQuad.isHovered(mouseX, mouseY);
         if (isButtonHovered) {
             buttonHoverProgress = Math.min(1f, buttonHoverProgress + deltaTime * transitionSpeed);
@@ -184,17 +200,15 @@ public class ChatTypingComponent {
         HybridTextRenderer.render(RenderContext.get());
     }
 
-    public void charTyped(CharacterEvent e) {
-        selecting = false;
-
-        char c = (char) e.codepoint();
-        if (c >= 32 && c != 127) {
-            pushUndo();
-            deleteSelectionIfAny();
-            currentText.insert(caretIndex, c);
-            caretIndex++;
-            selectIndex = caretIndex;
+    public void mouseRelease(MouseButtonEvent event) {
+        if (buttonQuad.isHovered((int) event.x(), (int) event.y())) {
+            chatOpen = !chatOpen;
+            System.out.println("is chat open " + chatOpen);
         }
+    }
+
+    public boolean isChatOpen() {
+        return chatOpen;
     }
 
     public void keyPressed(KeyEvent e) {
@@ -296,6 +310,11 @@ public class ChatTypingComponent {
                             info = p;
                         }
                     }
+                    if (msg.startsWith("/")) {
+                        mc.getConnection().sendCommand(msg.replace("/", ""));
+                    } else{
+                        mc.getConnection().sendChat(msg);
+                    }
 
                     if (info != null) {
                         historyComponent.submitMessage(
@@ -305,10 +324,18 @@ public class ChatTypingComponent {
                         );
                     }
 
+
                     clearText();
                 }
             }
         }
+    }
+
+    public void appendToCurrentText(String text) {
+        pushUndo();
+        currentText.append(text);
+        caretIndex = currentText.length();
+        selectIndex = caretIndex;
     }
 
     private boolean hasSelection() {
@@ -343,6 +370,5 @@ public class ChatTypingComponent {
         return currentText.toString();
     }
 
-    public void keyReleased(KeyEvent keyEvent) {
-    }
+
 }

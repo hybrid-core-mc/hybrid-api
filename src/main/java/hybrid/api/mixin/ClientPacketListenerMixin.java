@@ -6,6 +6,7 @@ import hybrid.api.util.texture.PlayerInfoAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundDisguisedChatPacket;
 import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket;
 import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
@@ -46,7 +47,8 @@ public abstract class ClientPacketListenerMixin {
             if (name == null || name.isEmpty()) continue;
 
             if (text.contains(name)) {
-                screen.submitMsg(info.getTabListDisplayName().getString(), packet.content(), info.getSkin());
+                Component username = info.getTabListDisplayName();
+                screen.submitMsg(username == null ? "Server" : username.getString(), packet.content(), info.getSkin());
                 found = true;
                 break;
             }
